@@ -1,0 +1,159 @@
+Ruby fayllari odatda qaysi kengaytmada saqlanadi?
+puts va print orasidagi farq nima?
+irb nima?
+Symbol qanday yoziladi?
+Qaysi matnda interpolatsiya ishlaydi?
+Mahalliy o'zgaruvchi nomi uchun qaysi uslub odatiy?
+unless nimani bildiradi?
+Ruby'da qaysi qiymatlar false hisoblanadi?
+case ifodasi natijani qaytaradimi?
+3.times blokidagi i birinchi qiymati nechaga teng?
+(1..3).to_a natijasi nima?
+each ichida next nima qiladi?
+Ruby metodida oxirgi ifoda natijasi nima bo'ladi?
+Metodga berilgan blokni chaqirish uchun nima ishlatiladi?
+def qosh(a, b = 0) da qosh(5) chaqirilsa, b nechaga teng bo'ladi?
+Massiv oxiriga element qo'shish uchun nima ishlatiladi?
+Hash'dan :ism qiymatini qanday olamiz?
+select metodi nima qaytaradi?
+Instans o'zgaruvchisi qanday belgi bilan boshlanadi?
+attr_accessor nima yaratadi?
+initialize metodi qachon chaqiriladi?
+Ruby'da meros olish uchun qaysi belgi ishlatiladi?
+super nima qiladi?
+include modul bilan nima qiladi?
+Xatoni ushlash uchun qaysi kalit so'z ishlatiladi?
+ensure bloki qachon bajariladi?
+Faylni qatorma-qator o'qish uchun qaysi metod ishlatiladi?
+Loyiha bog'liqliklari qaysi faylda yoziladi?
+bundle exec nima uchun ishlatiladi?
+JSON bilan ishlash uchun nima qilinadi?
+map(&:capitalize) nima qiladi?
+Guard clause nima?
+assert_equal nimani tekshiradi?
+Mini loyihada vazifalar qaysi formatda saqlanadi?
+ARGV nima?
+Storage.yukla fayl mavjud bo'lmasa nima qaytaradi?
+"  ruby  ".strip natijasi nima?
+gsub metodi nima qiladi?
+"a-b-c".split("-") qanday natija beradi?
+Massivning oxirgi elementini qaysi indeks bilan olish mumkin?
+[1, 2, 2, 3].delete(2) natijasida massiv qanday bo'ladi?
+Qaysi metod massivni joyida saralaydi?
+h.fetch(:yoq, 0) qanday ishlaydi?
+Hash'dan ichma-ich qiymatni xavfsiz olish uchun qaysi metod mos?
+group_by bloki qanday qiymat qaytarishi kerak?
+Metod ichida berilgan blokni ishga tushirish uchun nima ishlatiladi?
+block_given? nimani tekshiradi?
+&blok parametri metod ichida qanday obyekt bo'ladi?
+Lambda va Proc orasidagi asosiy farqlardan biri nima?
+Lambda'ni chaqirishning qaysi yozuvi to'g'ri?
+Closure qanday ishlaydi?
+select va map orasidagi farq nima?
+[1, 2, 3].reduce(10) { |s, n| s + n } natijasi nima?
+partition metodi nimani qaytaradi?
+Comparable modulini qo'shish uchun qaysi metod majburiy?
+a <=> b qanday qiymat qaytarsa, a va b teng hisoblanadi?
+Comparable qaysi metodni avtomatik bermaydi?
+Struct bilan yaratilgan obyekt atributini o'zgartirish mumkinmi?
+Data obyektini o'zgartirilgan nusxasini qaysi metod beradi?
+Struct.new(:x, :y).new(1, 2).members qanday natija beradi?
+private metodni qanday chaqirish mumkin?
+def self.yarat yozuvi qanday metod yaratadi?
+puts obyekt chaqirganda qaysi metod ishlatiladi?
+Argumentsiz super nimani uzatadi?
+prepend qilingan modul metod qidiruvida qayerda turadi?
+Mushuk.ancestors birinchi element sifatida nimani ko'rsatadi?
+Matematika modulidagi PI konstantasiga qanday murojaat qilinadi?
+extend modul metodlarini nimaga qo'shadi?
+module_function nimani yaratadi?
+send va public_send orasidagi farq nima?
+respond_to?(:maxfiy, true) ikkinchi argumenti nimani bildiradi?
+define_method qanday obyekt qabul qiladi?
+method_missing ichida noma'lum metodni super ga uzatmasangiz nima bo'ladi?
+respond_to_missing? nima uchun kerak?
+Sozlamalar.const_get(:LIMIT) qanday natija beradi?
+rescue ichida argumentsiz raise chaqirilsa nima bo'ladi?
+Custom xato klassi odatda nimadan meros oladi?
+retry kalit so'zi nima qiladi?
+File.read("data.txt") nimani qaytaradi?
+Blokli File.open nima uchun afzal?
+File.foreach ning afzalligi nimada?
+obj&.ism yozuvi qachon nil qaytaradi?
+birinchi, *qolgan = [1, 2, 3] da qolgan nimaga teng?
+case ifodasida pattern matching qaysi kalit so'z bilan yoziladi?
+in { nomi: } pattern nimani qiladi?
+[a, *qolgan] pattern qanday massivga mos keladi?
+Rightward assignment moslik topilmasa nima bo'ladi?
+match? metodi nimani qaytaradi?
+scan metodi nima qiladi?
+\A va \z qaysi chegaralarni bildiradi?
+Nomlangan guruh qiymatini qanday olamiz?
+Regex oxiridagi i bayrog'i nimani bildiradi?
+Regexp.escape nima uchun ishlatiladi?
+Date obyektlarini ayirish natijasi nimani beradi?
+date >> 1 operatori nima qiladi?
+Time obyektiga 90 daqiqa qo'shish uchun nima yoziladi?
+JSON.parse natijasi odatda qanday Ruby obyekti bo'ladi?
+symbolize_names: true nima qiladi?
+JSON.pretty_generate ning vazifasi nima?
+CSV.parse da headers: true nimani beradi?
+converters: :numeric nima qiladi?
+CSV.generate nima qaytaradi?
+HTTPS ulanishi uchun Net::HTTP da nima yoqiladi?
+Javobning HTTP status kodi qaysi metodda bo'ladi?
+read_timeout nima uchun kerak?
+"~> 4.0" cheklovi qaysi versiyalarni qabul qiladi?
+Nega bundle exec ishlatiladi?
+Gemfile.lock fayli nima uchun kerak?
+Minitest setup metodi qachon bajariladi?
+Blok xato ko'tarishini qaysi assertion tekshiradi?
+Minitest hisobotida 1 failures nimani bildiradi?
+RSpec let metodi qachon hisoblanadi?
+RSpec da kutish qanday yoziladi?
+RSpec test fayllari odatda qanday nomlanadi?
+task report: :test yozuvida :test nimani bildiradi?
+db namespace ichidagi tozalash vazifasi qanday chaqiriladi?
+rake -T buyrug'i nima qiladi?
+OptionParser#parse! ARGV bilan nima qiladi?
+opts.on("-n", "--takror N", Integer) da Integer nima qiladi?
+Xato bilan tugagan CLI qanday exit kod qaytarishi kerak?
+Sinatra'da yo'l parametri qayerdan olinadi?
+content_type :json nima qiladi?
+Sinatra ilovasi sukut bo'yicha qaysi portda ishlaydi?
+Yangi resurs yaratilganda qaysi HTTP status mos?
+ERB da qaysi teg natijani HTML ga chiqaradi?
+before filtri qachon ishlaydi?
+Rails MVC da so'rovni qabul qilib javob tayyorlaydigan qism qaysi?
+Route'lar qaysi faylda yoziladi?
+Model nimani ifodalaydi?
+Strong parameters nima uchun kerak?
+before_action qachon ishlaydi?
+resources :kitoblar nechta RESTful route yaratadi?
+Kitob.where(...).pluck(:nom) nima qaytaradi?
+has_many :kitoblar qaysi modelda yoziladi?
+create! va create orasidagi farq nima?
+ERB da natijani HTML ga chiqaradigan teg qaysi?
+form_with nima uchun ishlatiladi?
+Partial fayl nomi qanday boshlanadi?
+valid? metodi validatsiya xatosida nima qaytaradi?
+errors.full_messages nimani beradi?
+before_save callback qachon ishlaydi?
+Domen obyekti qanday mas'uliyatga ega bo'lishi kerak?
+Band kitobni qayta berishga urinishda qanday xato mos?
+Qarz muddatini hisoblash uchun qaysi tur mos?
+Band kitobni qayta qarzga berishda qaysi status mos?
+Rack::Test nima uchun ishlatiladi?
+Topilmagan resurs uchun qaysi status qaytariladi?
+Ruby'da 0 qiymati shartli ifodada qanday baholanadi?
+[1, 2, 3].map { |n| n + 1 } qanday massiv qaytaradi?
+->(x) { x * 2 }.lambda? natijasi nima?
+prepend qilingan modul metodi metod qidiruvida qanday o'rin tutadi?
+public_send(:maxfiy) private metodga murojaat qilsa nima bo'ladi?
+rescue bilan ushlanmagan xato dasturda nima qiladi?
+Fayl mavjudligini tekshirish uchun qaysi metod ishlatiladi?
+/\A[a-z]+\z/ qanday matnga mos keladi?
+JSON.parse('{"a":1}') qaytgan hash'ning kaliti qanday turda bo'ladi?
+Minitest'da har bir test oldidan bajariladigan metod qaysi?
+Sinatra'da halt 404 nima qiladi?
+ActiveRecord'da faqat nom ustuni qiymatlarini olish uchun qaysi metod mos?

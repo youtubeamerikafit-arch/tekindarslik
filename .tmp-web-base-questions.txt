@@ -1,0 +1,159 @@
+1: HTML nimani belgilaydi?
+1: Foydalanuvchi ko'radigan barcha elementlar qaysi teg ichida joylashadi?
+1: img tegining rasm manzilini bildiruvchi atributi qaysi?
+2: Eng muhim sarlavha qaysi teg bilan yoziladi?
+2: Matnni qalin va muhim qilish uchun qaysi teg ishlatiladi?
+2: Yangi abzats boshlash uchun qaysi teg ishlatiladi?
+3: Havola manzilini qaysi atribut belgilaydi?
+3: Rasm manzili qaysi atributda beriladi?
+3: target="_blank" nima qiladi?
+4: Tartiblangan ro'yxat qaysi teg bilan yaratiladi?
+4: Ro'yxatning har bir elementi qaysi teg ichida yoziladi?
+4: Jadval ustun sarlavhalari uchun qaysi teg ishlatiladi?
+5: Parol maydoni uchun qaysi type ishlatiladi?
+5: label va input qanday bog'lanadi?
+5: Maydonni to'ldirish majburiy qilish uchun qaysi atribut ishlatiladi?
+6: Sahifaning asosiy mazmuni qaysi teg ichida joylashadi?
+6: Navigatsiya havolalari uchun qaysi semantik teg mos?
+6: Semantik HTML kimga foyda qiladi?
+7: class="card" elementni tanlaydigan selektor qaysi?
+7: id="bosh" elementni tanlash uchun qaysi selektor ishlatiladi?
+7: CSS fayli HTML'ga qaysi teg bilan ulanadi?
+8: Element tashqarisidagi bo'shliq qaysi xossa bilan beriladi?
+8: content va chegara orasidagi bo'shliq nima deyiladi?
+8: box-sizing: border-box nima qiladi?
+9: Konteynerni flex qilish uchun qaysi xossa yoziladi?
+9: Bolalarni asosiy o'q bo'ylab tekislash uchun nima ishlatiladi?
+9: flex-wrap: wrap nima qiladi?
+10: Uchta teng ustun yaratish uchun qaysi yozuv ishlatiladi?
+10: Media so'rovi nima uchun ishlatiladi?
+10: 1fr nimani bildiradi?
+11: Hover holati qaysi selektor bilan belgilanadi?
+11: Rang o'zgarishini silliq qilish uchun qaysi xossa ishlatiladi?
+11: clamp(28px, 5vw, 48px) nima qiladi?
+12: Kartani ekran markazida ushlash uchun qaysi yozuv ishlatildi?
+12: Ko'nikma belgilari qaysi joylashuv usulida yonma-yon chiqadi?
+12: Telefonda karta paddingini kamaytirish uchun nima ishlatildi?
+13: Alohida tarqatilishi mumkin bo'lgan tugallangan mazmun uchun qaysi teg eng mos?
+13: Bitta sahifada nechta main elementi bo'lishi tavsiya etiladi?
+13: Rasm va uning izohini semantik bog'lash uchun qaysi juftlik ishlatiladi?
+14: “Skip link”ning asosiy vazifasi nima?
+14: Faqat bezak uchun qo'yilgan rasmga qanday alt beriladi?
+14: WCAG bo'yicha oddiy matn uchun tavsiya etilgan minimal kontrast nisbati qancha?
+15: Bezak ikonkani ekran o'quvchidan yashirish uchun qaysi atribut ishlatiladi?
+15: Ochiladigan menyu tugmasining hozirgi holatini qaysi atribut bildiradi?
+15: ARIA ishlatishning birinchi qoidasi qaysi?
+16: Ekrandan pastdagi rasmni keyinroq yuklash uchun qaysi atribut ishlatiladi?
+16: srcset va sizes birgalikda nimani boshqaradi?
+16: img uchun width va height yozishning asosiy foydasi nima?
+17: Videoga subtitr qo'shish uchun qaysi element ishlatiladi?
+17: iframe'ga title atributi nima uchun kerak?
+17: preload="none" audio uchun nimani bildiradi?
+18: Bir xil mazmun bir nechta manzilda ochilsa, asosiy manzilni qaysi teg ko'rsatadi?
+18: Qidiruv natijasida sarlavha ostidagi qisqa tavsifni qaysi meta beradi?
+18: Havola ijtimoiy tarmoqda ulashilganda karta rasmini qaysi meta belgilaydi?
+19: SVG'da ichki koordinata tizimini qaysi atribut belgilaydi?
+19: inline SVG rangi matn rangiga ergashishi uchun qaysi qiymat ishlatiladi?
+19: Tugma ichidagi mazmuniy bo'lmagan ikonka uchun qaysi yondashuv to'g'ri?
+20: rem birligi nimaga nisbatan hisoblanadi?
+20: em birligi odatda nimaga nisbatan hisoblanadi?
+20: Mobil brauzer paneli yashirilganda o'zgaradigan ko'rinish balandligi qaysi birlik bilan eng aniq ifodalanadi?
+21: Bir elementda #intro va .card qoidalari to'qnashsa, odatda qaysi biri g'olib?
+21: Bir xil specificity'ga ega ikkita qoida bir elementga tegishli bo'lsa, nima hal qiladi?
+21: Ota-elementdan meros olingan rangni nima o'zgartiradi?
+22: :nth-child(2n) qaysi bolalarni tanlaydi?
+22: Qaysi pseudo-class faqat klaviatura bilan fokuslanganda ko'rinadigan uslub beradi?
+22: Birorta classga ega bo'lmagan elementlarni tanlash uchun qaysi yozuv ishlatiladi?
+23: ::before va ::after ko'rinishi uchun qaysi xossa majburiy?
+23: Ro'yxatdagi nuqta yoki raqamning rangini qaysi pseudo-element boshqaradi?
+23: Foydalanuvchi sichqoncha bilan belgilagan matn rangini qaysi pseudo-element o'zgartiradi?
+24: absolute element qaysi elementga nisbatan joylashadi?
+24: Qaysi position qiymati skroll paytida belgilangan nuqtada yopishib qoladi?
+24: z-index qaysi elementlarda odatda ishlaydi?
+25: transition: background-color 0.3s ease yozuvida 0.3s nimani bildiradi?
+25: Qaysi xossa holatlar orasidagi o'zgarishni vaqt bo'yicha yumshatadi?
+25: prefers-reduced-motion: reduce sozlamasi nimani bildiradi?
+26: transform qo'llanganda elementning oqimdagi joyi qanday o'zgaradi?
+26: translate(-50%, -50%) odatda nima uchun ishlatiladi?
+26: 3D aylanishda orqa tomonni yashirish uchun qaysi xossa ishlatiladi?
+27: Animatsiya tugagach element oxirgi holatda qolishi uchun qaysi fill-mode ishlatiladi?
+27: Animatsiyani cheksiz takrorlash uchun qaysi qiymat beriladi?
+27: @keyframes ichida 50% nimani bildiradi?
+28: Mobile-first yondashuvda asosiy media so'rovlari qaysi xususiyat bilan yoziladi?
+28: Telefonda sahifa kichik ko'rinmasligi uchun head ichida qaysi meta kerak?
+28: Barmoq bilan ishlatiladigan tugma uchun tavsiya etilgan minimal o'lcham qaysi?
+29: width >= 48rem sharti nimani bildiradi?
+29: hover: none so'rovi qanday qurilmani bildiradi?
+29: Chop etish uchun alohida uslub qaysi media turida yoziladi?
+30: clamp(min, preferred, max) da o'rta qiymat nima vazifani bajaradi?
+30: min(100%, 40rem) qaysi qiymatni tanlaydi?
+30: Suyuq sarlavha uchun qaysi yozuv eng mos?
+31: CSS custom property nomi qaysi belgilar bilan boshlanadi?
+31: var(--accent, #333) dagi #333 nima?
+31: Custom property qayerda e'lon qilinsa, faqat o'sha element va bolalariga tegishli bo'ladi?
+32: Tizim mavzu tanlovini qaysi media xususiyati o'qiydi?
+32: color-scheme: light dark nimani bildiradi?
+32: Sayt ichidagi qo'lda mavzu almashtirish uchun qaysi yondashuv mos?
+33: flex: 1 qisqa yozuvi nimaga teng?
+33: Flex bolasi ichidagi uzun matn konteynerni cho'zib yubormasligi uchun ko'pincha nima qo'shiladi?
+33: margin-left: auto flex qatorida nimaga erishadi?
+34: Elementni grid-template-areas'dagi nomlangan hududga qaysi xossa joylashtiradi?
+34: grid-column: span 2 nimani bildiradi?
+34: auto-fit va auto-fill orasidagi asosiy farq nima?
+35: Container query ishlashi uchun ota-elementda qaysi xossa bo'lishi shart?
+35: @container (min-width: 30rem) nimani tekshiradi?
+35: cqw birligi nimaga nisbatan hisoblanadi?
+36: Checkbox va radio rangini eng sodda usulda qaysi xossa o'zgartiradi?
+36: Foydalanuvchi noto'g'ri qiymat kiritib maydondan chiqqandan keyingi holatni qaysi pseudo-class bildiradi?
+36: Bir guruh forma maydonlarini sarlavha bilan o'rash uchun qaysi juftlik ishlatiladi?
+37: :where() selektorining specificity'si qanday?
+37: :has() selektori nimani tanlaydi?
+37: :is(h1, h2) va :where(h1, h2) orasidagi asosiy farq nima?
+38: BEM'da blokning elementi qanday yoziladi?
+38: BEM'da modifier nima uchun ishlatiladi?
+38: BEM nima uchun chuqur descendant selektorlardan qochishni tavsiya qiladi?
+39: Sass o'zgaruvchisi qachon qiymatga almashtiriladi?
+39: @mixin va @include nima uchun ishlatiladi?
+39: Sass faylini modul sifatida ulash uchun qaysi qoida ishlatiladi?
+40: Tailwind'da md: prefiksi nimani bildiradi?
+40: Utility-first yondashuvning mohiyati nima?
+40: w-[18rem] kabi yozuv nimani anglatadi?
+41: LCP ko'rsatkichi nimani o'lchaydi?
+41: font-display: swap nima qiladi?
+41: content-visibility: auto qanday foyda beradi?
+42: Qog'oz o'lchami va chegaralarini qaysi qoida belgilaydi?
+42: Karta ikki sahifa orasida bo'linib ketmasligi uchun qaysi xossa ishlatiladi?
+42: Chop etilgan hujjatda havola manzilini ko'rsatish uchun qaysi usul ishlatiladi?
+43: Nisbiy yo'l (./css/style.css) qanday afzallik beradi?
+43: 404.html faylining vazifasi nima?
+43: CSS fayl nomiga hash qo'shishning maqsadi nima?
+44: Dizayn tokeni nima?
+44: Portfolio sahifasida nechta h1 bo'lishi maqsadga muvofiq?
+44: Nima uchun loyihada nisbiy yo'llar ishlatiladi?
+45: Hero bo'limida 100svh ishlatishning maqsadi nima?
+45: site-header'da position: sticky nima qiladi?
+45: Navigatsiya havolalarining min-height: 2.75rem qiymati nima uchun tanlangan?
+46: Har bir loyiha kartasi uchun qaysi element eng mos?
+46: Ko'nikmalar ro'yxatini semantik jihatdan qanday yozish to'g'ri?
+46: project-grid'da repeat(2, 1fr) nima qiladi?
+47: autocomplete="email" atributi nima qiladi?
+47: textarea uchun rows="4" nimani bildiradi?
+47: site-footer ichida qaysi mazmun semantik jihatdan mos?
+48: Mavzu almashtirish tugmasining yoqilgan holatini qaysi atribut bildiradi?
+48: scroll-behavior: smooth nima qiladi?
+48: prefers-reduced-motion: reduce bloki nima uchun kerak?
+49: Lighthouse auditida qaysi yo'nalish tekshirilmaydi?
+49: print.css ichida .site-header { display: none; } nimaga olib keladi?
+49: Nashrdan oldin qaysi tekshiruv eng muhim?
+EXAM: Qurilma ekraniga qarab 400w, 800w yoki 1200w rasm variantidan mosini tanlashga qaysi juftlik yordam beradi?
+EXAM: Ochiladigan menyu ochiq yoki yopiqligini ekran o'quvchiga qaysi atribut orqali aytish to'g'ri?
+EXAM: Bir xil mazmun bir nechta manzilda ochilganda qaysi havola asosiy manzilni bildiradi?
+EXAM: Selektordagi :where(.card) qismi specificity'ga qancha hissa qo'shadi?
+EXAM: grid-template-areas bilan chizilgan maketda elementni nomlangan hududga qaysi xossa joylashtiradi?
+EXAM: clamp(2rem, 4vw, 4rem) qanday o'lcham beradi?
+EXAM: Komponentni ekran emas, o'z ota konteyneri kengligiga qarab moslash uchun qaysi texnika ishlatiladi?
+EXAM: Ichida rasm bo'lgan kartani CSS'da qanday tanlash mumkin?
+EXAM: loading="lazy" qo'yilgan rasm qachon yuklanadi?
+EXAM: Chop etishda sahifa o'lchami va chegarasini qaysi qoida boshqaradi?
+EXAM: position: sticky element qanday ishlaydi?
+EXAM: Tailwind'dagi lg: prefiksi qanday shartda qo'llanadi?

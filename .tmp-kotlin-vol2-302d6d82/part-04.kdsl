@@ -1,0 +1,413 @@
+@@lesson 65
+@@title Structured concurrency: scope, supervisorScope va bekor qilish
+@@minutes 18
+@@p
+Structured concurrency — har bir coroutine ota-scope ichida tugashi kafolati. <code>coroutineScope</code> barcha bolalarni kutadi; ulardan biri xato bersa, qolgan bolalar bekor qilinadi va xato tashqariga uzatiladi. <code>supervisorScope</code> esa bolalar xatosini bir-biriga tarqatmaydi. Bekor qilish kooperativ: <code>delay</code>, <code>yield</code> va boshqa suspend nuqtalari bekor qilishni tekshiradi, <code>finally</code> esa tozalash uchun ishlaydi.
+@@code korinish.kt
+import kotlinx.coroutines.*
+
+suspend fun xato(): String {
+    delay(50)
+    throw IllegalStateException("buzildi")
+}
+
+fun main() = runBlocking {
+    val natija = runCatching {
+        coroutineScope {
+            launch {
+                try {
+                    delay(200)
+                    println("aka tugadi")
+                } finally {
+                    println("aka bekor qilindi")
+                }
+            }
+            launch { println(xato()) }
+        }
+    }
+    println(natija.exceptionOrNull()?.message)
+}
+@@out
+aka bekor qilindi
+buzildi
+@@p
+<code>supervisorScope</code> ichida bitta bolaning xatosi boshqalarni to'xtatmaydi. Bu xususiyat mustaqil parallel ishlar uchun muhim: bitta tarmoq so'rovi yiqilsa, qolganlarini bekor qilish shart emas. Lekin supervisorScope ham barcha bolalarni kutadi va xato qilingan <code>async</code> natijasini <code>await()</code> orqali ko'rsatadi.
+@@code supervisor.kt
+import kotlinx.coroutines.*
+
+suspend fun ish(nom: String, xato: Boolean): String {
+    delay(20)
+    if (xato) error("$nom xato")
+    return "$nom ok"
+}
+
+fun main() = runBlocking {
+    supervisorScope {
+        val a = async { ish("A", true) }
+        val b = async { ish("B", false) }
+        println(runCatching { a.await() }.exceptionOrNull()?.message)
+        println(b.await())
+    }
+    val natija = withTimeoutOrNull(100) { delay(200) }
+    println(natija ?: "timeout")
+}
+@@out
+A xato
+B ok
+timeout
+@@note warning | Bekor qilishni yutib yubormang
+<code>runCatching</code> <code>CancellationException</code> ni ham ushlaydi, bu esa bekor qilishni buzadi. Coroutine ichida xatoni ushlaganda <code>if (e is CancellationException) throw e</code> qilib qayta tashlang yoki <code>ensureActive()</code> dan foydalaning. <code>NonCancellable</code> faqat finally'dagi tozalash ishlari uchun ishlatiladi.
+@@quiz
+<code>coroutineScope</code> ichidagi bola xato bersa nima bo'ladi?
+- Faqat o'sha bola to'xtaydi
+- Qolgan bolalar bekor qilinadi va xato tashqariga uzatiladi
+- Xato yo'qoladi
+- Scope avtomatik qayta ishga tushadi
+= 1
+! coroutineScope failure'ni yuqoriga propagatsiya qiladi va aka-uka coroutine'larni bekor qiladi.
+@@quiz
+<code>supervisorScope</code> qanday xatti-harakat beradi?
+- Har bir bola xatosi butun scope'ni yiqitadi
+- Bitta bolaning xatosi boshqa bolalarni bekor qilmaydi
+- Bolalar umuman xato bera olmaydi
+- Xatolar avtomatik `Result` ga aylanadi
+= 1
+! supervisorScope bolalar xatosini izolyatsiya qiladi; xato faqat o'sha bolaning natijasida ko'rinadi.
+@@quiz
+Coroutine bekor qilish qanday ishlaydi?
+- Suspend nuqtalarida bekor qilish holati tekshiriladi
+- Thread majburan o'chiriladi
+- JVM jarayoni to'xtatiladi
+- Har bir satr orasida avtomatik `return` qo'shiladi
+= 0
+! Bekor qilish kooperativ: coroutine o'zi suspend nuqtalarida tekshiradi va to'g'ri tozalash imkoniyatiga ega bo'ladi.
+@@lesson 66
+@@title Coroutines'da xatolar: handler, Result va retry
+@@minutes 18
+@@p
+<code>launch</code> ichidagi xato ota-scope'ga tarqaladi; <code>async</code> xatosi esa <code>await()</code> chaqirilganda ko'rinadi. Root coroutine uchun <code>CoroutineExceptionHandler</code> o'rnatish mumkin, lekin u <code>async</code> xatolarini ushlamaydi. Tarmoq kabi beqaror amallarda xatoni <code>Result</code> bilan qaytarish, qayta urinish (retry) va taym-autni birgalikda ishlatish kerak.
+@@code handler.kt
+import kotlinx.coroutines.*
+
+fun main() = runBlocking {
+    val handler = CoroutineExceptionHandler { _, e ->
+        println("handler: ${e.message}")
+    }
+    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default + handler)
+    scope.launch { error("fon xatosi") }
+    delay(100)
+    println("davom etdi")
+    scope.cancel()
+}
+@@out
+handler: fon xatosi
+davom etdi
+@@p
+Retry funksiyasi xatoni yutmasligi, balki cheklangan urinishdan keyin <code>Result.failure</code> qaytarishi kerak. Quyidagi misolda har bir urinish <code>runCatching</code> bilan o'ralgan, orasida qisqa kutish bor. <code>CancellationException</code> ni qayta tashlashni unutmang — aks holda bekor qilingan ish “muvaffaqiyatsiz urinish” sifatida davom etadi.
+@@code retry.kt
+import kotlinx.coroutines.*
+
+var urinish = 0
+
+suspend fun beqaror(): String {
+    urinish++
+    if (urinish < 3) error("tarmoq xatosi #$urinish")
+    return "ma'lumot"
+}
+
+suspend fun <T> qayta(n: Int, blok: suspend () -> T): Result<T> {
+    var oxirgi: Throwable? = null
+    repeat(n) {
+        val natija = runCatching { blok() }
+        if (natija.isSuccess) return natija
+        oxirgi = natija.exceptionOrNull()
+        delay(10)
+    }
+    return Result.failure(oxirgi ?: IllegalStateException("noma'lum"))
+}
+
+fun main() = runBlocking {
+    println(qayta(3) { beqaror() }.getOrNull() ?: "xato")
+    println("urinishlar: $urinish")
+    val xato = qayta(2) { error("doim xato") }
+    println(xato.exceptionOrNull()?.message)
+}
+@@out
+ma'lumot
+urinishlar: 3
+doim xato
+@@note tip | Xato siyosati
+Tarmoq xatosini foydalanuvchiga ko'rsatishdan oldin turini ajrating: timeout, 4xx, 5xx, serializatsiya. 4xx ni qayta urinish ko'pincha foydasiz; 5xx va timeout uchun eksponensial kutish mos. Handler'da UI'ga xabar bering, lekin biznes mantiqni scope'ning xato siyosatidan ajratib turing.
+@@quiz
+<code>CoroutineExceptionHandler</code> qaysi holatda chaqiriladi?
+- Har qanday <code>async</code> xatosida
+- Root <code>launch</code> coroutine'dagi ushlanmagan xatoda
+- Faqat <code>runCatching</code> ichidagi xatoda
+- Har safar coroutine yaratilganda
+= 1
+! Handler root launch kabi ushlanmagan xatolar uchun ishlaydi; async xatosi odatda await() orqali olinadi.
+@@quiz
+Retry funksiyasida <code>CancellationException</code> bilan nima qilish kerak?
+- Uni ham oddiy xato kabi yutish
+- Qayta tashlash, chunki bekor qilishni davom ettirish kerak
+- Uni <code>Result.success</code> ga aylantirish
+- E'tiborsiz qoldirish
+= 1
+! Bekor qilish signalini yutish coroutine'ni to'xtatib qo'yadi; CancellationException qayta tashlanishi shart.
+@@quiz
+Nega barcha xatolarni bir xil qayta urinish tavsiya etilmaydi?
+- 4xx kabi xatolar qayta urinishda ham o'zgarmaydi
+- Retry har doim xotirani to'ldiradi
+- 5xx xatolar umuman qayta urinilmaydi
+- Retry faqat UI thread'da ishlaydi
+= 0
+! Mijoz xatosi (masalan, 400) so'rovni takrorlash bilan tuzalmaydi; retry siyosati xato turiga bog'liq bo'lishi kerak.
+@@lesson 67
+@@title Flow chuqur: cold, hot, buffer, conflate va flatMap
+@@minutes 18
+@@p
+<code>Flow</code> sovuq (cold) oqim: builder tanasi faqat <code>collect</code> chaqirilganda ishlaydi va har bir kollektor uchun qaytadan bajariladi. Operatorlar zanjiri deklarativ, lekin bajarilish kollektor tezligiga bog'liq. Sekin kollektor uchun <code>buffer</code> oraliq bufer beradi, <code>conflate</code> esa eng yangi qiymatni saqlab, eskilarini tashlab yuboradi. <code>flatMapLatest</code> yangi qiymat kelganda oldingi ichki oqimni bekor qiladi.
+@@code sovuq.kt
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+
+fun sonlar(): Flow<Int> = flow {
+    for (i in 1..3) {
+        println("emit $i")
+        emit(i)
+        delay(50)
+    }
+}
+
+fun main() = runBlocking {
+    println("oldin")
+    sonlar().map { it * 10 }.collect { println("collect $it") }
+    println("keyin")
+}
+@@out
+oldin
+emit 1
+collect 10
+emit 2
+collect 20
+emit 3
+collect 30
+keyin
+@@p
+<code>collectLatest</code> yangi qiymat kelganda oldingi blokni bekor qiladi — qidiruv maydoni yoki jonli filtr uchun ideal. <code>flatMapLatest</code> esa har bir qiymat uchun yangi oqim yaratadi va faqat oxirgisini tugatadi. Ikkalasi ham “faqat eng so'nggi natija muhim” degan UI stsenariylarida ortiqcha ishni yo'q qiladi.
+@@code latest.kt
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+
+fun qidiruv(soz: String): Flow<String> = flow {
+    delay(60)
+    emit("$soz natijasi")
+}
+
+fun main() = runBlocking {
+    flowOf("k", "ko", "kot")
+        .flatMapLatest { qidiruv(it) }
+        .collect { println(it) }
+
+    (1..5).asFlow().onEach { delay(30) }.collectLatest { qiymat ->
+        println("boshlandi $qiymat")
+        delay(80)
+        println("tugadi $qiymat")
+    }
+}
+@@out
+kot natijasi
+boshlandi 1
+boshlandi 2
+boshlandi 3
+boshlandi 4
+boshlandi 5
+tugadi 5
+@@table
+Operator | Xatti-harakati | Qachon ishlatiladi
+<code>buffer()</code> | Ishlab chiqaruvchi va kollektorni ajratadi | Sekin kollektor
+<code>conflate()</code> | Oraliq qiymatlarni tashlaydi | Faqat oxirgi holat muhim
+<code>collectLatest</code> | Oldingi blokni bekor qiladi | Jonli qidiruv
+<code>flatMapLatest</code> | Oldingi ichki oqimni bekor qiladi | Yangi so'rov eskisini bekor qilsa
+@@quiz
+Cold Flow qachon ishlay boshlaydi?
+- <code>flow { }</code> yaratilganda
+- Birinchi <code>collect</code> chaqirilganda
+- Har doim fonda darhol
+- Faqat <code>launch</code> ichida
+= 1
+! Cold flow deklarativ: builder tanasi kollektor paydo bo'lganda bajariladi va har bir kollektor uchun qayta ishlaydi.
+@@quiz
+<code>collectLatest</code> yangi qiymat kelganda nima qiladi?
+- Oldingi qiymatni navbatga qo'yadi
+- Oldingi kollektor blokini bekor qiladi
+- Oqimni butunlay to'xtatadi
+- Qiymatni ikki marta chiqaradi
+= 1
+! collectLatest yangi emissiya uchun oldingi blokni bekor qiladi, shuning uchun faqat oxirgi ishlov tugaydi.
+@@quiz
+<code>flatMapLatest</code> qaysi stsenariyga mos?
+- Barcha so'rovlarni parallel bajarish va hammasini qaytarish
+- Yangi qidiruv so'rovi kelganda eskisini bekor qilish
+- Oqimni ro'yxatga yig'ish
+- Xatolarni butunlay yutish
+= 1
+! flatMapLatest har bir yangi qiymatda oldingi ichki oqimni bekor qiladi, bu autocomplete uchun mos.
+@@lesson 68
+@@title StateFlow va SharedFlow amaliyoti
+@@minutes 17
+@@p
+<code>StateFlow</code> — har doim qiymatga ega bo'lgan issiq oqim (hot flow). U dastlabki qiymatni talab qiladi, takroriy teng qiymatlarni tashlab yuboradi va oxirgi holatni yangi kollektorga darhol beradi. <code>SharedFlow</code> esa umumiy hodisalar uchun mos: <code>replay</code> va bufer hajmini sozlash mumkin. UI holati uchun StateFlow, bir martalik hodisalar uchun SharedFlow yoki Channel ishlatiladi.
+@@code state.kt
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+
+fun main() = runBlocking {
+    val holat = MutableStateFlow(0)
+    val kuzatuvchi = launch {
+        holat.collect { println("kuzatuvchi: $it") }
+    }
+    delay(20)
+    holat.value = 1
+    yield()
+    holat.value = 1
+    holat.update { it + 1 }
+    yield()
+    kuzatuvchi.cancel()
+    println("yakuniy: ${holat.value}")
+}
+@@out
+kuzatuvchi: 0
+kuzatuvchi: 1
+kuzatuvchi: 2
+yakuniy: 2
+@@p
+<code>SharedFlow</code> bilan oxirgi hodisalarni yangi kuzatuvchiga qayta ko'rsatish mumkin. <code>replay = 2</code> oxirgi ikki qiymatni saqlaydi; <code>extraBufferCapacity</code> esa sekin kollektor uchun qo'shimcha joy beradi. StateFlow'dan farqli ravishda SharedFlow dastlabki qiymatga ega emas va teng qiymatlarni avtomatik tashlamaydi — bu hodisalar uchun to'g'ri.
+@@code shared.kt
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+
+fun main() = runBlocking {
+    val hodisalar = MutableSharedFlow<Int>(replay = 2)
+    hodisalar.emit(1)
+    hodisalar.emit(2)
+    hodisalar.emit(3)
+    hodisalar.take(2).collect { println("yangi kuzatuvchi: $it") }
+    println("replay: ${hodisalar.replayCache}")
+    val state = MutableStateFlow("boshlangich")
+    state.value = "tayyor"
+    println(state.value)
+}
+@@out
+yangi kuzatuvchi: 2
+yangi kuzatuvchi: 3
+replay: [2, 3]
+tayyor
+@@table
+Xususiyat | StateFlow | SharedFlow | Channel
+Dastlabki qiymat | Bor | Yo'q | Yo'q
+Takroriy qiymat | Tashlanadi | Uzatiladi | Uzatiladi
+Replay | 1 | Sozlanadi | Yo'q
+Asosiy maqsad | UI holati | Hodisalar | Navbat/ish oqimi
+@@quiz
+<code>StateFlow</code> qanday xususiyatga ega?
+- Dastlabki qiymat talab qiladi va har doim qiymatga ega
+- Faqat bitta kollektorga ruxsat beradi
+- Replay qiymatini sozlash mumkin
+- U faqat Channel bilan ishlaydi
+= 0
+! StateFlow doim holatga ega; <code>value</code> orqali joriy qiymatni o'qish mumkin.
+@@quiz
+<code>MutableSharedFlow(replay = 2)</code> ga keyin ulangan kollektor nimani oladi?
+- Hech narsa
+- Oxirgi ikki qiymatni
+- Barcha tarixiy qiymatlarni
+- Faqat kelajakdagi birinchi qiymatni
+= 1
+! replay=2 oxirgi ikki qiymatni saqlaydi va yangi kollektorga qayta beradi.
+@@quiz
+<code>stateIn(SharingStarted.WhileSubscribed(5000))</code> qanday ishlaydi?
+- Oqimni abadiy fonda ushlab turadi
+- Obunachilar bo'lmasa 5 sekunddan keyin upstream'ni to'xtatadi
+- Har 5 sekundda qiymat chiqaradi
+- Faqat 5 ta kollektorga ruxsat beradi
+= 1
+! WhileSubscribed timeouti oxirgi obunachi ketgandan keyin upstream'ni to'xtatish uchun kutish vaqtini belgilaydi.
+@@lesson 69
+@@title Kanallar, pipeline va Flow testlash
+@@minutes 18
+@@p
+<code>Channel</code> coroutine'lar orasida navbat beradi. <code>capacity = 0</code> rendezvous, musbat qiymat bufer, <code>Channel.UNLIMITED</code> cheksiz; yuboruvchi bufer to'lsa kutadi. <code>produce</code> builder kanal yaratadi va blok tugagach uni yopadi. Kanallar fan-out (bir nechta iste'molchi) va pipeline uchun qulay, lekin UI holati uchun Flow afzal.
+@@code kanal.kt
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
+
+fun main() = runBlocking {
+    val kanal = produce(capacity = 3) {
+        for (i in 1..3) send(i * 10)
+        println("yuboruvchi tugadi")
+    }
+    for (qiymat in kanal) {
+        println("olindi: $qiymat")
+    }
+    println("closed: ${kanal.isClosedForReceive}")
+}
+@@out
+yuboruvchi tugadi
+olindi: 10
+olindi: 20
+olindi: 30
+closed: true
+@@p
+Pipeline'da har bir bosqich oldingi kanaldan o'qib, keyingisiga yozadi. Bu model backendda ishlov berish zanjirlari, Android'da esa fon vazifalarini bo'lish uchun ishlatiladi. Flow testlashda <code>runTest</code> virtual vaqtni boshqaradi; Turbine kutubxonasi esa oqim hodisalarini <code>awaitItem()</code> bilan aniq tekshiradi.
+@@code test.kt
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.test.*
+import app.cash.turbine.test
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class HolatTest {
+    @Test
+    fun holatOqimi() = runTest {
+        val holat = MutableStateFlow(0)
+        holat.test {
+            assertEquals(0, awaitItem())
+            holat.value = 1
+            assertEquals(1, awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+        println("test tugadi")
+    }
+}
+@@out
+test tugadi
+BUILD SUCCESSFUL
+@@note tip | Kanalni yopish
+<code>close()</code> dan keyin yuborish <code>ClosedSendChannelException</code> beradi; qabul qiluvchi qolgan buferni o'qib, keyin tsiklni tugatadi. <code>consumeEach</code> kanalni avtomatik yopadi. Bir nechta iste'molchi bo'lsa, har bir element faqat bittasiga boradi — bu fan-out. Xatoni kanal orqali uzatish uchun <code>close(cause)</code> ishlatiladi.
+@@quiz
+<code>capacity = 3</code> bo'lgan kanalda yuboruvchi qachon kutadi?
+- Bufer to'lganda
+- Har bir yuborishda
+- Faqat kanal yopilganda
+- Hech qachon
+= 0
+! Bufer to'lgunча yuborish davom etadi; to'lgach, send iste'molchi joy bo'shatishini kutadi.
+@@quiz
+<code>produce</code> builder qanday obyekt qaytaradi?
+- <code>Flow</code>
+- <code>ReceiveChannel</code>
+- <code>Deferred</code>
+- <code>Job</code> faqat
+= 1
+! produce kanal qaytaradi (ReceiveChannel); blok tugagach kanal avtomatik yopiladi.
+@@quiz
+Turbine kutubxonasidagi <code>awaitItem()</code> nima qiladi?
+- Oqimdan keyingi elementni kutadi va qaytaradi
+- Oqimni butunlay yopadi
+- Har bir elementni ikki marta oladi
+- Faqat StateFlow bilan ishlaydi
+= 0
+! Turbine oqim hodisalarini navbat bilan tekshirish uchun awaitItem, awaitComplete kabi API'larni beradi.

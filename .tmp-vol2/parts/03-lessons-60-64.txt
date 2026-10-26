@@ -1,0 +1,987 @@
+      {
+        id: 60,
+        title: "Stek bilan ifoda tahlili: RPN kalkulyator",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Postfiks (RPN) yozuvida operator operandlardan keyin keladi: <code>3 4 +</code> — bu 3 + 4. Bunday ifodani hisoblash uchun stek ideal: sonni uchratsak <code>push</code>, operatorni uchratsak ikkita sonni <code>pop</code> qilib natijani qayta <code>push</code> qilamiz. Qavslar kerak emas, operatorlar prioriteti ham yo'q — bu kompilyator va kalkulyatorlarda qulay oraliq ko'rinish.",
+          },
+          {
+            type: "code",
+            title: "rpn.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#define CAP 32
+
+int main(void) {
+    char ifoda[] = "3 4 + 2 *";
+    int stek[CAP];
+    int top = 0;
+    char *p = ifoda;
+
+    while (*p != '\0') {
+        while (isspace((unsigned char)*p)) {
+            p++;
+        }
+        if (*p == '\0') {
+            break;
+        }
+        if (*p == '+' || *p == '-' || *p == '*' || *p == '/') {
+            if (top < 2) {
+                printf("xato: operand yetarli emas\n");
+                return 1;
+            }
+            int b = stek[--top];
+            int a = stek[--top];
+            int natija = 0;
+            switch (*p) {
+                case '+': natija = a + b; break;
+                case '-': natija = a - b; break;
+                case '*': natija = a * b; break;
+                case '/': natija = a / b; break;
+            }
+            stek[top++] = natija;
+            p++;
+        } else {
+            char *oxiri = NULL;
+            long son = strtol(p, &oxiri, 10);
+            if (oxiri == p || top == CAP) {
+                printf("xato: token\n");
+                return 1;
+            }
+            stek[top++] = (int)son;
+            p = oxiri;
+        }
+    }
+
+    if (top != 1) {
+        printf("xato: ifoda tugallanmagan\n");
+        return 1;
+    }
+    printf("natija=%d\n", stek[0]);
+    return 0;
+}`,
+            output: "natija=14",
+          },
+          {
+            type: "p",
+            html: "Stekning ikkinchi klassik vazifasi — qavslar muvozanatini tekshirish. Ochiluvchi qavsni ko'rsak stekka yozamiz, yopiluvchini ko'rsak stek boshidagi mos qavs bilan solishtiramiz. Oxirida stek bo'sh bo'lsa, ifoda muvozanatli. Bu algoritm qo'shtirnoq va izohlarni ham hisobga oladigan kengaytirilgan parserlarning asosi.",
+          },
+          {
+            type: "code",
+            title: "qavslar.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+
+int muvozanatli(const char *s) {
+    char stek[64];
+    int top = 0;
+
+    for (size_t i = 0; s[i] != '\0'; i++) {
+        char c = s[i];
+        if (c == '(' || c == '[' || c == '{') {
+            if (top == 64) {
+                return 0;
+            }
+            stek[top++] = c;
+        } else if (c == ')' || c == ']' || c == '}') {
+            char kutilgan = (c == ')') ? '(' : (c == ']') ? '[' : '{';
+            if (top == 0 || stek[--top] != kutilgan) {
+                return 0;
+            }
+        }
+    }
+    return top == 0;
+}
+
+int main(void) {
+    const char *yaxshi = "{[()]}";
+    const char *yomon = "([)]";
+    printf("%d\n", muvozanatli(yaxshi));
+    printf("%d\n", muvozanatli(yomon));
+    return 0;
+}`,
+            output: "1\n0",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Stek ostidan olishni tekshiring",
+            html: "Har <code>pop</code> oldidan <code>top &gt; 0</code> shartini tekshiring; bo'sh stekdan olish — buferdan tashqariga murojaat. RPN da bo'linishda nolga bo'lishni ham alohida boshqaring. Katta ifodalarda qattiq massiv o'rniga dinamik stek yoki sig'imni tekshiruvchi <code>push</code> ishlating. Stekni tozalashda <code>top = 0</code> yetarli, chunki elementlar qiymat turida.",
+          },
+        ],
+        quiz: [
+          {
+            q: "5 1 2 + 4 * + 3 - postfiks ifodasining natijasi nechaga teng?",
+            options: ["11", "17", "14", "20"],
+            answer: 2,
+            explain: "(1 + 2) * 4 = 12; 5 + 12 = 17; 17 - 3 = 14.",
+          },
+          {
+            q: "Qavslar muvozanatini tekshirishda stek nima uchun qulay?",
+            options: [
+              "Eng oxirgi ochilgan qavs birinchi yopilishi kerak",
+              "Qavslar sonini saqlaydi",
+              "Barcha qavslarni alifbo tartibida saralaydi",
+              "Qavslarni faylga yozadi",
+            ],
+            answer: 0,
+            explain: "Qavslar LIFO tartibida yopiladi; stek aynan shu tartibni tabiiy ifodalaydi.",
+          },
+          {
+            q: "RPN da operator uchraganda stekda ikkita operand bo'lmasa nima qilish kerak?",
+            options: [
+              "Natijani nol deb olish",
+              "Stekni avtomatik kengaytirish",
+              "Operatorni tashlab ketish",
+              "Xatolikni qayd etib, hisoblashni to'xtatish",
+            ],
+            answer: 3,
+            explain: "Bu noto'g'ri ifoda; stek ostidan olishdan oldin tekshirib, xato haqida xabar berish kerak.",
+          },
+        ],
+      },
+      {
+        id: 61,
+        title: "Halqali navbat (ring buffer) va deque",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Navbatni massivda cheksiz oldinga surib bo'lmaydi. <b>Halqali bufer</b> massiv oxiriga yetganda indeksni modulo orqali boshiga qaytaradi. <code>head</code> — o'qish joyi, <code>tail</code> — yozish joyi, <code>count</code> esa elementlar soni. <code>count</code> bo'lmasa to'liq va bo'sh holatni ajratish qiyin; shuning uchun u alohida saqlanadi.",
+          },
+          {
+            type: "code",
+            title: "ring_buffer.c",
+            code: String.raw`#include <stdio.h>
+
+#define CAP 4
+
+typedef struct {
+    int data[CAP];
+    size_t head;
+    size_t tail;
+    size_t count;
+} Navbat;
+
+int qosh(Navbat *q, int x) {
+    if (q->count == CAP) {
+        return 0;
+    }
+    q->data[q->tail] = x;
+    q->tail = (q->tail + 1) % CAP;
+    q->count++;
+    return 1;
+}
+
+int ol(Navbat *q, int *x) {
+    if (q->count == 0) {
+        return 0;
+    }
+    *x = q->data[q->head];
+    q->head = (q->head + 1) % CAP;
+    q->count--;
+    return 1;
+}
+
+int main(void) {
+    Navbat q = {0};
+    for (int i = 1; i <= 4; i++) {
+        qosh(&q, i * 10);
+    }
+    printf("beshinchi=%s\n", qosh(&q, 50) ? "qo'shildi" : "to'la");
+
+    int x = 0;
+    ol(&q, &x);
+    printf("olindi=%d ", x);
+    ol(&q, &x);
+    printf("%d\n", x);
+
+    qosh(&q, 50);
+    qosh(&q, 60);
+    printf("soni=%zu\n", q.count);
+
+    printf("navbat:");
+    for (size_t i = 0; i < q.count; i++) {
+        printf(" %d", q.data[(q.head + i) % CAP]);
+    }
+    printf("\n");
+    return 0;
+}`,
+            output: "beshinchi=to'la\nolindi=10 20\nsoni=4\nnavbat: 30 40 50 60",
+          },
+          {
+            type: "p",
+            html: "Deque (double-ended queue) ikki tomondan ham qo'shish va olishni qo'llaydi. Halqali massivda <code>push_front</code> uchun <code>head</code> ni orqaga surish, <code>push_back</code> uchun <code>tail</code> ni oldinga surish kerak. Modulo amali manfiy indeks bermasligi uchun <code>(head + CAP - 1) % CAP</code> yoziladi. Deque slayding oyna va ish navbatlarida keng ishlatiladi.",
+          },
+          {
+            type: "code",
+            title: "deque.c",
+            code: String.raw`#include <stdio.h>
+
+#define CAP 5
+
+typedef struct {
+    int data[CAP];
+    size_t head;
+    size_t tail;
+    size_t count;
+} Deque;
+
+int oldiga(Deque *d, int x) {
+    if (d->count == CAP) return 0;
+    d->head = (d->head + CAP - 1) % CAP;
+    d->data[d->head] = x;
+    d->count++;
+    return 1;
+}
+
+int orqaga(Deque *d, int x) {
+    if (d->count == CAP) return 0;
+    d->data[d->tail] = x;
+    d->tail = (d->tail + 1) % CAP;
+    d->count++;
+    return 1;
+}
+
+int oldidan(Deque *d, int *x) {
+    if (d->count == 0) return 0;
+    *x = d->data[d->head];
+    d->head = (d->head + 1) % CAP;
+    d->count--;
+    return 1;
+}
+
+int main(void) {
+    Deque d = {0};
+    orqaga(&d, 2);
+    orqaga(&d, 3);
+    oldiga(&d, 1);
+    orqaga(&d, 4);
+
+    int x = 0;
+    oldidan(&d, &x);
+    printf("oldidan=%d\n", x);
+
+    printf("ichida:");
+    for (size_t i = 0; i < d.count; i++) {
+        printf(" %d", d.data[(d.head + i) % CAP]);
+    }
+    printf("\n");
+
+    oldiga(&d, 0);
+    printf("yangi_soni=%zu\n", d.count);
+    return 0;
+}`,
+            output: "oldidan=1\nichida: 2 3 4\nyangi_soni=4",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Sig'im va indekslash",
+            html: "Sig'im 2 ning darajasi bo'lsa, <code>% CAP</code> o'rniga <code>&amp; (CAP - 1)</code> ishlatib tezlashtirish mumkin. Ishlab chiqaruvchi va iste'molchi oqimlarda ring buffer qulf bilan yoki atomik indekslar bilan himoyalanadi. To'liq buferga yozishni kutish yoki rad etish siyosatini oldindan belgilang; jimgina ma'lumot yo'qotish eng yomon variant.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Halqali navbatda count maydoni nima uchun kerak?",
+            options: [
+              "Bufer hajmini oshirish uchun",
+              "To'liq va bo'sh holatni bir xil indekslarda ham ajratish uchun",
+              "Hash hisoblash uchun",
+              "Elementlarni saralash uchun",
+            ],
+            answer: 1,
+            explain: "head va tail teng bo'lganda navbat bo'sh ham, to'la ham bo'lishi mumkin; count aniq holatni beradi.",
+          },
+          {
+            q: "tail indeksini oldinga surish uchun qaysi ifoda to'g'ri?",
+            options: [
+              "tail = tail + 1",
+              "tail = tail - 1",
+              "tail = (tail + 1) % CAP",
+              "tail = CAP",
+            ],
+            answer: 2,
+            explain: "Modulo indeksni massiv oxiridan boshiga qaytaradi; oddiy qo'shish chegaradan chiqadi.",
+          },
+          {
+            q: "Deque qanday amallarni tez bajaradi?",
+            options: [
+              "Faqat oxiridan qo'shish va olish",
+              "Faqat boshdan olish",
+              "O'rtadan qidirish",
+              "Ikkala tomondan qo'shish va olish",
+            ],
+            answer: 3,
+            explain: "Deque bosh va oxirga O(1) qo'shish/olishni ta'minlaydi, o'rtaga kirish esa O(n).",
+          },
+        ],
+      },
+      {
+        id: 62,
+        title: "Hash jadval: ochiq adreslash va tombstone",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Ochiq adreslashda barcha yozuvlar bitta massivda saqlanadi; kolliziya bo'lsa keyingi bo'sh slot qidiriladi. O'chirishda slotni shunchaki bo'sh qoldirish qidiruv zanjirini uzadi. Shuning uchun <b>tombstone</b> (o'chirilgan belgisi) qo'yiladi: qidiruv uni davom ettiradi, yangi yozuv esa undan qayta foydalanishi mumkin. Bu hash jadvalning eng nozik joyi.",
+          },
+          {
+            type: "code",
+            title: "ochiq_adreslash.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
+#define CAP 8
+
+typedef enum { BOSH, BAND, TOMB } Holat;
+
+typedef struct {
+    char kalit[16];
+    int qiymat;
+    Holat holat;
+} Slot;
+
+typedef struct {
+    Slot slotlar[CAP];
+    size_t soni;
+} Jadval;
+
+uint64_t hash(const char *s) {
+    uint64_t h = 1469598103934665603ULL;
+    while (*s != '\0') {
+        h ^= (unsigned char)*s++;
+        h *= 1099511628211ULL;
+    }
+    return h;
+}
+
+int qosh(Jadval *j, const char *kalit, int qiymat) {
+    size_t boshlanish = (size_t)(hash(kalit) % CAP);
+    size_t birinchi_tomb = CAP;
+    for (size_t i = 0; i < CAP; i++) {
+        size_t indeks = (boshlanish + i) % CAP;
+        Slot *s = &j->slotlar[indeks];
+        if (s->holat == BAND && strcmp(s->kalit, kalit) == 0) {
+            s->qiymat = qiymat;
+            return 1;
+        }
+        if (s->holat == TOMB && birinchi_tomb == CAP) {
+            birinchi_tomb = indeks;
+        }
+        if (s->holat == BOSH) {
+            if (birinchi_tomb != CAP) {
+                s = &j->slotlar[birinchi_tomb];
+            }
+            snprintf(s->kalit, sizeof s->kalit, "%s", kalit);
+            s->qiymat = qiymat;
+            s->holat = BAND;
+            j->soni++;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int top(Jadval *j, const char *kalit, int *qiymat) {
+    size_t boshlanish = (size_t)(hash(kalit) % CAP);
+    for (size_t i = 0; i < CAP; i++) {
+        Slot *s = &j->slotlar[(boshlanish + i) % CAP];
+        if (s->holat == BOSH) return 0;
+        if (s->holat == BAND && strcmp(s->kalit, kalit) == 0) {
+            *qiymat = s->qiymat;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int main(void) {
+    Jadval j = {0};
+    qosh(&j, "ali", 1);
+    qosh(&j, "vali", 2);
+    qosh(&j, "hasan", 3);
+
+    int qiymat = -1;
+    printf("vali=%d\n", top(&j, "vali", &qiymat) ? qiymat : -1);
+    printf("yo'q=%d\n", top(&j, "nodir", &qiymat) ? qiymat : -1);
+    printf("soni=%zu\n", j.soni);
+    return 0;
+}`,
+            output: "vali=2\nyo'q=-1\nsoni=3",
+          },
+          {
+            type: "p",
+            html: "O'chirishda slot <code>TOMB</code> holatiga o'tadi va <code>soni</code> kamayadi. Qayta qo'shishda birinchi tombstone eslab qolinadi, lekin qidiruv baribir davom etadi — kalit keyinroq turgan bo'lishi mumkin. Jadvalda tombstone ko'payib ketsa, qidiruv sekinlashadi; yuk omili oshganda jadvalni qayta qurish (rehash) kerak.",
+          },
+          {
+            type: "code",
+            title: "tombstone.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+
+#define CAP 8
+typedef enum { BOSH, BAND, TOMB } Holat;
+
+typedef struct {
+    char kalit[16];
+    int qiymat;
+    Holat holat;
+} Slot;
+
+typedef struct {
+    Slot slotlar[CAP];
+    size_t soni;
+    size_t tomb;
+} Jadval;
+
+uint64_t hash(const char *s) {
+    uint64_t h = 1469598103934665603ULL;
+    while (*s) {
+        h ^= (unsigned char)*s++;
+        h *= 1099511628211ULL;
+    }
+    return h;
+}
+
+int qosh(Jadval *j, const char *kalit, int qiymat) {
+    size_t start = (size_t)(hash(kalit) % CAP);
+    size_t tomb = CAP;
+    for (size_t i = 0; i < CAP; i++) {
+        size_t idx = (start + i) % CAP;
+        Slot *s = &j->slotlar[idx];
+        if (s->holat == BAND && strcmp(s->kalit, kalit) == 0) {
+            s->qiymat = qiymat;
+            return 1;
+        }
+        if (s->holat == TOMB && tomb == CAP) tomb = idx;
+        if (s->holat == BOSH) {
+            if (tomb != CAP) {
+                s = &j->slotlar[tomb];
+                j->tomb--;
+            }
+            snprintf(s->kalit, sizeof s->kalit, "%s", kalit);
+            s->qiymat = qiymat;
+            s->holat = BAND;
+            j->soni++;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int ochir(Jadval *j, const char *kalit) {
+    size_t start = (size_t)(hash(kalit) % CAP);
+    for (size_t i = 0; i < CAP; i++) {
+        Slot *s = &j->slotlar[(start + i) % CAP];
+        if (s->holat == BOSH) return 0;
+        if (s->holat == BAND && strcmp(s->kalit, kalit) == 0) {
+            s->holat = TOMB;
+            j->soni--;
+            j->tomb++;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int top(Jadval *j, const char *kalit, int *qiymat) {
+    size_t start = (size_t)(hash(kalit) % CAP);
+    for (size_t i = 0; i < CAP; i++) {
+        Slot *s = &j->slotlar[(start + i) % CAP];
+        if (s->holat == BOSH) return 0;
+        if (s->holat == BAND && strcmp(s->kalit, kalit) == 0) {
+            *qiymat = s->qiymat;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int main(void) {
+    Jadval j = {0};
+    qosh(&j, "ali", 1);
+    qosh(&j, "vali", 2);
+    qosh(&j, "hasan", 3);
+
+    printf("o'chirildi=%d\n", ochir(&j, "vali"));
+    int qiymat = -1;
+    printf("vali=%d\n", top(&j, "vali", &qiymat) ? qiymat : -1);
+    qosh(&j, "olim", 4);
+    printf("olim=%d\n", top(&j, "olim", &qiymat) ? qiymat : -1);
+    printf("soni=%zu tomb=%zu\n", j.soni, j.tomb);
+    return 0;
+}`,
+            output: "o'chirildi=1\nvali=-1\nolim=4\nsoni=3 tomb=1",
+          },
+          {
+            type: "table",
+            head: ["Holat", "Qidiruv", "Yozish"],
+            rows: [
+              ["<code>BOSH</code>", "zanjir tugadi", "birinchi bo'sh slot"],
+              ["<code>BAND</code>", "kalit solishtiriladi", "mavjud kalit yangilanadi"],
+              ["<code>TOMB</code>", "davom etadi", "qayta ishlatilishi mumkin"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Yuk omili va tombstone",
+            html: "Ochiq adreslashda yuk omili 0.5–0.7 dan oshsa, kolliziya zanjirlari uzayadi. Tombstone ko'p bo'lsa, ularni tozalash uchun jadvalni qayta qurish kerak. Barcha slotlar band bo'lsa, qo'shish muvaffaqiyatsiz bo'ladi — bu holatni albatta qayd eting. Hash funksiyasi tez va bir tekis taqsimlashi kerak; FNV-1a oddiy satrlar uchun yaxshi boshlang'ich.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Ochiq adreslashda o'chirilgan slotga tombstone qo'yishdan maqsad nima?",
+            options: [
+              "Xotirani tejash",
+              "Qidiruv zanjirini uzmaslik",
+              "Hash funksiyasini tezlashtirish",
+              "Kalitlarni saralash",
+            ],
+            answer: 1,
+            explain: "Slotni butunlay bo'sh qilsangiz, keyingi kalitlar uchun qidiruv erta to'xtaydi; tombstone davom etishni bildiradi.",
+          },
+          {
+            q: "Chiziqli probda kolliziya bo'lsa keyingi slot qanday tanlanadi?",
+            options: [
+              "Tasodifiy slot",
+              "Kalitning ikkinchi harfi bo'yicha",
+              "Ketma-ket keyingi slot, modulo bilan",
+              "Har doim jadval oxiri",
+            ],
+            answer: 2,
+            explain: "Linear probing indeksni bir qadam oldinga suradi va jadval oxirida boshiga qaytadi.",
+          },
+          {
+            q: "Jadvaldagi tombstone lar juda ko'payib ketsa nima qilish kerak?",
+            options: [
+              "Ularni e'tiborsiz qoldirish",
+              "Faqat soni ni kamaytirish",
+              "Jadvalni kattalashtirib yoki qayta qurib, tombstone lardan tozalash",
+              "Barcha kalitlarni o'chirish",
+            ],
+            answer: 2,
+            explain: "Rehash barcha tirik yozuvlarni yangi jadvalga ko'chiradi va tombstone lar yo'qoladi, qidiruv tezlashadi.",
+          },
+        ],
+      },
+      {
+        id: 63,
+        title: "Zanjir usuli va rehash",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Zanjir usulida har bir slot bog'langan ro'yxat boshini saqlaydi; bir xil slotga tushgan kalitlar ro'yxatga qo'shiladi. Bu o'chirishni soddalashtiradi va tombstone kerak qilmaydi, lekin har bir yozuv uchun qo'shimcha ko'rsatkich xotirasi sarflanadi. Yuk omili oshganda jadval ikki baravar kattalashtirilib, barcha yozuvlar yangi slotlarga <b>rehash</b> qilinadi.",
+          },
+          {
+            type: "code",
+            title: "zanjir.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+
+#define CAP 8
+
+typedef struct Tugun {
+    char kalit[16];
+    int qiymat;
+    struct Tugun *keyingi;
+} Tugun;
+
+typedef struct {
+    Tugun *slotlar[CAP];
+    size_t soni;
+} Jadval;
+
+uint64_t hash(const char *s) {
+    uint64_t h = 1469598103934665603ULL;
+    while (*s) {
+        h ^= (unsigned char)*s++;
+        h *= 1099511628211ULL;
+    }
+    return h;
+}
+
+int qosh(Jadval *j, const char *kalit, int qiymat) {
+    size_t idx = (size_t)(hash(kalit) % CAP);
+    for (Tugun *t = j->slotlar[idx]; t; t = t->keyingi) {
+        if (strcmp(t->kalit, kalit) == 0) {
+            t->qiymat = qiymat;
+            return 1;
+        }
+    }
+    Tugun *t = malloc(sizeof *t);
+    if (!t) return 0;
+    snprintf(t->kalit, sizeof t->kalit, "%s", kalit);
+    t->qiymat = qiymat;
+    t->keyingi = j->slotlar[idx];
+    j->slotlar[idx] = t;
+    j->soni++;
+    return 1;
+}
+
+int top(Jadval *j, const char *kalit, int *qiymat) {
+    size_t idx = (size_t)(hash(kalit) % CAP);
+    for (Tugun *t = j->slotlar[idx]; t; t = t->keyingi) {
+        if (strcmp(t->kalit, kalit) == 0) {
+            *qiymat = t->qiymat;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int main(void) {
+    Jadval j = {0};
+    const char *kalitlar[] = {"ali", "vali", "hasan", "olim", "zuhra"};
+    for (int i = 0; i < 5; i++) {
+        qosh(&j, kalitlar[i], i + 1);
+    }
+    int qiymat = 0;
+    printf("ali=%d\n", top(&j, "ali", &qiymat) ? qiymat : -1);
+    printf("zuhra=%d\n", top(&j, "zuhra", &qiymat) ? qiymat : -1);
+    printf("soni=%zu\n", j.soni);
+    return 0;
+}`,
+            output: "ali=1\nzuhra=5\nsoni=5",
+          },
+          {
+            type: "p",
+            html: "Rehashda eski jadvaldagi har bir tugun yangi jadvalga ko'chiriladi. Tugunlarni qayta <code>malloc</code> qilish shart emas — ularning <code>keyingi</code> ko'rsatkichini yangi slotga bog'lash kifoya. Eski massivni bo'shatib, yangisiga almashtirasiz. Yuk omili <code>soni / sig'im &gt; 0.75</code> bo'lganda sig'imni ikki baravar oshirish odatiy siyosat.",
+          },
+          {
+            type: "code",
+            title: "rehash.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+
+typedef struct Tugun {
+    char kalit[16];
+    int qiymat;
+    struct Tugun *keyingi;
+} Tugun;
+
+#define CAP 4
+
+typedef struct {
+    Tugun **slotlar;
+    size_t sigim;
+    size_t soni;
+} Jadval;
+
+uint64_t hash(const char *s) {
+    uint64_t h = 1469598103934665603ULL;
+    while (*s) {
+        h ^= (unsigned char)*s++;
+        h *= 1099511628211ULL;
+    }
+    return h;
+}
+
+int jadval_init(Jadval *j, size_t sigim) {
+    j->slotlar = calloc(sigim, sizeof *j->slotlar);
+    if (!j->slotlar) return 0;
+    j->sigim = sigim;
+    j->soni = 0;
+    return 1;
+}
+
+int kattalashtir(Jadval *j) {
+    size_t yangi_sigim = j->sigim * 2;
+    Tugun **yangi = calloc(yangi_sigim, sizeof *yangi);
+    if (!yangi) return 0;
+    for (size_t i = 0; i < j->sigim; i++) {
+        Tugun *t = j->slotlar[i];
+        while (t) {
+            Tugun *keyingi = t->keyingi;
+            size_t idx = (size_t)(hash(t->kalit) % yangi_sigim);
+            t->keyingi = yangi[idx];
+            yangi[idx] = t;
+            t = keyingi;
+        }
+    }
+    free(j->slotlar);
+    j->slotlar = yangi;
+    j->sigim = yangi_sigim;
+    return 1;
+}
+
+int qosh(Jadval *j, const char *kalit, int qiymat) {
+    if (j->soni + 1 > j->sigim * 3 / 4) {
+        if (!kattalashtir(j)) return 0;
+    }
+    size_t idx = (size_t)(hash(kalit) % j->sigim);
+    for (Tugun *t = j->slotlar[idx]; t; t = t->keyingi) {
+        if (strcmp(t->kalit, kalit) == 0) {
+            t->qiymat = qiymat;
+            return 1;
+        }
+    }
+    Tugun *t = malloc(sizeof *t);
+    if (!t) return 0;
+    snprintf(t->kalit, sizeof t->kalit, "%s", kalit);
+    t->qiymat = qiymat;
+    t->keyingi = j->slotlar[idx];
+    j->slotlar[idx] = t;
+    j->soni++;
+    return 1;
+}
+
+int main(void) {
+    Jadval j;
+    jadval_init(&j, CAP);
+    const char *kalitlar[] = {"ali", "vali", "hasan", "olim", "zuhra", "kamol"};
+    for (int i = 0; i < 6; i++) {
+        qosh(&j, kalitlar[i], i + 1);
+    }
+    printf("sigim=%zu soni=%zu\n", j.sigim, j.soni);
+    printf("kamol_bor=%d\n", j.sigim == 8 ? 1 : 0);
+    return 0;
+}`,
+            output: "sigim=8 soni=6\nkamol_bor=1",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Zanjir yoki ochiq adreslash?",
+            html: "Zanjir o'chirish va yuk omiliga chidamli, lekin ko'rsatkich xotirasi va kesh uchun yomonroq. Ochiq adreslash keshga qulay, lekin tombstone va to'liqlikni boshqarishni talab qiladi. Kalitlar qisqa va jadval kichik bo'lsa, ochiq adreslash tezroq; katta hajm va tez-tez o'chirish bo'lsa zanjir soddaroq. Har ikkisida ham yaxshi hash funksiyasi hal qiluvchi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Zanjir usulida kolliziya qanday hal qilinadi?",
+            options: [
+              "Keyingi bo'sh slot qidiriladi",
+              "Jadval darhol ikki baravar oshiriladi",
+              "Kalit o'chiriladi",
+              "Bir slotdagi yozuvlar bog'langan ro'yxatga qo'shiladi",
+            ],
+            answer: 3,
+            explain: "Har bir slot ro'yxat boshini saqlaydi; bir xil indeksdagi kalitlar shu ro'yxatda turadi.",
+          },
+          {
+            q: "Rehash ning asosiy maqsadi nima?",
+            options: [
+              "Yuk omilini pasaytirib, qidiruvni tezlashtirish",
+              "Kalitlarni alifbo bo'yicha saralash",
+              "Xotirani butunlay bo'shatish",
+              "Hash funksiyasini o'chirish",
+            ],
+            answer: 0,
+            explain: "Kattaroq jadvalda elementlar tekisroq taqsimlanadi va o'rtacha zanjir uzunligi kamayadi.",
+          },
+          {
+            q: "Rehash paytida mavjud tugunlarni qayta malloc qilish shartmi?",
+            options: [
+              "Ha, har doim",
+              "Yo'q, ularning keyingi ko'rsatkichini yangi slotga bog'lash mumkin",
+              "Faqat birinchi tugun uchun",
+              "Faqat kalit uzun bo'lsa",
+            ],
+            answer: 1,
+            explain: "Tugunlar xotirada qoladi; faqat bog'lanishlar yangilanadi, bu vaqt va xotirani tejaydi.",
+          },
+        ],
+      },
+      {
+        id: 64,
+        title: "Ikkilik uyum va priority queue",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Ikkilik uyum (heap) — to'liq daraxtning massivdagi ko'rinishi. Minimal uyumda ota-ona har doim bolalaridan kichik yoki teng. <code>i</code> tugunning bolalari <code>2*i+1</code> va <code>2*i+2</code>, otasi <code>(i-1)/2</code>. Qo'shish O(log n) sift-up, eng kichigini olish O(log n) sift-down. Uyum priority queue, Dijkstra va top-k masalalarining yuragi.",
+          },
+          {
+            type: "code",
+            title: "min_heap.c",
+            code: String.raw`#include <stdio.h>
+
+#define CAP 32
+
+typedef struct {
+    int data[CAP];
+    size_t n;
+} Heap;
+
+void almashtir(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+int qosh(Heap *h, int x) {
+    if (h->n == CAP) return 0;
+    size_t i = h->n++;
+    h->data[i] = x;
+    while (i > 0) {
+        size_t ota = (i - 1) / 2;
+        if (h->data[ota] <= h->data[i]) break;
+        almashtir(&h->data[ota], &h->data[i]);
+        i = ota;
+    }
+    return 1;
+}
+
+int ol(Heap *h, int *x) {
+    if (h->n == 0) return 0;
+    *x = h->data[0];
+    h->data[0] = h->data[--h->n];
+    size_t i = 0;
+    for (;;) {
+        size_t chap = 2 * i + 1;
+        size_t ong = 2 * i + 2;
+        size_t eng = i;
+        if (chap < h->n && h->data[chap] < h->data[eng]) eng = chap;
+        if (ong < h->n && h->data[ong] < h->data[eng]) eng = ong;
+        if (eng == i) break;
+        almashtir(&h->data[i], &h->data[eng]);
+        i = eng;
+    }
+    return 1;
+}
+
+int main(void) {
+    Heap h = {0};
+    int qiymatlar[] = {5, 3, 8, 1, 9};
+    for (int i = 0; i < 5; i++) {
+        qosh(&h, qiymatlar[i]);
+    }
+    printf("chiqish:");
+    while (ol(&h, &qiymatlar[0])) {
+        printf(" %d", qiymatlar[0]);
+    }
+    printf("\n");
+    return 0;
+}`,
+            output: "chiqish: 1 3 5 8 9",
+          },
+          {
+            type: "p",
+            html: "Top-k masalasida eng katta k elementni topish uchun k o'lchamli <b>minimal</b> uyum saqlanadi. Yangi son uyum ildizidan katta bo'lsa, ildiz almashtiriladi va sift-down bajariladi. Natijada uyumda doim eng katta k son qoladi. Bu O(n log k) vaqt beradi — barcha massivni saralashdan tezroq.",
+          },
+          {
+            type: "code",
+            title: "top_k.c",
+            code: String.raw`#include <stdio.h>
+
+#define K 3
+
+typedef struct {
+    int data[K];
+    size_t n;
+} KichikHeap;
+
+void almashtir(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+void pastga(KichikHeap *h, size_t i) {
+    for (;;) {
+        size_t chap = 2 * i + 1;
+        size_t ong = 2 * i + 2;
+        size_t eng = i;
+        if (chap < h->n && h->data[chap] < h->data[eng]) eng = chap;
+        if (ong < h->n && h->data[ong] < h->data[eng]) eng = ong;
+        if (eng == i) break;
+        almashtir(&h->data[i], &h->data[eng]);
+        i = eng;
+    }
+}
+
+void taklif(KichikHeap *h, int x) {
+    if (h->n < K) {
+        size_t i = h->n++;
+        h->data[i] = x;
+        while (i > 0) {
+            size_t ota = (i - 1) / 2;
+            if (h->data[ota] <= h->data[i]) break;
+            almashtir(&h->data[ota], &h->data[i]);
+            i = ota;
+        }
+    } else if (x > h->data[0]) {
+        h->data[0] = x;
+        pastga(h, 0);
+    }
+}
+
+int ol(KichikHeap *h, int *x) {
+    if (h->n == 0) return 0;
+    *x = h->data[0];
+    h->data[0] = h->data[--h->n];
+    pastga(h, 0);
+    return 1;
+}
+
+int main(void) {
+    int sonlar[] = {4, 9, 1, 7, 5, 8};
+    KichikHeap h = {0};
+    for (int i = 0; i < 6; i++) {
+        taklif(&h, sonlar[i]);
+    }
+    printf("top3:");
+    int x = 0;
+    while (ol(&h, &x)) {
+        printf(" %d", x);
+    }
+    printf("\n");
+    return 0;
+}`,
+            output: "top3: 7 8 9",
+          },
+          {
+            type: "table",
+            head: ["Amal", "Murakkablik", "Izoh"],
+            rows: [
+              ["<code>push</code>", "O(log n)", "oxiriga qo'shib, yuqoriga suzish"],
+              ["<code>pop</code>", "O(log n)", "ildizni oxirgi bilan almashtirib, pastga tushirish"],
+              ["<code>peek</code>", "O(1)", "ildiz — eng kichik element"],
+              ["heapify", "O(n)", "massivdan to'g'ridan-to'g'ri uyum qurish"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Max-heap va comparator",
+            html: "Max-heap uchun taqqoslash belgilarini teskari qiling yoki qiymatlarni manfiy saqlang. Umumiy priority queue da har bir element uchun taqqoslash funksiyasi beriladi; C'da bu funksiya ko'rsatkichi yoki struktura ichidagi priority maydoni bo'lishi mumkin. Uyum barqaror emas: teng prioritetli elementlarning tartibi kafolatlanmaydi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Massivdagi i indeksli tugunning chap bolasi qaysi indeksda?",
+            options: ["i / 2", "2 * i + 1", "2 * i", "i + 1"],
+            answer: 1,
+            explain: "0 dan boshlangan indekslashda chap bola 2*i+1, o'ng bola 2*i+2 bo'ladi.",
+          },
+          {
+            q: "Minimal uyumning ildizida qanday qiymat turadi?",
+            options: [
+              "Eng katta qiymat",
+              "Tasodifiy qiymat",
+              "Eng kichik qiymat",
+              "Oxirgi qo'shilgan qiymat",
+            ],
+            answer: 2,
+            explain: "Min-heap xossasiga ko'ra ota-ona bolalaridan kichik yoki teng; ildiz eng kichik bo'ladi.",
+          },
+          {
+            q: "n ta son ichidan eng katta k tasini topishda k o'lchamli min-heap ishlatilsa, vaqt murakkabligi qanday?",
+            options: ["O(n log k)", "O(n²)", "O(k log n)", "O(n)"],
+            answer: 0,
+            explain: "Har bir son uchun ko'pi bilan O(log k) sift bajariladi; jami O(n log k).",
+          },
+        ],
+      },

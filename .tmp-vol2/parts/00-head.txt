@@ -1,0 +1,19 @@
+/* C course volume 2 data (50 advanced lessons: ids 50-99 + final exam id 100) */
+(function () {
+  "use strict";
+  window.NOLDAN_COURSE_VOLUMES = window.NOLDAN_COURSE_VOLUMES || {};
+  window.NOLDAN_COURSE_VOLUMES.c = {
+    modules: [
+      { title: "Ko'rsatkichlar va xotira ustaxonasi", lessons: [50, 51, 52, 53, 54] },
+      { title: "Xotira egaligi va dinamik naqshlar", lessons: [55, 56, 57, 58, 59] },
+      { title: "Stek, navbat va hash jadval", lessons: [60, 61, 62, 63, 64] },
+      { title: "Daraxtlar, uyum va graflar", lessons: [65, 66, 67, 68, 69] },
+      { title: "Saralash, qidiruv va rekursiya", lessons: [70, 71, 72, 73, 74] },
+      { title: "Dinamik programmalash, greedy va bitlar", lessons: [75, 76, 77, 78, 79] },
+      { title: "Matn tahlili, formatlar va ABI", lessons: [80, 81, 82, 83, 84] },
+      { title: "Signallar, oqimlar va tarmoq", lessons: [85, 86, 87, 88, 89] },
+      { title: "Muhandislik: test, profil va build", lessons: [90, 91, 92, 93, 94] },
+      { title: "Xavfsizlik va yakuniy loyiha", lessons: [95, 96, 97, 98, 99] },
+      { title: "Yakuniy imtihon", lessons: [100] },
+    ],
+    lessons: [

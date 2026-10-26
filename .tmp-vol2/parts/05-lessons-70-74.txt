@@ -1,0 +1,666 @@
+      {
+        id: 70,
+        title: "Merge sort va quick sort chuqur",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Merge sort massivni yarmiga bo'lib, har yarmini saralab, keyin ularni birlashtiradi. Har qanday holatda O(n log n), barqaror va tashqi saralashga mos. Kamchiligi — qo'shimcha O(n) bufer. Quick sort esa pivot atrofida bo'lib tashlaydi va joyida ishlaydi; ortacha O(n log n), lekin yomon pivot tanlovida O(n²) va rekursiya chuqurligi O(n) bo'lishi mumkin.",
+          },
+          {
+            type: "code",
+            title: "merge_sort.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+void birlashtir(int *a, int *tmp, int chap, int orta, int ong) {
+    int i = chap, j = orta + 1, k = chap;
+    while (i <= orta && j <= ong) {
+        if (a[i] <= a[j]) tmp[k++] = a[i++];
+        else tmp[k++] = a[j++];
+    }
+    while (i <= orta) tmp[k++] = a[i++];
+    while (j <= ong) tmp[k++] = a[j++];
+    for (i = chap; i <= ong; i++) a[i] = tmp[i];
+}
+
+void merge_sort(int *a, int *tmp, int chap, int ong) {
+    if (chap >= ong) return;
+    int orta = chap + (ong - chap) / 2;
+    merge_sort(a, tmp, chap, orta);
+    merge_sort(a, tmp, orta + 1, ong);
+    birlashtir(a, tmp, chap, orta, ong);
+}
+
+int main(void) {
+    int a[] = {38, 27, 43, 3, 9, 82, 10};
+    int n = (int)(sizeof a / sizeof a[0]);
+    int *tmp = malloc((size_t)n * sizeof *tmp);
+    if (!tmp) return 1;
+
+    merge_sort(a, tmp, 0, n - 1);
+    for (int i = 0; i < n; i++) {
+        printf("%d%s", a[i], i + 1 < n ? " " : "\n");
+    }
+    free(tmp);
+    return 0;
+}`,
+            output: "3 9 10 27 38 43 82",
+          },
+          {
+            type: "p",
+            html: "Quick sortda Lomuto sxemasi pivotdan kichik elementlarni chapga yig'adi. Pivot sifatida oxirgi elementni olish tartiblangan massivda eng yomon holatni beradi. Tasodifiy yoki median-of-three pivot tanlash, kichik bo'laklarda insertion sort ga o'tish amaliy optimizatsiyalardir. Rekursiv chaqiruvlar soni O(log n) bo'lishi uchun kichikroq qismni rekursiyaga, kattaroqni tsiklga bering.",
+          },
+          {
+            type: "code",
+            title: "quick_sort.c",
+            code: String.raw`#include <stdio.h>
+
+void almashtir(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+
+int bolish(int *a, int past, int yuqori) {
+    int pivot = a[yuqori];
+    int i = past - 1;
+    for (int j = past; j < yuqori; j++) {
+        if (a[j] <= pivot) {
+            i++;
+            almashtir(&a[i], &a[j]);
+        }
+    }
+    almashtir(&a[i + 1], &a[yuqori]);
+    return i + 1;
+}
+
+void quick_sort(int *a, int past, int yuqori) {
+    if (past >= yuqori) return;
+    int p = bolish(a, past, yuqori);
+    quick_sort(a, past, p - 1);
+    quick_sort(a, p + 1, yuqori);
+}
+
+int main(void) {
+    int a[] = {38, 27, 43, 3, 9, 82, 10};
+    int n = (int)(sizeof a / sizeof a[0]);
+    quick_sort(a, 0, n - 1);
+    for (int i = 0; i < n; i++) {
+        printf("%d%s", a[i], i + 1 < n ? " " : "\n");
+    }
+    return 0;
+}`,
+            output: "3 9 10 27 38 43 82",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Rekursiya va bufer xavfi",
+            html: "Merge sortda <code>tmp</code> bufer butun massiv uchun bir marta ajratiladi, har chaqiruvda emas. Quick sortda <code>i</code> indeksini <code>past - 1</code> dan boshlash va pivotdan keyin <code>i + 1</code> ni qaytarish muhim. Har ikkala algoritmni <code>size_t</code> o'rniga <code>int</code> indeks bilan yozish katta massivlarda chegaradan chiqishi mumkin; hajmga mos tur tanlang.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Merge sort ning eng yomon holat murakkabligi qanday?",
+            options: ["O(n log n)", "O(n²)", "O(n)", "O(log n)"],
+            answer: 0,
+            explain: "Bo'lish va birlashtirish har doim bir xil tuzilishda bo'ladi; barcha holatlarda O(n log n).",
+          },
+          {
+            q: "Quick sort qaysi holatda O(n²) ga tushadi?",
+            options: [
+              "Massiv tasodifiy bo'lsa",
+              "Pivot har safar eng kichik yoki eng katta bo'lsa",
+              "Massiv allaqachon saralangan va pivot oxirgi bo'lsa, ikkalasi ham",
+              "Faqat manfiy sonlar bo'lsa",
+            ],
+            answer: 2,
+            explain: "Tartiblangan massivda oxirgi element pivot bo'lsa, bo'linish 1 va n−1 ga ajraladi va rekursiya O(n²) bo'ladi.",
+          },
+          {
+            q: "Merge sort qaysi xususiyati bilan boshqa saralashlardan ajralib turadi?",
+            options: [
+              "Joyida ishlaydi",
+              "Barqaror va O(n log n) kafolat beradi",
+              "Eng tez algoritm",
+              "Faqat butun sonlar uchun",
+            ],
+            answer: 1,
+            explain: "Teng elementlar tartibini saqlaydi (stable) va har qanday holatda O(n log n) bo'ladi.",
+          },
+        ],
+      },
+      {
+        id: 71,
+        title: "Counting va radix sort: kalitlar diapazoni",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Taqqoslashga asoslangan saralashlar O(n log n) dan tezroq bo'la olmaydi, lekin kalitlar cheklangan butun sonlar bo'lsa, sanash mumkin. <b>Counting sort</b> har bir qiymat necha marta uchrashini sanaydi va prefiks yig'indisi orqali elementlarni to'g'ridan-to'g'ri joyiga qo'yadi — O(n + k), bu yerda k — qiymatlar diapazoni. k katta bo'lsa xotira sarfi oshadi.",
+          },
+          {
+            type: "code",
+            title: "counting_sort.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+void counting_sort(int *a, int n, int k) {
+    int *son = calloc((size_t)k, sizeof *son);
+    int *natija = malloc((size_t)n * sizeof *natija);
+    if (!son || !natija) {
+        free(son);
+        free(natija);
+        return;
+    }
+    for (int i = 0; i < n; i++) son[a[i]]++;
+    for (int i = 1; i < k; i++) son[i] += son[i - 1];
+    for (int i = n - 1; i >= 0; i--) {
+        natija[son[a[i]] - 1] = a[i];
+        son[a[i]]--;
+    }
+    for (int i = 0; i < n; i++) a[i] = natija[i];
+    free(son);
+    free(natija);
+}
+
+int main(void) {
+    int a[] = {4, 2, 2, 8, 3, 3, 1};
+    int n = (int)(sizeof a / sizeof a[0]);
+    counting_sort(a, n, 10);
+    for (int i = 0; i < n; i++) {
+        printf("%d%s", a[i], i + 1 < n ? " " : "\n");
+    }
+    return 0;
+}`,
+            output: "1 2 2 3 3 4 8",
+          },
+          {
+            type: "p",
+            html: "Radix sort ko'p xonali sonlarni eng kichik xonadan boshlab, har xona bo'yicha barqaror saralaydi. Har bir o'tish counting sort bilan O(n + 10) bo'ladi; jami O(d(n + 10)), d — xonalar soni. Bu yerda barqarorlik hal qiluvchi: oldingi xona tartibi keyingi xonada saqlanib qolishi kerak. Manfiy sonlar uchun belgini alohida ishlash yoki ofset qo'shish kerak.",
+          },
+          {
+            type: "code",
+            title: "radix_sort.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+void xona_sort(int *a, int n, int xona) {
+    int natija[16];
+    int son[10] = {0};
+
+    for (int i = 0; i < n; i++) {
+        son[(a[i] / xona) % 10]++;
+    }
+    for (int i = 1; i < 10; i++) {
+        son[i] += son[i - 1];
+    }
+    for (int i = n - 1; i >= 0; i--) {
+        int raqam = (a[i] / xona) % 10;
+        natija[--son[raqam]] = a[i];
+    }
+    for (int i = 0; i < n; i++) {
+        a[i] = natija[i];
+    }
+}
+
+void radix_sort(int *a, int n) {
+    int eng_katta = 0;
+    for (int i = 0; i < n; i++) {
+        if (a[i] > eng_katta) eng_katta = a[i];
+    }
+    for (int xona = 1; eng_katta / xona > 0; xona *= 10) {
+        xona_sort(a, n, xona);
+    }
+}
+
+int main(void) {
+    int a[] = {170, 45, 75, 90, 802, 24, 2, 66};
+    int n = (int)(sizeof a / sizeof a[0]);
+    radix_sort(a, n);
+    for (int i = 0; i < n; i++) {
+        printf("%d%s", a[i], i + 1 < n ? " " : "\n");
+    }
+    return 0;
+}`,
+            output: "2 24 45 66 75 90 170 802",
+          },
+          {
+            type: "table",
+            head: ["Algoritm", "Vaqt", "Qo'shimcha xotira", "Cheklov"],
+            rows: [
+              ["Counting sort", "O(n + k)", "O(n + k)", "kichik butun diapazon"],
+              ["Radix sort", "O(d(n + b))", "O(n + b)", "butun kalitlar, barqarorlik"],
+              ["Merge sort", "O(n log n)", "O(n)", "universal"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Tashqi saralash",
+            html: "Ma'lumot xotiraga sig'masa, <b>tashqi merge sort</b> ishlatiladi: fayl bo'laklarga bo'linib, har biri xotirada saralanadi va vaqtinchalik fayllarga yoziladi, keyin ko'p yo'nalishli birlashtirish bajariladi. Bu ma'lumotlar bazasi va log tizimlarida keng qo'llanadi. Counting sort faqat kalitlar diapazoni oqilona bo'lganda foydali; k = 10^9 bo'lsa, xotira portlaydi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Counting sort qanday murakkablikka ega?",
+            options: ["O(n log n)", "O(n + k)", "O(n²)", "O(k log k)"],
+            answer: 1,
+            explain: "n elementni sanash va k diapazon bo'ylab prefiks yig'indisi hisoblash O(n + k) vaqt oladi.",
+          },
+          {
+            q: "Radix sort nima uchun barqaror saralashdan foydalanadi?",
+            options: [
+              "Xotirani tejash uchun",
+              "Oldingi xona bo'yicha tartibni saqlab qolish uchun",
+              "Faqat manfiy sonlarni saralash uchun",
+              "Taqqoslashlarni ko'paytirish uchun",
+            ],
+            answer: 1,
+            explain: "Har bir xona alohida saralanadi; barqarorlik tufayli oldingi xonalarning nisbiy tartibi buzilmaydi.",
+          },
+          {
+            q: "Counting sort qaysi holatda mos emas?",
+            options: [
+              "Qiymatlar 0..100 oralig'ida bo'lsa",
+              "n kichik bo'lsa",
+              "Qiymatlar juda katta va siyrak diapazonda bo'lsa",
+              "Barqarorlik kerak bo'lsa",
+            ],
+            answer: 2,
+            explain: "k juda katta bo'lsa, sanash massivi xotirani behuda egallaydi; bunday holatda boshqa algoritm kerak.",
+          },
+        ],
+      },
+      {
+        id: 72,
+        title: "Ikkilik qidiruv chegaralari va javob bo'yicha qidiruv",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Oddiy ikkilik qidiruv element bor-yo'qligini aytadi, lekin takroriy elementlarda qaysi nusxani topishi kafolatlanmaydi. <b>lower_bound</b> birinchi mos elementning indeksini, <b>upper_bound</b> esa oxirgi mos elementdan keyingi indeksni qaytaradi. Ikkalasi ham yarim ochiq <code>[past, yuqori)</code> intervalida ishlaydi va <code>mid = past + (yuqori - past) / 2</code> bilan toshib ketishdan saqlanadi.",
+          },
+          {
+            type: "code",
+            title: "chegaralar.c",
+            code: String.raw`#include <stdio.h>
+
+int past_chegara(const int *a, int n, int x) {
+    int past = 0, yuqori = n;
+    while (past < yuqori) {
+        int orta = past + (yuqori - past) / 2;
+        if (a[orta] < x) past = orta + 1;
+        else yuqori = orta;
+    }
+    return past;
+}
+
+int yuqori_chegara(const int *a, int n, int x) {
+    int past = 0, yuqori = n;
+    while (past < yuqori) {
+        int orta = past + (yuqori - past) / 2;
+        if (a[orta] <= x) past = orta + 1;
+        else yuqori = orta;
+    }
+    return past;
+}
+
+int main(void) {
+    int a[] = {1, 3, 3, 5, 8, 8, 8, 10};
+    int n = (int)(sizeof a / sizeof a[0]);
+    int p = past_chegara(a, n, 8);
+    int y = yuqori_chegara(a, n, 8);
+    printf("past=%d yuqori=%d soni=%d\n", p, y, y - p);
+    printf("4_uchun=%d\n", past_chegara(a, n, 4));
+    return 0;
+}`,
+            output: "past=4 yuqori=7 soni=3\n4_uchun=3",
+          },
+          {
+            type: "p",
+            html: "Ba'zi masalalarda massiv saralanmagan, lekin javobni tekshirish funksiyasi monoton: shart bajarilsa kattaroq javob ham bajariladi. U holda <b>javob bo'yicha ikkilik qidiruv</b> ishlatiladi. Masalan, kemaga yuklarni berilgan kunlar ichida tashish uchun minimal sig'imni topish: sig'im oshsa, kunlar soni kamayadi. Har qadamda O(n) tekshiruv, jami O(n log S).",
+          },
+          {
+            type: "code",
+            title: "javob_qidiruv.c",
+            code: String.raw`#include <stdio.h>
+
+int yetadi(const int *w, int n, int kun, int sigim) {
+    int kerak = 1;
+    int joriy = 0;
+    for (int i = 0; i < n; i++) {
+        if (w[i] > sigim) return 0;
+        if (joriy + w[i] > sigim) {
+            kerak++;
+            joriy = 0;
+        }
+        joriy += w[i];
+    }
+    return kerak <= kun;
+}
+
+int main(void) {
+    int w[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    int n = (int)(sizeof w / sizeof w[0]);
+    int kun = 5;
+    int past = 10, yuqori = 55;
+
+    while (past < yuqori) {
+        int orta = past + (yuqori - past) / 2;
+        if (yetadi(w, n, kun, orta)) yuqori = orta;
+        else past = orta + 1;
+    }
+    printf("sig'im=%d\n", past);
+    return 0;
+}`,
+            output: "sig'im=15",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Invariantni aniq yozing",
+            html: "Ikkilik qidiruvda xatolar asosan chegara va shart belgisidan kelib chiqadi. <code>past</code> — javob bo'lishi mumkin bo'lgan eng kichik indeks, <code>yuqori</code> — javob bo'lishi mumkin bo'lmagan birinchi indeks bo'lsin. Har qadamda qaysi yarim saqlanishini izohlab yozing. <code>mid = (past + yuqori) / 2</code> katta indekslarda toshib ketishi mumkin, shuning uchun ayirma usuli ishlatiladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "lower_bound takroriy elementlarda qaysi indeksni qaytaradi?",
+            options: [
+              "Oxirgi mos elementdan keyingi indeks",
+              "Birinchi mos element indeksi",
+              "Tasodifiy mos element indeksi",
+              "Massiv uzunligini",
+            ],
+            answer: 1,
+            explain: "lower_bound shartni qanoatlantiruvchi birinchi elementning indeksini beradi.",
+          },
+          {
+            q: "Nega mid = (past + yuqori) / 2 o'rniga past + (yuqori - past) / 2 ishlatiladi?",
+            options: [
+              "Tezroq ishlaydi",
+              "past + yuqori int chegarasidan toshib ketishi mumkin",
+              "Natija har doim boshqacha",
+              "Manfiy indekslardan qochish uchun",
+            ],
+            answer: 1,
+            explain: "Katta indekslarda yig'indi int diapazonidan chiqishi mumkin; ayirma usuli xavfsiz.",
+          },
+          {
+            q: "Javob bo'yicha ikkilik qidiruv qanday shartda qo'llanadi?",
+            options: [
+              "Javobni tekshirish funksiyasi monoton bo'lsa",
+              "Massiv albatta saralangan bo'lsa",
+              "Faqat sonlar musbat bo'lsa",
+              "Massiv uzunligi 2 dan katta bo'lsa",
+            ],
+            answer: 0,
+            explain: "Agar bir javob uchun shart bajarilsa, undan kattaroq (yoki kichikroq) javoblar uchun ham bajarilsa, qidiruv ishlaydi.",
+          },
+        ],
+      },
+      {
+        id: 73,
+        title: "Backtracking: N malika masalasi",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "N malika masalasida n×n taxtaga n ta malikani shunday qo'yish kerakki, ular bir-birini urmasin: bir qatorda, bir ustunda yoki bir diagonalda ikkitasi bo'lmasin. <b>Backtracking</b> har qatorga malikani navbat bilan qo'yadi, mumkin bo'lmagan joyni o'tkazib yuboradi va keyingi qatorga o'tadi. Yechim topilmasa, oxirgi tanlovni bekor qilib, keyingi variantni sinaydi.",
+          },
+          {
+            type: "code",
+            title: "n_queens_count.c",
+            code: String.raw`#include <stdio.h>
+
+static int ustun[16];
+static int diag1[32];
+static int diag2[32];
+
+int yechim(int qator, int n) {
+    if (qator == n) {
+        return 1;
+    }
+    int soni = 0;
+    for (int col = 0; col < n; col++) {
+        int d1 = qator - col + n;
+        int d2 = qator + col;
+        if (ustun[col] || diag1[d1] || diag2[d2]) {
+            continue;
+        }
+        ustun[col] = diag1[d1] = diag2[d2] = 1;
+        soni += yechim(qator + 1, n);
+        ustun[col] = diag1[d1] = diag2[d2] = 0;
+    }
+    return soni;
+}
+
+int main(void) {
+    int n = 8;
+    printf("yechimlar=%d\n", yechim(0, n));
+    return 0;
+}`,
+            output: "yechimlar=92",
+          },
+          {
+            type: "p",
+            html: "Har bir qator uchun faqat bitta malika qo'yiladi, shuning uchun qatorlar bo'yicha ziddiyat avtomatik yo'qoladi. Ustun va ikki diagonal uchun band belgilari massivlarda saqlanadi. Diagonal indekslari: <code>qator - col + n</code> va <code>qator + col</code>. Qaytishda (<i>backtrack</i>) bu belgilarni albatta tozalash kerak, aks holda keyingi variantlar noto'g'ri rad etiladi.",
+          },
+          {
+            type: "code",
+            title: "n_queens_birinchi.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+
+static int poz[16];
+static int ustun[16];
+static int d1[32];
+static int d2[32];
+
+int yech(int qator, int n) {
+    if (qator == n) {
+        return 1;
+    }
+    for (int col = 0; col < n; col++) {
+        int a = qator - col + n;
+        int b = qator + col;
+        if (ustun[col] || d1[a] || d2[b]) continue;
+        poz[qator] = col;
+        ustun[col] = d1[a] = d2[b] = 1;
+        if (yech(qator + 1, n)) return 1;
+        ustun[col] = d1[a] = d2[b] = 0;
+    }
+    return 0;
+}
+
+int main(void) {
+    int n = 6;
+    if (!yech(0, n)) {
+        printf("yechim yo'q\n");
+        return 1;
+    }
+    printf("ustunlar:");
+    for (int i = 0; i < n; i++) {
+        printf(" %d", poz[i]);
+    }
+    printf("\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            putchar(poz[i] == j ? 'Q' : '.');
+        }
+        putchar('\n');
+    }
+    return 0;
+}`,
+            output: "ustunlar: 1 3 5 0 2 4\n.Q....\n...Q..\n.....Q\nQ.....\n..Q...\n....Q.",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Nega 92 ta?",
+            html: "8×8 taxtada 92 ta yechim bor, lekin ular simmetriya bo'yicha 12 ta asosiy yechimga keltiriladi. Backtracking daraxtini tekshirish uchun ustun va diagonallar massivlarini global yoki struktura ichida saqlash mumkin; rekursiya chuqurligi n. Katta n uchun bu usul eksponensial; min-conflicts kabi evristikalar alohida qo'llanadi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "8×8 taxtada N malika masalasining nechta yechimi bor?",
+            options: ["64", "92", "12", "8"],
+            answer: 1,
+            explain: "Klassik natija — 92 ta yechim; 12 ta asosiy yechim simmetriya bilan ko'paytiriladi.",
+          },
+          {
+            q: "Backtrackingda qaytishda nima qilish shart?",
+            options: [
+              "Barcha yechimlarni o'chirish",
+              "Tanlangan joy belgilarini tozalash",
+              "Rekursiyani to'xtatish",
+              "Taxtani qayta yaratish",
+            ],
+            answer: 1,
+            explain: "Qaytishda ustun va diagonal belgilari bo'shatiladi; aks holda keyingi variantlar noto'g'ri band deb hisoblanadi.",
+          },
+          {
+            q: "N malika masalasida diagonallar uchun nechta indeks yetarli?",
+            options: ["n", "2n", "n²", "n/2"],
+            answer: 1,
+            explain: "Ikkala yo'nalishdagi diagonallar soni 2n−1; massivni 2n o'lchamda olish qulay.",
+          },
+        ],
+      },
+      {
+        id: 74,
+        title: "Backtracking: permutatsiyalar va qism to'plam",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Backtracking faqat shaxmat taxtasida emas: kombinatsiyalarni sanash, yo'l topish va jumboqlarni yechishda ham ishlatiladi. Umumiy naqsh — <b>tanla, rekursiya qil, bekor qil</b>. Har bir qadamda bitta variant tanlanadi, qolganlari rekursiyaga qoldiriladi, qaytishda tanlov o'chiriladi. Daraxtning shoxlanishi juda katta bo'lsa, <b>pruning</b> — umidsiz shoxlarni erta kesish — hal qiluvchi.",
+          },
+          {
+            type: "code",
+            title: "permutatsiyalar.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+
+void almashtir(char *a, char *b) {
+    char t = *a;
+    *a = *b;
+    *b = t;
+}
+
+void permutatsiya(char *s, int chap, int ong) {
+    if (chap == ong) {
+        printf("%s\n", s);
+        return;
+    }
+    for (int i = chap; i <= ong; i++) {
+        almashtir(&s[chap], &s[i]);
+        permutatsiya(s, chap + 1, ong);
+        almashtir(&s[chap], &s[i]);
+    }
+}
+
+int main(void) {
+    char s[] = "ABC";
+    permutatsiya(s, 0, (int)strlen(s) - 1);
+    return 0;
+}`,
+            output: "ABC\nACB\nBAC\nBCA\nCBA\nCAB",
+          },
+          {
+            type: "p",
+            html: "Qism to'plam yig'indisi (subset sum) masalasida har bir element uchun ikkita tanlov bor: olish yoki olmaslik. Rekursiya joriy indeks va qolgan yig'indi bilan yuriladi. Agar yig'indi nolga yetmasa va elementlar tugasa, bu shox muvaffaqiyatsiz. Manfiy bo'lmagan sonlarda joriy yig'indi maqsaddan oshib ketsa, shoxni darhol kesish mumkin — bu ortiqcha ishni kamaytiradi.",
+          },
+          {
+            type: "code",
+            title: "subset_sum.c",
+            code: String.raw`#include <stdio.h>
+
+int tanla(int *a, int n, int i, int qoldi, int *javob, int *uzunlik) {
+    if (qoldi == 0) {
+        return 1;
+    }
+    if (i == n || qoldi < 0) {
+        return 0;
+    }
+    javob[*uzunlik] = a[i];
+    (*uzunlik)++;
+    if (tanla(a, n, i + 1, qoldi - a[i], javob, uzunlik)) {
+        return 1;
+    }
+    (*uzunlik)--;
+
+    if (tanla(a, n, i + 1, qoldi, javob, uzunlik)) {
+        return 1;
+    }
+    return 0;
+}
+
+int main(void) {
+    int a[] = {3, 34, 4, 12, 5, 2};
+    int n = (int)(sizeof a / sizeof a[0]);
+    int javob[8];
+    int uzunlik = 0;
+
+    if (tanla(a, n, 0, 9, javob, &uzunlik)) {
+        printf("topildi:");
+        for (int i = 0; i < uzunlik; i++) {
+            printf(" %d", javob[i]);
+        }
+        printf("\n");
+    } else {
+        printf("topilmadi\n");
+    }
+    return 0;
+}`,
+            output: "topildi: 3 4 2",
+          },
+          {
+            type: "table",
+            head: ["Masala", "Tanlov", "Pruning"],
+            rows: [
+              ["Permutatsiya", "qaysi elementni keyingi o'ringa qo'yish", "takroriy elementlarni o'tkazish"],
+              ["Subset sum", "elementni olish yoki olmaslik", "qoldiq manfiy bo'lsa to'xtatish"],
+              ["Sudoku", "katakka qaysi raqam", "qator/ustun/blok ziddiyati"],
+              ["Labirint", "qaysi qo'shni katak", "tashrif va devor"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Holatni tiklash va nusxa",
+            html: "Backtrackingda global holatni o'zgartirsangiz, qaytishda uni albatta tiklang. Rekursiyaga massivning nusxasini berish soddaroq, lekin har chaqiruvda xotira va vaqt sarflaydi; indeks va bitta javob massivi bilan ishlash tejamkor. Takroriy elementlar bo'lsa, permutatsiyalarda bir xil natijalar chiqmasligi uchun saralash va <code>used</code> massividan foydalaning.",
+          },
+        ],
+        quiz: [
+          {
+            q: "3 ta har xil elementdan nechta permutatsiya hosil bo'ladi?",
+            options: ["3", "6", "9", "27"],
+            answer: 1,
+            explain: "3! = 3 × 2 × 1 = 6 ta turli tartib mavjud.",
+          },
+          {
+            q: "Subset sum masalasida qaysi holatda shoxni erta kesish mumkin?",
+            options: [
+              "Qoldiq maqsaddan katta bo'lsa",
+              "Elementlar musbat va qoldiq manfiy bo'lib qolsa",
+              "Massiv saralangan bo'lsa",
+              "Har doim, birinchi elementdan keyin",
+            ],
+            answer: 1,
+            explain: "Musbat sonlar yig'indisi faqat oshadi; qoldiq manfiy bo'lsa, bu shox hech qachon nolga yetmaydi.",
+          },
+          {
+            q: "Permutatsiyalarni generatsiya qilishda takroriy natijalardan qochish uchun nima qilish kerak?",
+            options: [
+              "Har safar massivni teskari aylantirish",
+              "Elementlarni saralash va bir xil qiymatlarni o'tkazib yuborish",
+              "Faqat bitta element bilan ishlash",
+              "Rekursiyani butunlay olib tashlash",
+            ],
+            answer: 1,
+            explain: "Saralash bir xil qiymatlarni yonma-yon qo'yadi; keyingi tanlovda takroriy qiymatni o'tkazish mumkin.",
+          },
+        ],
+      },

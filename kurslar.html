@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kurslar — Noldan</title>
+  <meta name="description" content="Noldan kurslari: Python, JavaScript, HTML & CSS, C++, SQL, Java, C, PHP, Ruby, Go, Rust, TypeScript, Kotlin, Dart, Bash, R va Scala — 17 ta faol kurs, 831 dars. Testlar, yakuniy imtihon va sertifikat.">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/app.js" defer></script>
+  <script src="assets/js/courses.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Asosiy mazmunga o'tish</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Noldan — bosh sahifa">
+        <span class="brand__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-5 6 5 6M16 6l5 6-5 6M14 4l-4 16"/></svg>
+        </span>
+        <span>
+          <span class="brand__name">noldan<span class="brand__dot">.</span></span>
+          <span class="brand__tag">dasturlashni noldan</span>
+        </span>
+      </a>
+
+      <nav class="main-nav" id="mainNav" aria-label="Asosiy menyu">
+        <a class="nav-link" href="index.html">Bosh sahifa</a>
+        <a class="nav-link" href="kurslar.html" aria-current="page">Kurslar</a>
+        <a class="nav-link" href="python.html">Python kursi</a>
+        <a class="nav-link" href="maydon.html">Amaliyot maydoni</a>
+        <div class="auth-zone mobile-auth" data-auth-zone></div>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-zone" data-auth-zone></div>
+        <button class="menu-toggle" type="button" aria-label="Menyuni ochish" aria-expanded="false" aria-controls="mainNav">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Yo'l">
+          <a href="index.html">Bosh sahifa</a>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          <span aria-current="page">Kurslar</span>
+        </nav>
+        <div class="page-hero__grid">
+          <div>
+            <span class="kicker" style="margin-top:22px">Kurslar</span>
+            <h1>Birinchi qadamni tanlang.</h1>
+            <p class="lead">Har bir yo'l noldan boshlanadi. Python, JavaScript, HTML &amp; CSS, C++, SQL va yana 12 ta til — jami 17 ta to'liq kurs — har birida 50 tadan dars, testlar, yakuniy imtihon va sertifikat bor. Eng kerakli tildan boshlang.</p>
+            <div class="page-hero__chips">
+              <span class="badge"><span class="badge__dot"></span> 17 ta faol kurs</span>
+              <span class="badge badge--muted">831 dars</span>
+              <span class="badge badge--muted">100% bepul</span>
+              <span class="badge badge--muted">Sertifikat</span>
+            </div>
+          </div>
+          <aside class="page-hero__aside">
+            <strong><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg> Qaysi tildan boshlay?</strong>
+            <p>Dasturlashni birinchi marta o'rganayotgan bo'lsangiz, Python eng qulay tanlov. Sodda sintaksis tufayli mantiqqa e'tibor qaratasiz.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container">
+        <div class="course-filters" role="group" aria-label="Kurslarni filtrlash">
+          <button class="filter-btn is-active" type="button" data-filter="all" aria-pressed="true">Barchasi</button>
+          <button class="filter-btn" type="button" data-filter="dasturlash" aria-pressed="false">Dasturlash</button>
+          <button class="filter-btn" type="button" data-filter="veb" aria-pressed="false">Veb</button>
+          <button class="filter-btn" type="button" data-filter="malumotlar" aria-pressed="false">Ma'lumotlar</button>
+          <span class="filter-count" data-filter-count>19 ta kurs</span>
+        </div>
+
+        <div class="courses-grid" data-course-grid>
+          <article class="course-card is-featured" data-category="dasturlash">
+            <div class="course-card__content">
+              <div class="course-card__top">
+                <span class="course-logo course-logo--python">Py</span>
+                <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+              </div>
+              <h3 style="font-size:28px;margin-top:20px">Python: noldan loyihagacha</h3>
+              <p>Tajribasiz boshlang. Sintaksisdan tortib funksiyalar, lug'atlar, fayllar, OOP va ilg'or mavzulargacha — 31 dars, 63 test, 15 savollik imtihon va brauzerda amaliyot.</p>
+              <div class="course-card__meta">
+                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg> 31 dars</span>
+                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> ~7 soat</span>
+                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 7 5-3 5 3-1.5-7"/></svg> Sertifikat</span>
+              </div>
+              <div class="python-progress-mini" data-progress-widget hidden style="margin-top:18px;margin-bottom:4px">
+                <div class="python-progress-mini__head"><span>Sizning progressingiz</span><span data-progress-text>0/31 dars</span></div>
+                <div class="python-progress-mini__bar"><span data-progress-bar style="width:0%"></span></div>
+              </div>
+              <a class="btn btn--primary" href="python.html" data-python-cta style="margin-top:20px">
+                <span data-cta-label>Kursni boshlash</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+            </div>
+            <div class="course-card__visual" aria-hidden="true">
+              <div class="mini-window">
+                <div class="mini-window__head">
+                  <span class="dots"><i></i><i></i><i></i></span>
+                  <span class="mini-window__title">kalkulyator.py</span>
+                </div>
+                <pre><code data-highlight="python">def hisobla(a, b, amal):
+    if amal == "+":
+        return a + b
+    if amal == "-":
+        return a - b
+    return "?"
+
+print(hisobla(12, 4, "+"))
+print(hisobla(12, 4, "-"))</code></pre>
+                <div class="mini-window__foot">
+                  <span>Python 3.12</span>
+                  <span>Natija: 16 · 8</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="veb">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--js course-logo--sm">JS</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>JavaScript</h3>
+            <p>Saytlarga jon beruvchi til. O'zgaruvchilar, funksiyalar, DOM, asinxron kod va todo-loyiha.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=javascript">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Veb</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="veb">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--html course-logo--sm">&lt;/&gt;</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>HTML &amp; CSS</h3>
+            <p>Har qanday saytning poydevori. Semantik tuzilma, Flexbox, Grid va zamonaviy dizaynni noldan quring.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=htmlcss">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Veb</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--cpp course-logo--sm">C++</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>C++</h3>
+            <p>Tezlik va nazorat. Turlar, funksiyalar, massivlar, klasslar, xatolar va STL — algoritmlarga yo'l.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=cpp">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--java course-logo--sm">Jv</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>Java</h3>
+            <p>Katta tizimlar va Android ilovalar tili. Sinflar, obyektlar, kolleksiyalar va xatolarni boshqarish — JVM olamiga qadam.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=java">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="malumotlar">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--sql course-logo--sm">SQL</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>SQL</h3>
+            <p>Ma'lumotlar bazasi bilan muomala. SELECT, filtrlash, guruhlash, JOIN va tranzaksiyalarni o'rganing.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=sql">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Ma'lumotlar</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--c course-logo--sm">C</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>C</h3>
+            <p>Kompyuter bilan eng yaqin til. Xotira, ko'rsatkichlar, massivlar va funksiyalar — tizim dasturlashning poydevori.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=c">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="veb">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--php course-logo--sm">PHP</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>PHP</h3>
+            <p>Veb-backendning ishchi oti. Formalar, sessiyalar, fayllar va ma'lumotlar bazasi bilan serverda ishlash.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=php">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Veb</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="veb">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--ruby course-logo--sm">Rb</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>Ruby</h3>
+            <p>O'qishga qulay, quvnoq sintaksis. Obyektlar, bloklar va Ruby on Rails dunyosiga eshik.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=ruby">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Veb</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--go course-logo--sm">Go</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>Go</h3>
+            <p>Google'ning sodda va tez tili. Goroutine'lar, kanallar va samarali serverlar bilan tanishasiz.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=go">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--rust course-logo--sm">Rs</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>Rust</h3>
+            <p>Xavfsizlik va tezlikni birga beradigan til. Ownership, borrow va xatolar bilan ishlashni o'rganing.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=rust">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="veb">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--ts course-logo--sm">TS</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>TypeScript</h3>
+            <p>JavaScript'ga turlar qo'shadi. Interfeyslar, generiklar va katta loyihalarda ishonchli kod yozing.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=typescript">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Veb</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--kotlin course-logo--sm">Kt</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>Kotlin</h3>
+            <p>Android va zamonaviy JVM tili. Qisqa sintaksis, null xavfsizligi va funksiyalar bilan ishlash.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=kotlin">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--dart course-logo--sm">Da</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>Dart</h3>
+            <p>Flutter ilovalarining tili. Obyektlar, asinxron kod va chiroyli interfeyslar yaratishga tayyorlaning.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=dart">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--bash course-logo--sm">Sh</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>Bash</h3>
+            <p>Linux terminalini boshqarish. Buyruqlar, skriptlar, tsikllar va kundalik ishlarni avtomatlashtirish.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=bash">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="malumotlar">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--r course-logo--sm">R</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>R</h3>
+            <p>Statistika va ma'lumotlar tahlili. Vektorlar, data frame'lar, grafiklar va hisob-kitoblar.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=r">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Ma'lumotlar</span>
+            </div>
+          </article>
+
+          <article class="course-card" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--scala course-logo--sm">Sc</span>
+              <span class="badge badge--lime"><span class="badge__dot"></span> Ochiq</span>
+            </div>
+            <h3>Scala</h3>
+            <p>Funksional va obyekt dasturlashning uyg'unligi. JVM'da kuchli tiplar va kolleksiyalar.</p>
+            <div class="course-card__meta">
+              <span>50 dars</span><span>~20 soat</span><span>Sertifikat</span>
+            </div>
+            <div class="course-card__foot">
+              <a class="link-arrow" href="kurs.html?til=scala">Kursni boshlash
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </a>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card course-card--muted" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--csharp course-logo--sm">C#</span>
+              <span class="badge badge--outline course-card__status">Tez kunda</span>
+            </div>
+            <h3>C#</h3>
+            <p>Microsoft ekotizimi, o'yinlar va desktop dasturlar. Kuchli tipli tilda sifatli kod yozing.</p>
+            <div class="course-card__meta">
+              <span>0 dan</span><span>~6 soat</span><span>Dasturlash</span>
+            </div>
+            <div class="course-card__foot">
+              <button class="course-card__ask" type="button" data-course-notify>Xabar berish</button>
+              <span class="badge badge--muted">Dasturlash</span>
+            </div>
+          </article>
+
+          <article class="course-card course-card--muted" data-category="dasturlash">
+            <div class="course-card__top">
+              <span class="course-logo course-logo--git course-logo--sm">Git</span>
+              <span class="badge badge--outline course-card__status">Tez kunda</span>
+            </div>
+            <h3>Git &amp; GitHub</h3>
+            <p>Kodingizni saqlang va boshqalar bilan bo'lishing. Har qanday dasturchi uchun majburiy asbob.</p>
+            <div class="course-card__meta">
+              <span>0 dan</span><span>~2 soat</span><span>Asbob</span>
+            </div>
+            <div class="course-card__foot">
+              <button class="course-card__ask" type="button" data-course-notify>Xabar berish</button>
+              <span class="badge badge--muted">Asboblar</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--lavender">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Yo'nalishlar</span>
+            <h2>Qaysi yo'nalish sizga yaqin?</h2>
+            <p>Bitta til — bitta eshik. Keyingi qadamni anglash uchun uchta asosiy yo'nalishni ko'rib chiqing.</p>
+          </div>
+        </div>
+        <div class="learning-paths">
+          <article class="path-card">
+            <span class="path-card__num">01</span>
+            <span class="path-card__tag">Veb / Frontend</span>
+            <h3>Ko'rinadigan qism</h3>
+            <p>Foydalanuvchi ko'radigan interfeysni yarating: sahifa tuzilishi, dizayn va interaktivlik.</p>
+            <div class="path-card__stack"><span>HTML</span><span>CSS</span><span>JavaScript</span><span>React</span></div>
+          </article>
+          <article class="path-card">
+            <span class="path-card__num">02</span>
+            <span class="path-card__tag">Backend</span>
+            <h3>Mantiq va server</h3>
+            <p>Saytning miyasi: ma'lumotlar, API'lar va xavfsizlik bilan ishlash. Python bu yerda eng kuchli vositalardan biri.</p>
+            <div class="path-card__stack"><span>Python</span><span>SQL</span><span>FastAPI</span><span>Docker</span></div>
+          </article>
+          <article class="path-card">
+            <span class="path-card__num">03</span>
+            <span class="path-card__tag">Ma'lumotlar / AI</span>
+            <h3>Raqamlar ortidagi ma'no</h3>
+            <p>Ma'lumotlarni tahlil qiling va sun'iy intellekt modellarini qurishni o'rganing — Python bilan.</p>
+            <div class="path-card__stack"><span>Python</span><span>Pandas</span><span>Matplotlib</span><span>ML</span></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="kicker">Taqqoslash</span>
+            <h2>Qaysi tildan boshlash kerak?</h2>
+            <p>Qisqa taqqoslash — qaror qabul qilishni osonlashtiradi. Boshlovchilarga Python eng qulay.</p>
+          </div>
+        </div>
+        <div class="compare-wrap">
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Til</th>
+                <th>Asosan nima uchun?</th>
+                <th>Boshlovchiga</th>
+                <th>Holat</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Python</td>
+                <td>Veb-backend, ma'lumotlar tahlili, AI, avtomatlashtirish</td>
+                <td><span class="level">Juda qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>JavaScript</td>
+                <td>Veb-sahifalar interaktivligi, frontend va Node.js</td>
+                <td><span class="level">Qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>HTML &amp; CSS</td>
+                <td>Veb-sahifa tuzilishi va dizayni</td>
+                <td><span class="level">Juda qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>C++</td>
+                <td>Tez dasturlar, o'yinlar, algoritmik masalalar</td>
+                <td><span class="level level--mid">O'rtacha</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>SQL</td>
+                <td>Ma'lumotlar bazasi bilan ishlash</td>
+                <td><span class="level">Qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>Java</td>
+                <td>Backend tizimlari, Android va korporativ ilovalar</td>
+                <td><span class="level level--mid">O'rtacha</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>C</td>
+                <td>Tizim dasturlash, xotira va apparatga yaqin kod</td>
+                <td><span class="level level--mid">O'rtacha</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>PHP</td>
+                <td>Veb-backend, saytlar va serverdagi skriptlar</td>
+                <td><span class="level">Qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>Ruby</td>
+                <td>Veb-ilovalar, prototiplar va tez rivojlanish</td>
+                <td><span class="level">Juda qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>Go</td>
+                <td>Tez serverlar, mikroservislar va DevOps</td>
+                <td><span class="level">Qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>Rust</td>
+                <td>Xavfsiz tizim dasturlash, tezlik talab qiladigan loyihalar</td>
+                <td><span class="level level--mid">O'rtacha</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>TypeScript</td>
+                <td>Katta veb-loyihalar va ishonchli frontend</td>
+                <td><span class="level">Qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>Kotlin</td>
+                <td>Android ilovalar va zamonaviy JVM loyihalari</td>
+                <td><span class="level">Qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>Dart</td>
+                <td>Flutter orqali iOS va Android ilovalar</td>
+                <td><span class="level">Qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>Bash</td>
+                <td>Linux terminali, skriptlar va avtomatlashtirish</td>
+                <td><span class="level">Qulay</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>R</td>
+                <td>Statistika, ma'lumotlar tahlili va grafiklar</td>
+                <td><span class="level level--mid">O'rtacha</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+              <tr>
+                <td>Scala</td>
+                <td>Katta ma'lumotlar, funksional va obyekt dasturlash</td>
+                <td><span class="level level--mid">O'rtacha</span></td>
+                <td><span class="badge badge--lime">Ochiq</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="kicker">DevDocs katalogi</span>
+            <h2>Keyingi navbatdagi tillar.</h2>
+            <p>DevDocs.io hujjatlar ro'yxatidagi yana 28 ta til va muhit shu yerda. Ular hozircha katalogda turadi — to'liq o'zbekcha kurslar bosqichma-bosqich qo'shiladi.</p>
+          </div>
+        </div>
+        <div class="catalog-chips" aria-label="DevDocs katalogidagi tillar">
+          <span class="catalog-chip"><span></span>Clojure</span>
+          <span class="catalog-chip"><span></span>CoffeeScript</span>
+          <span class="catalog-chip"><span></span>ColdFusion</span>
+          <span class="catalog-chip"><span></span>Crystal</span>
+          <span class="catalog-chip"><span></span>D</span>
+          <span class="catalog-chip"><span></span>Emacs Lisp</span>
+          <span class="catalog-chip"><span></span>Elixir</span>
+          <span class="catalog-chip"><span></span>Erlang</span>
+          <span class="catalog-chip"><span></span>Fish</span>
+          <span class="catalog-chip"><span></span>Fortran</span>
+          <span class="catalog-chip"><span></span>GnuCOBOL</span>
+          <span class="catalog-chip"><span></span>Groovy</span>
+          <span class="catalog-chip"><span></span>Haskell</span>
+          <span class="catalog-chip"><span></span>Haxe</span>
+          <span class="catalog-chip"><span></span>Nim</span>
+          <span class="catalog-chip"><span></span>Nix</span>
+          <span class="catalog-chip"><span></span>Nushell</span>
+          <span class="catalog-chip"><span></span>OCaml</span>
+          <span class="catalog-chip"><span></span>Octave</span>
+          <span class="catalog-chip"><span></span>Odin</span>
+          <span class="catalog-chip"><span></span>Perl</span>
+          <span class="catalog-chip"><span></span>Pony</span>
+          <span class="catalog-chip"><span></span>PowerShell</span>
+          <span class="catalog-chip"><span></span>Q</span>
+          <span class="catalog-chip"><span></span>Tcl</span>
+          <span class="catalog-chip"><span></span>Zig</span>
+          <span class="catalog-chip"><span></span>Zsh</span>
+          <span class="catalog-chip"><span></span>XSLT &amp; XPath</span>
+        </div>
+        <p class="catalog-note"><b>Eslatma:</b> DevDocs ro'yxatida C# va Swift hujjatlari yo'q, shuning uchun ular katalogda alohida ko'rsatilgan. C# kursi keyingi bosqichda qo'shiladi; Git esa alohida asboblar kursi sifatida rejalashtirilgan.</p>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container">
+        <div class="cta-banner">
+          <div class="cta-banner__body">
+            <h2>Tanlov qilish qiyinmi? <span>Python</span>dan boshlang.</h2>
+            <p>Python o'rganish orqali dasturlash mantig'ini egallaysiz. Keyin boshqa tilga o'tish ancha oson bo'ladi.</p>
+          </div>
+          <div class="cta-banner__actions">
+            <a class="btn btn--lime btn--lg" href="python.html">Python kursini ochish</a>
+            <button class="btn btn--white btn--lg" type="button" data-open-auth="register">Bepul ro'yxatdan o'tish</button>
+            <small>831 dars · 17 ta kurs · Testlar · Sertifikat</small>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="index.html" aria-label="Noldan — bosh sahifa">
+            <span class="brand__mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-5 6 5 6M16 6l5 6-5 6M14 4l-4 16"/></svg>
+            </span>
+            <span>
+              <span class="brand__name">noldan<span class="brand__dot">.</span></span>
+              <span class="brand__tag">dasturlashni noldan</span>
+            </span>
+          </a>
+          <p class="footer__desc">O'zbek tilida, noldan boshlovchilar uchun yaratilgan bepul dasturlash platformasi. Kod yozishni bugun boshlang.</p>
+        </div>
+        <div class="footer__col">
+          <h3>Platforma</h3>
+          <ul>
+            <li><a href="kurslar.html">Kurslar</a></li>
+            <li><a href="python.html">Python kursi</a></li>
+            <li><a href="kurs.html?til=javascript">JavaScript kursi</a></li>
+            <li><a href="maydon.html">Amaliyot maydoni</a></li>
+            <li><a href="python.html#dars-31">Yakuniy imtihon</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Bo'limlar</h3>
+          <ul>
+            <li><a href="python.html#dars-1">Asoslar</a></li>
+            <li><a href="python.html#dars-9">Mantiq va tsikllar</a></li>
+            <li><a href="python.html#dars-13">Ma'lumotlar tuzilmalari</a></li>
+            <li><a href="python.html#dars-20">OOP va loyiha</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Yordam</h3>
+          <ul>
+            <li><a href="index.html#faq">Savollar</a></li>
+            <li><a href="kurslar.html">Kurslar haqida</a></li>
+            <li><button type="button" data-open-auth="register">Ro'yxatdan o'tish</button></li>
+            <li><button type="button" data-open-auth="login">Kirish</button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© <span data-year>2026</span> Noldan. Barcha huquqlar himoyalangan.</span>
+        <span>Dasturlashni o'zbek tilida o'rganing<span class="dot"></span>0 dan boshlab</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

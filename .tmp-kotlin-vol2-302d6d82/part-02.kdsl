@@ -1,0 +1,455 @@
+@@lesson 55
+@@title Generics chuqur: cheklovlar, where va star-projection
+@@minutes 17
+@@p
+Generic funksiyaga bir nechta yuqori chegara qo'yish uchun <code>where</code> ishlatiladi. Bu usul bir vaqtning o'zida bir nechta interfeys talab qiladigan algoritmlarda imzoni aniq qiladi. <code>List&lt;*&gt;</code> kabi star-projection esa tip argumentini bilmagan holda kolleksiyani xavfsiz o'qish imkonini beradi: elementlar <code>Any?</code> sifatida ko'rinadi, lekin yozish taqiqlanadi.
+@@code chegaralar.kt
+interface Identifiable { val id: Long }
+interface Named { val name: String }
+
+fun <T> engKatta(a: T, b: T): T where T : Comparable<T> =
+    if (a >= b) a else b
+
+fun <T> malumot(x: T): String where T : Identifiable, T : Named =
+    "#${x.id}: ${x.name}"
+
+data class Mahsulot(
+    override val id: Long,
+    override val name: String,
+    val narx: Int
+) : Identifiable, Named
+
+fun main() {
+    println(engKatta(12, 31))
+    println(engKatta("olma", "anor"))
+    println(malumot(Mahsulot(7, "Kotlin kitobi", 120000)))
+}
+@@out
+31
+olma
+#7: Kotlin kitobi
+@@p
+Star-projection o'qish uchun xavfsiz, yozish uchun emas. <code>List&lt;*&gt;</code> dan element olib, uni <code>filterIsInstance</code> yoki <code>is</code> bilan tekshirish mumkin. <code>MutableList&lt;*&gt;</code> ga esa hech narsa qo'shib bo'lmaydi, chunki kompilyator qaysi tip xavfsiz ekanini bilmaydi. Bu cheklov generic kolleksiyalarni API chegarasida xavfsiz saqlashga yordam beradi.
+@@code projection.kt
+fun jami(sonlar: List<*>): Int =
+    sonlar.filterIsInstance<Int>().sum()
+
+fun birinchi(map: Map<*, *>): Any? =
+    map.entries.firstOrNull()?.value
+
+fun main() {
+    val aralash: List<Any> = listOf(1, 2, "uch", 4)
+    println(jami(aralash))
+    val sozlamalar: Map<String, Int> = mapOf("port" to 8080)
+    println(birinchi(sozlamalar))
+    val royxat: MutableList<*> = mutableListOf(1, 2, 3)
+    println(royxat.size)
+    // royxat.add(4) — kompilyatsiya xatosi
+}
+@@out
+7
+8080
+3
+@@table
+Yozuv | O'qish | Yozish
+<code>List&lt;*&gt;</code> | <code>Any?</code> | Yo'q
+<code>MutableList&lt;*&gt;</code> | <code>Any?</code> | Taqiqlangan
+<code>Map&lt;*, *&gt;</code> | kalit/qiymat <code>Any?</code> | Taqiqlangan
+<code>Comparable&lt;*&gt;</code> | cheklangan | Taqiqlangan
+@@note tip | `where` yoki bitta chegara
+Bitta chegara uchun <code>&lt;T : Comparable&lt;T&gt;&gt;</code> yetarli. Ikki va undan ortiq chegarada <code>where</code> o'qishni yaxshilaydi va xatoni aniq ko'rsatadi. Chegaralar orasida vergul emas, yangi qator yoki bo'sh joy ishlatiladi; klass tip parametrlari uchun ham xuddi shu sintaksis amal qiladi.
+@@quiz
+Bir nechta yuqori chegara qo'shish uchun qaysi sintaksis ishlatiladi?
+- <code>&lt;T : A, B&gt;</code>
+- <code>&lt;T&gt; where T : A, T : B</code>
+- <code>&lt;T : A &amp; B&gt;</code>
+- <code>&lt;T extends A, B&gt;</code>
+= 1
+! Kotlin'da bir nechta chegara <code>where T : A, T : B</code> ko'rinishida yoziladi; vergulli ro'yxat tip parametridan keyin kelmaydi.
+@@quiz
+<code>List&lt;*&gt;</code> dan olingan elementning kompilyator ma'lum tipi qanday?
+- <code>Nothing</code>
+- <code>Any?</code>
+- <code>Any</code>
+- <code>T</code>
+= 1
+! Star-projection tip argumentini noma'lum deb hisoblaydi, shuning uchun o'qilgan qiymat <code>Any?</code> bo'ladi.
+@@quiz
+<code>MutableList&lt;*&gt;</code> uchun qaysi amal ruxsat etilgan?
+- Unga istalgan qiymat qo'shish
+- Undan elementni olib, aniq tipga cast qilmasdan ishlatish
+- Uning <code>size</code> xossasini o'qish
+- Uni <code>MutableList&lt;String&gt;</code> ga tayinlash
+= 2
+! O'qish va o'lcham kabi tipga bog'liq bo'lmagan amallar mumkin; yozish esa tip noma'lumligi sababli taqiqlangan.
+@@lesson 56
+@@title Variance: in, out va foydalanish joyidagi variance
+@@minutes 17
+@@p
+Variance generic tipning kichik tipdan katta tipga qanday moslashishini belgilaydi. <code>out T</code> — kovariant: <code>Manba&lt;Int&gt;</code> ni <code>Manba&lt;Number&gt;</code> o'rnida ishlatish mumkin, chunki u faqat T qaytaradi. <code>in T</code> — kontravariant: <code>Qabul&lt;Any&gt;</code> ni <code>Qabul&lt;Int&gt;</code> o'rnida ishlatish mumkin, chunki u faqat T qabul qiladi. Bu qoida “producer out, consumer in” deb eslab qolinadi.
+@@code variance.kt
+interface Manba<out T> { fun olish(): T }
+interface Qabul<in T> { fun qoyish(qiymat: T) }
+
+class Raqamlar : Manba<Int> {
+    override fun olish() = 42
+}
+
+class ChopEtuvchi : Qabul<Any> {
+    override fun qoyish(qiymat: Any) = println("qabul: $qiymat")
+}
+
+fun main() {
+    val manba: Manba<Number> = Raqamlar()
+    println(manba.olish())
+    val qabul: Qabul<Int> = ChopEtuvchi()
+    qabul.qoyish(7)
+}
+@@out
+42
+qabul: 7
+@@p
+Ba'zan tipni faqat bitta funksiyada xavfsiz o'zgartirish kerak bo'ladi. U holda declaration-site variance yetarli emas va foydalanish joyidagi projection qo'llanadi: <code>List&lt;Quti&lt;out Any&gt;&gt;</code> yoki <code>MutableList&lt;in String&gt;</code>. Bu Java'dagi wildcard'larga o'xshaydi, lekin Kotlin'da ancha o'qishli yoziladi.
+@@code use-site.kt
+data class Quti<T>(val qiymat: T)
+
+fun qutilarniChop(qutilar: List<Quti<out Any>>) {
+    qutilar.forEach { println(it.qiymat) }
+}
+
+fun <T> nusxa(doc: MutableList<in T>, manba: List<T>) {
+    manba.forEach { doc.add(it) }
+}
+
+fun main() {
+    val matnlar: List<Quti<String>> = listOf(Quti("matn"))
+    val sonlar: List<Quti<Int>> = listOf(Quti(5))
+    qutilarniChop(matnlar)
+    qutilarniChop(sonlar)
+    val any = mutableListOf<Any>()
+    nusxa(any, listOf("x", "y"))
+    println(any)
+}
+@@out
+matn
+5
+[x, y]
+@@table
+Yozuv | Ma'nosi | Xavfsiz amal
+<code>out T</code> | Faqat qaytaradi | T o'qish
+<code>in T</code> | Faqat qabul qiladi | T yozish
+<code>List&lt;out Any&gt;</code> | Use-site kovariatsiya | O'qish
+<code>MutableList&lt;in String&gt;</code> | Use-site kontravariatsiya | String qo'shish
+@@note warning | Massivlar invariant
+<code>Array&lt;String&gt;</code> ni <code>Array&lt;Any&gt;</code> ga tayinlab bo'lmaydi — massivlar invariant. Bu runtime'da <code>ArrayStoreException</code> ning oldini oladi. Kolleksiyalar uchun <code>List</code> kovariant, <code>MutableList</code> esa invariant. <code>@UnsafeVariance</code> faqat kutubxona muallifi juda ishonchli bo'lsa ishlatiladi.
+@@quiz
+<code>interface Manba&lt;out T&gt;</code> da T qanday ishlatilishi mumkin?
+- Faqat funksiya parametri sifatida
+- Faqat qaytish tipi sifatida
+- Ham parametr, ham qaytish tipi sifatida
+- Faqat xossa setterida
+= 1
+! out kovariantlikni beradi, shuning uchun T faqat “chiqish” joyida — qaytish tipida ishlatiladi.
+@@quiz
+<code>Qabul&lt;Any&gt;</code> ni <code>Qabul&lt;Int&gt;</code> o'rnida ishlatish mumkin bo'lsa, Qabul qanday variance'ga ega?
+- Kovariant (<code>out</code>)
+- Kontravariant (<code>in</code>)
+- Invariant
+- Star-projected
+= 1
+! Kontravariant tip kattaroq parametrni qabul qilishi mumkin: Any qabul qiluvchi Int qabul qiluvchi vazifasini bajaradi.
+@@quiz
+Nega <code>Array&lt;String&gt;</code> ni <code>Array&lt;Any&gt;</code> ga tayinlab bo'lmaydi?
+- Massivlar invariant, aks holda noto'g'ri tip yozilishi mumkin
+- Massivlar faqat primitiv tiplarni saqlaydi
+- Kotlin'da massivlar umuman yo'q
+- Array har doim nullable
+= 0
+! Massivlar invariant bo'lib, runtime'dagi tip xavfsizligini saqlaydi; kovariant kolleksiya uchun List ishlatiladi.
+@@lesson 57
+@@title Delegatsiya: by bilan kompozitsiya
+@@minutes 16
+@@p
+Kotlin interfeys metodlarini boshqa obyektga <code>by</code> orqali topshirish imkonini beradi. Bu meros olishdan ko'ra moslashuvchan: sinf ichida bir nechta interfeysni turli implementatsiyalarga ulash, ba'zi metodlarni qayta yozish va xatti-harakatni bezash mumkin. Delegatsiya “composition over inheritance” tamoyilining amaliy ko'rinishi.
+@@code logli.kt
+interface Hisoblagich {
+    fun oshir()
+    fun qiymat(): Int
+}
+
+class Asosiy : Hisoblagich {
+    private var n = 0
+    override fun oshir() { n++ }
+    override fun qiymat() = n
+}
+
+class Logli(private val asosiy: Hisoblagich) : Hisoblagich by asosiy {
+    override fun oshir() {
+        println("oldin: ${asosiy.qiymat()}")
+        asosiy.oshir()
+        println("keyin: ${asosiy.qiymat()}")
+    }
+}
+
+fun main() {
+    val c = Logli(Asosiy())
+    c.oshir()
+    c.oshir()
+    println(c.qiymat())
+}
+@@out
+oldin: 0
+keyin: 1
+oldin: 1
+keyin: 2
+2
+@@p
+Bir sinf bir nechta interfeysni delegatsiya qilishi mumkin. Qayta yozilgan metod delegatnikini to'liq almashtiradi; qolgan metodlar avtomatik uzatiladi. Bu xususiyat repository, logger, cache kabi ko'ndalang kesimlarni (cross-cutting concerns) asosiy biznes kodidan ajratishda juda qulay.
+@@code xizmat.kt
+interface Ombor { fun saqla(x: String): Boolean }
+interface Hisobot { fun chop() }
+
+class XotiraOmbor : Ombor {
+    private val qatorlar = mutableListOf<String>()
+    override fun saqla(x: String): Boolean = qatorlar.add(x)
+    override fun toString() = qatorlar.toString()
+}
+
+class KonsolHisobot : Hisobot {
+    override fun chop() = println("hisobot tayyor")
+}
+
+class Xizmat(
+    ombor: Ombor,
+    hisobot: Hisobot
+) : Ombor by ombor, Hisobot by hisobot
+
+fun main() {
+    val ombor = XotiraOmbor()
+    val xizmat = Xizmat(ombor, KonsolHisobot())
+    xizmat.saqla("Kotlin")
+    xizmat.saqla("Ktor")
+    xizmat.chop()
+    println(ombor)
+    println(xizmat is Ombor)
+}
+@@out
+hisobot tayyor
+[Kotlin, Ktor]
+true
+@@table
+Konstruksiya | Vazifasi
+<code>: Ombor by ombor</code> | Interfeys metodlarini obyektga uzatadi
+<code>override fun chop()</code> | Delegat metodini almashtiradi
+Bir nechta <code>by</code> | Bir nechta interfeysni birlashtiradi
+<code>by lazy</code> | Xossani kechiktirib hisoblaydi
+<code>by map</code> | Map qiymatlarini xossaga bog'laydi
+@@note tip | Delegatni almashtirish
+Delegatsiya <code>val</code> yoki <code>var</code> xossaga ham qo'llanadi. Interfeys delegatsiyasida delegat konstruktorda beriladi va odatda <code>private val</code> qilib saqlanadi. Agar delegat metodini butunlay yashirish kerak bo'lsa, uni <code>final override</code> qilib qo'ying; meros olishda bu metodni yana o'zgartirib bo'lmaydi.
+@@quiz
+<code>class Xizmat(o: Ombor) : Ombor by o</code> nimani ta'minlaydi?
+- Ombor metodlarini o'z ichida qayta yozishni talab qiladi
+- Ombor metodlarini o obyektiga avtomatik uzatadi
+- Ombor'ni interfeysdan klassga aylantiradi
+- Har bir chaqiruvda yangi Ombor yaratadi
+= 1
+! by delegatsiyasi interfeys a'zolarini berilgan obyektga yo'naltiradi; faqat kerakli metodlar override qilinadi.
+@@quiz
+Delegatsiya qilingan metodni sinf ichida qayta yozsangiz nima bo'ladi?
+- Kompilyatsiya xatosi chiqadi
+- Ikkala metod ham chaqiriladi
+- Override versiyasi ishlaydi, delegat metodi chaqirilmaydi
+- Delegat avtomatik o'chiriladi
+= 2
+! Aniq yozilgan override delegatnikini almashtiradi; delegat faqat override qilinmagan a'zolar uchun ishlatiladi.
+@@quiz
+Delegatsiya qaysi dizayn tamoyiliga ko'proq mos keladi?
+- Meros ierarxiyasini chuqurlashtirish
+- Kompozitsiya orqali xatti-harakatni yig'ish
+- Global holatdan foydalanish
+- Barcha metodlarni bitta sinfga jamlash
+= 1
+! by kompozitsiyani qulay sintaksis bilan ta'minlaydi va chuqur meros ierarxiyasidan qochishga yordam beradi.
+@@lesson 58
+@@title Xossa delegatsiyasi: observable, vetoable va custom delegate
+@@minutes 17
+@@p
+Xossa delegatsiyasi o'qish va yozishni alohida obyektga topshiradi. <code>Delegates.observable</code> qiymat o'zgargandan keyin callback chaqiradi, <code>Delegates.vetoable</code> esa o'zgarishdan oldin qaror qabul qiladi va <code>false</code> qaytarsa yozishni bekor qiladi. Bu vositalar validatsiya, audit va reaktiv xatti-harakat uchun qulay.
+@@code kuzatuv.kt
+import kotlin.properties.Delegates
+
+class Profil {
+    var yosh: Int by Delegates.vetoable(0) { _, eski, yangi ->
+        yangi >= 0 && yangi <= 120
+    }
+
+    var ism: String by Delegates.observable("Mehmon") { _, eski, yangi ->
+        println("ism: $eski -> $yangi")
+    }
+}
+
+fun main() {
+    val p = Profil()
+    p.yosh = 25
+    p.yosh = -5
+    println(p.yosh)
+    p.ism = "Aziza"
+    p.ism = "Bek"
+}
+@@out
+25
+ism: Mehmon -> Aziza
+ism: Aziza -> Bek
+@@p
+Murakkabroq mantiq uchun o'z delegatingizni yozish mumkin. <code>ReadWriteProperty&lt;Any?, T&gt;</code> interfeysi <code>getValue</code> va <code>setValue</code> metodlarini talab qiladi. <code>KProperty</code> orqali xossa nomini olish, log yozish yoki keshlash mumkin. Bu pattern Android'da SharedPreferences yoki konfiguratsiya xossalarini o'rashda tez-tez uchraydi.
+@@code custom.kt
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
+
+class Keshlangan<T>(boshlangich: T) : ReadWriteProperty<Any?, T> {
+    private var qiymat = boshlangich
+
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        println("o'qildi: ${property.name}")
+        return qiymat
+    }
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        println("yozildi: ${property.name} = $value")
+        qiymat = value
+    }
+}
+
+class Sozlama {
+    var port: Int by Keshlangan(8080)
+}
+
+fun main() {
+    val s = Sozlama()
+    println(s.port)
+    s.port = 9090
+    println(s.port)
+}
+@@out
+o'qildi: port
+8080
+yozildi: port = 9090
+o'qildi: port
+9090
+@@table
+Delegat | Qachon ishlaydi | Natija
+<code>lazy</code> | Birinchi o'qishda | Keyingi o'qishlar keshlanadi
+<code>observable</code> | Yozgandan keyin | Callback chaqiriladi
+<code>vetoable</code> | Yozishdan oldin | <code>false</code> — bekor qiladi
+<code>ReadWriteProperty</code> | Har o'qish/yozishda | O'z mantigingiz
+@@note warning | Thread safety
+<code>by lazy</code> sukut bo'yicha <code>SYNCHRONIZED</code> rejimida ishlaydi; <code>LazyThreadSafetyMode.NONE</code> tezroq, lekin faqat bitta thread uchun xavfsiz. <code>observable</code> va <code>vetoable</code> thread-safe emas: parallel yozish bo'lsa, tashqi sinxronizatsiya yoki atomik yondashuv kerak.
+@@quiz
+<code>Delegates.vetoable</code> qachon callback chaqiradi?
+- Qiymat yozilgandan keyin
+- Qiymat yozilishidan oldin va qaytgan Boolean qaror qiladi
+- Faqat xossa o'qilganda
+- Faqat obyekt yaratilganda
+= 1
+! vetoable yozishdan oldin ishlaydi; <code>false</code> qaytsa, yangi qiymat saqlanmaydi.
+@@quiz
+<code>Delegates.observable</code> callback'i qachon bajariladi?
+- Yangi qiymat allaqachon o'rnatilgandan keyin
+- Yozishdan oldin, bekor qilish uchun
+- Faqat dastlabki qiymat berilganda
+- Faqat setter xato berganda
+= 0
+! observable kuzatuv uchun ishlatiladi va qiymat o'zgargach eski/yangi qiymatlar bilan chaqiriladi.
+@@quiz
+<code>ReadWriteProperty</code> qaysi ikki metodni amalga oshirishni talab qiladi?
+- <code>get</code> va <code>set</code>
+- <code>getValue</code> va <code>setValue</code>
+- <code>read</code> va <code>write</code>
+- <code>invoke</code> va <code>call</code>
+= 1
+! Delegat interfeysi aynan <code>getValue(thisRef, property)</code> va <code>setValue(thisRef, property, value)</code> metodlarini talab qiladi.
+@@lesson 59
+@@title Sealed ierarxiyalar va algebraik ma'lumot tiplari
+@@minutes 16
+@@p
+Sealed ierarxiya mumkin bo'lgan variantlarni yopiq to'plamda ifodalaydi. <code>sealed interface</code> va <code>sealed class</code> avlodlari bir modul va paketda e'lon qilinadi; shu sababli <code>when</code> barcha variantlarni qamrab olsa, <code>else</code> talab qilinmaydi. Bu holat mashinasi, natija tipi va UI holatlarini modellashtirishda xatolarni kompilyatsiya vaqtida ushlaydi.
+@@code natija.kt
+sealed interface Natija<out T> {
+    data class Muvaffaqiyat<T>(val qiymat: T) : Natija<T>
+    data class Xato(val kod: Int, val xabar: String) : Natija<Nothing>
+    data object Yuklanmoqda : Natija<Nothing>
+}
+
+fun <T> chop(natija: Natija<T>): String = when (natija) {
+    is Natija.Muvaffaqiyat<*> -> "OK: ${natija.qiymat}"
+    is Natija.Xato -> "Xato ${natija.kod}: ${natija.xabar}"
+    Natija.Yuklanmoqda -> "..."
+}
+
+fun main() {
+    println(chop(Natija.Muvaffaqiyat(42)))
+    println(chop(Natija.Xato(404, "topilmadi")))
+    println(chop(Natija.Yuklanmoqda))
+}
+@@out
+OK: 42
+Xato 404: topilmadi
+...
+@@p
+Sealed ierarxiyada har bir variant o'z ma'lumotini olib yuradi — bu algebraik ma'lumot tipi (ADT) deyiladi. <code>data object</code> yagona nusxa bo'lishi kerak bo'lgan holatlar uchun mos: u <code>equals</code>, <code>hashCode</code> va o'qishli <code>toString</code> beradi. Enum'dan farqli o'laroq, sealed variantlar parametrlarga ega bo'lishi va turli shakllarda bo'lishi mumkin.
+@@code hodisa.kt
+sealed class Hodisa {
+    data class Bosildi(val x: Int, val y: Int) : Hodisa()
+    data class MatnKiritildi(val matn: String) : Hodisa()
+    data object Tozalandi : Hodisa()
+}
+
+fun izohla(hodisa: Hodisa): String = when (hodisa) {
+    is Hodisa.Bosildi -> "bosish ${hodisa.x},${hodisa.y}"
+    is Hodisa.MatnKiritildi -> "matn: ${hodisa.matn}"
+    Hodisa.Tozalandi -> "tozalandi"
+}
+
+fun main() {
+    val hodisalar = listOf(
+        Hodisa.Bosildi(10, 20),
+        Hodisa.MatnKiritildi("Kotlin"),
+        Hodisa.Tozalandi
+    )
+    hodisalar.forEach { println(izohla(it)) }
+}
+@@out
+bosish 10,20
+matn: Kotlin
+tozalandi
+@@table
+Vosita | Variantlar | Parametrlar | Exhaustive when
+Enum | qat'iy ro'yxat | Yo'q | Ha
+Sealed | yopiq ierarxiya | Har xil | Ha
+Ochiq interfeys | cheksiz | Har xil | <code>else</code> kerak
+@@note warning | Yangi variant qo'shilsa
+Sealed ierarxiyaga yangi avlod qo'shsangiz, uni qamrab olmagan barcha <code>when</code> ifodalari kompilyatsiya xatosiga uchraydi. Bu ataylab shunday: yangi holatni qo'llab-quvvatlash uchun barcha joylarni ko'rib chiqishga majbur bo'lasiz. Shu sababli sealed ierarxiyani kutubxona API'sida ehtiyotkorlik bilan kengaytiring.
+@@quiz
+Sealed ierarxiyaning asosiy afzalligi nima?
+- Variantlar to'plami yopiq va <code>when</code> to'liqligi tekshiriladi
+- U har doim enum'dan tezroq ishlaydi
+- U faqat bitta obyekt yaratishga ruxsat beradi
+- U avtomatik JSON serializatsiyasini beradi
+= 0
+! Sealed ierarxiya variantlarni cheklaydi, shuning uchun kompilyator exhaustive when'ni tekshira oladi.
+@@quiz
+Sealed ierarxiyaga yangi variant qo'shilsa nima bo'ladi?
+- Mavjud barcha kod avtomatik yangilanadi
+- Yangi variantni qamramagan exhaustive <code>when</code> lar kompilyatsiya xatosiga uchraydi
+- Eski variantlar o'chiriladi
+- Faqat runtime'da ogohlantirish chiqadi
+= 1
+! Yopiq ierarxiya tufayli kompilyator barcha <code>when</code> tarmoqlarini qayta tekshiradi va yetishmayotgan variantni ko'rsatadi.
+@@quiz
+<code>data object</code> qanday holat uchun mos?
+- Har safar yangi nusxa kerak bo'lganda
+- Parametrli murakkab variant uchun
+- Yagona nusxa va o'qishli <code>toString</code> kerak bo'lgan holat uchun
+- Faqat nullable qiymat uchun
+= 2
+! data object singleton bo'lib qoladi, lekin data class kabi foydali <code>toString</code>, <code>equals</code> va <code>hashCode</code> beradi.

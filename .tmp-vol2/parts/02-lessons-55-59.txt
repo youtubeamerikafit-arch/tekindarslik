@@ -1,0 +1,755 @@
+      {
+        id: 55,
+        title: "Moslashuvchan massiv a'zosi (flexible array member)",
+        minutes: 15,
+        blocks: [
+          {
+            type: "p",
+            html: "Ba'zan struktura ichida uzunligi oldindan noma'lum massiv kerak. C99 dan boshlab <b>flexible array member</b> ishlatiladi: struktura oxirida <code>char matn[];</code> kabi bo'sh qavsli a'zo e'lon qilinadi. U struktura hajmiga kirmaydi, lekin bitta <code>malloc</code> bilan struktura va ma'lumotni yonma-yon joylashtirish imkonini beradi. Bu ikki marta ajratish va ikkinchi ko'rsatkichni kuzatishdan xalos qiladi.",
+          },
+          {
+            type: "code",
+            title: "flexible_satr.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    size_t uzunlik;
+    char matn[];
+} Satr;
+
+Satr *satr_yarat(const char *s) {
+    size_t n = strlen(s);
+    Satr *p = malloc(sizeof *p + n + 1);
+    if (p == NULL) {
+        return NULL;
+    }
+    p->uzunlik = n;
+    memcpy(p->matn, s, n + 1);
+    return p;
+}
+
+int main(void) {
+    Satr *s = satr_yarat("Noldan");
+    if (s == NULL) {
+        return 1;
+    }
+    printf("uzunlik=%zu matn=%s\n", s->uzunlik, s->matn);
+    free(s);
+    return 0;
+}`,
+            output: "uzunlik=6 matn=Noldan",
+          },
+          {
+            type: "p",
+            html: "Ajratish hajmi <code>sizeof(Satr) + n + 1</code>: struktura maydonlari va yakuniy <code>'\\0'</code> uchun bir bayt. <code>sizeof(Satr)</code> moslashuvchan a'zoni hisobga olmaydi, shuning uchun unga tayanib ma'lumot hajmini hisoblash xato bo'ladi. Massiv a'zosi faqat struktura oxirida turishi va strukturada boshqa a'zodan keyin kelmasligi kerak.",
+          },
+          {
+            type: "code",
+            title: "flexible_massiv.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+typedef struct {
+    size_t n;
+    int qiymat[];
+} ButunMassiv;
+
+ButunMassiv *massiv_yarat(size_t n) {
+    if (n > (SIZE_MAX - sizeof(ButunMassiv)) / sizeof(int)) {
+        return NULL;
+    }
+    ButunMassiv *m = malloc(sizeof *m + n * sizeof *m->qiymat);
+    if (m == NULL) {
+        return NULL;
+    }
+    m->n = n;
+    return m;
+}
+
+int main(void) {
+    ButunMassiv *m = massiv_yarat(5);
+    if (m == NULL) {
+        return 1;
+    }
+    int jami = 0;
+    for (size_t i = 0; i < m->n; i++) {
+        m->qiymat[i] = (int)(i * i);
+        jami += m->qiymat[i];
+    }
+    printf("n=%zu jami=%d\n", m->n, jami);
+    free(m);
+    return 0;
+}`,
+            output: "n=5 jami=30",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Hajm oshib ketishini tekshiring",
+            html: "<code>sizeof *m + n * sizeof(int)</code> ifodasi <code>size_t</code> da toshib ketishi mumkin. Ajratishdan oldin <code>n &gt; (SIZE_MAX - sizeof *m) / sizeof(int)</code> shartini tekshiring. Moslashuvchan a'zoli struktura nusxalanmaydi (<code>sizeof</code> ma'lumotni qamramaydi) va massiv ichida bunday strukturalar massivini yaratish ham xavfli — ko'rsatkichlar massivini ishlating.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Moslashuvchan massiv a'zosi strukturada qayerda turishi kerak?",
+            options: [
+              "Faqat oxirgi a'zo sifatida",
+              "Birinchi a'zo sifatida",
+              "Istalgan joyda",
+              "Faqat union ichida",
+            ],
+            answer: 0,
+            explain: "Standart uning struktura oxirida bo'lishini talab qiladi; aks holda keyingi a'zolar bilan joylashuv buziladi.",
+          },
+          {
+            q: "Uzunligi n bo'lgan FAM strukturasini bitta malloc bilan qanday ajratish to'g'ri?",
+            options: [
+              "malloc(sizeof(struct) * n)",
+              "malloc(n)",
+              "malloc(sizeof(struct) + n * sizeof(element))",
+              "calloc(struct, n)",
+            ],
+            answer: 2,
+            explain: "Struktura maydonlari uchun sizeof(struct), elementlar uchun n * sizeof(element) qo'shiladi; toshib ketish ham tekshirilishi kerak.",
+          },
+          {
+            q: "Moslashuvchan a'zoli struktura sizeof orqali qanday o'lchanadi?",
+            options: [
+              "Butun massiv hajmi bilan",
+              "Faqat elementlar hajmi bilan",
+              "Nol bilan",
+              "Massiv a'zosiz qattiq qism hajmi bilan",
+            ],
+            answer: 3,
+            explain: "sizeof moslashuvchan a'zoni hisobga olmaydi; u faqat undan oldingi maydonlarni qamraydi.",
+          },
+        ],
+      },
+      {
+        id: 56,
+        title: "Egalik qoidalari: copy, borrow va move",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "C da xotira egaligi til tomonidan majburlanmaydi, shuning uchun API shartnomasi muhim. Har bir dinamik obyekt uchun <b>egasi</b> bitta bo'ladi: u obyektni bo'shatishga mas'ul. Funksiya nomi bu niyatni ko'rsatishi kerak: <code>_yarat</code> yangi egalik qaytaradi, <code>_nusxa</code> chuqur nusxa yaratadi, <code>_kochir</code> egalikni boshqasiga o'tkazadi, <code>const *</code> esa vaqtincha qarz (borrow) oladi.",
+          },
+          {
+            type: "code",
+            title: "egalik_nusxa.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char *matn;
+    size_t uzunlik;
+} Bufer;
+
+Bufer bufer_yarat(const char *s) {
+    Bufer b = {NULL, 0};
+    size_t n = strlen(s);
+    b.matn = malloc(n + 1);
+    if (b.matn != NULL) {
+        memcpy(b.matn, s, n + 1);
+        b.uzunlik = n;
+    }
+    return b;
+}
+
+Bufer bufer_nusxa(const Bufer *manba) {
+    return bufer_yarat(manba->matn);
+}
+
+void bufer_ochir(Bufer *b) {
+    free(b->matn);
+    b->matn = NULL;
+    b->uzunlik = 0;
+}
+
+int main(void) {
+    Bufer a = bufer_yarat("salom");
+    Bufer b = bufer_nusxa(&a);
+    if (a.matn == NULL || b.matn == NULL) {
+        return 1;
+    }
+
+    b.matn[0] = 'S';
+    printf("a=%s b=%s\n", a.matn, b.matn);
+    printf("bir xil blokmi=%d\n", a.matn == b.matn);
+    bufer_ochir(&a);
+    bufer_ochir(&b);
+    return 0;
+}`,
+            output: "a=salom b=Salom\nbir xil blokmi=0",
+          },
+          {
+            type: "p",
+            html: "Chuqur nusxa yangi blok yaratadi, shuning uchun bittasini o'zgartirish ikkinchisiga ta'sir qilmaydi va ikkalasini alohida bo'shatish kerak. Sayoz nusxa (<code>a = b</code>) faqat ko'rsatkichni ko'chiradi: ikki struktura bitta blokni ko'rsatib qoladi va ikki marta <code>free</code> xatosiga olib keladi. Egalikni ko'chirishda esa manba blokni bo'shatmaydi, balki ko'rsatkichni <code>NULL</code> ga qo'yib, o'zini \"bo'sh\" holatga keltiradi.",
+          },
+          {
+            type: "code",
+            title: "egalik_kochirish.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char *matn;
+    size_t uzunlik;
+} Bufer;
+
+Bufer bufer_yarat(const char *s) {
+    Bufer b = {NULL, 0};
+    size_t n = strlen(s);
+    b.matn = malloc(n + 1);
+    if (b.matn != NULL) {
+        memcpy(b.matn, s, n + 1);
+        b.uzunlik = n;
+    }
+    return b;
+}
+
+void bufer_kochir(Bufer *manzil, Bufer *manba) {
+    *manzil = *manba;
+    manba->matn = NULL;
+    manba->uzunlik = 0;
+}
+
+int main(void) {
+    Bufer a = bufer_yarat("xotira");
+    Bufer b = {NULL, 0};
+
+    bufer_kochir(&b, &a);
+    printf("b=%s uzunlik=%zu\n", b.matn, b.uzunlik);
+    printf("a=%s\n", a.matn ? a.matn : "(bo'sh)");
+    free(b.matn);
+    return 0;
+}`,
+            output: "b=xotira uzunlik=6\na=(bo'sh)",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Shartnomani hujjatlashtiring",
+            html: "Funksiya izohida \"qaytarilgan ko'rsatkichni chaqiruvchi <code>free</code> qiladi\" yoki \"ko'rsatkich faqat funksiya ichida amal qiladi\" deb yozing. <code>const</code> parametr funksiya obyektni o'zgartirmasligini vaqtincha bildiradi, lekin uni saqlab qolish taqiqlanmaydi — uzoq muddat saqlash kerak bo'lsa, nusxa oling. Xato yo'lida ham egalikni to'g'ri qaytarish uchun bitta <code>tozalash</code> yorlig'idan foydalaning.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Funksiya malloc bilan yaratilgan buferni qaytarsa, uni odatda kim bo'shatadi?",
+            options: [
+              "Funksiya o'zi qaytishdan oldin",
+              "Kutubxona avtomatik",
+              "Hech kim, xotira dastur tugaganda tozalanadi",
+              "Bufer egasi bo'lgan chaqiruvchi",
+            ],
+            answer: 3,
+            explain: "Egalik qaytarilgan ko'rsatkichga o'tadi; qaysi kod uni saqlab qolsa, o'sha kod free qilishi kerak.",
+          },
+          {
+            q: "Chuqur nusxa (deep copy) nimani anglatadi?",
+            options: [
+              "Faqat strukturani nusxalash",
+              "Ko'rsatkichni nusxalash",
+              "Manba va nusxa bir blokni ko'rsatadi",
+              "Ko'rsatilgan ma'lumot uchun yangi blok yaratish",
+            ],
+            answer: 3,
+            explain: "Chuqur nusxa dinamik ma'lumotni ham yangi blokka ko'chiradi; natijada ikki mustaqil egalik paydo bo'ladi.",
+          },
+          {
+            q: "Move (ko'chirish) amalidan keyin manba struktura qanday holatda bo'lishi kerak?",
+            options: [
+              "Ko'rsatkichi NULL va egallikni yo'qotgan",
+              "Eski ko'rsatkichni saqlab qoladi",
+              "Avtomatik free qilinadi",
+              "Yangi blok oladi",
+            ],
+            answer: 0,
+            explain: "Manba egalikni beradi va o'zini bo'sh holatga keltiradi; shunda ikki marta free qilish xavfi yo'qoladi.",
+          },
+        ],
+      },
+      {
+        id: 57,
+        title: "Xavfsiz realloc va hajm oshib ketishini aniqlash",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "Dinamik massiv o'sganda <code>cap * 2 * sizeof(int)</code> kabi ifoda <code>size_t</code> chegarasidan oshib ketishi mumkin. Bunday holatda kichik hajm ajratilib, keyin chegara tashqarisiga yoziladi — bu jiddiy xavfsizlik xatosi. Yechim: ko'paytirishdan oldin <code>a != 0 &amp;&amp; b &gt; SIZE_MAX / a</code> shartini tekshirish va faqat keyin hajmni hisoblash.",
+          },
+          {
+            type: "code",
+            title: "hajm_tekshirish.c",
+            code: String.raw`#include <stdio.h>
+#include <stdint.h>
+#include <stddef.h>
+
+int xavfsiz_kopaytir(size_t a, size_t b, size_t *natija) {
+    if (a != 0 && b > SIZE_MAX / a) {
+        return 0;
+    }
+    *natija = a * b;
+    return 1;
+}
+
+int main(void) {
+    size_t n = 0;
+
+    if (xavfsiz_kopaytir(10, 20, &n)) {
+        printf("natija=%zu\n", n);
+    }
+    printf("katta=%s\n", xavfsiz_kopaytir(SIZE_MAX, 2, &n) ? "bor" : "yo'q");
+    printf("nol=%s\n", xavfsiz_kopaytir(0, 50, &n) && n == 0 ? "bor" : "yo'q");
+    return 0;
+}`,
+            output: "natija=200\nkatta=yo'q\nnol=bor",
+          },
+          {
+            type: "p",
+            html: "Vektor uchun sig'imni ikki baravar oshirishda ham har bir qadamda tekshiruv kerak: <code>yangi &gt; SIZE_MAX / 2</code> bo'lsa, ko'paytirish emas, aynan kerakli hajmni olish mumkin. So'ng <code>realloc</code> ga baytlar soni uzatiladi. <code>realloc</code> xato bo'lsa eski blok o'z joyida qoladi — natijani vaqtinchalik ko'rsatkichga olish shart.",
+          },
+          {
+            type: "code",
+            title: "xavfsiz_osish.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+typedef struct {
+    int *data;
+    size_t size;
+    size_t cap;
+} Vektor;
+
+int zaxira(Vektor *v, size_t kerak) {
+    if (kerak <= v->cap) {
+        return 1;
+    }
+    size_t yangi = v->cap ? v->cap : 2;
+    while (yangi < kerak) {
+        if (yangi > SIZE_MAX / 2) {
+            yangi = kerak;
+            break;
+        }
+        yangi *= 2;
+    }
+    if (yangi > SIZE_MAX / sizeof *v->data) {
+        return 0;
+    }
+    int *p = realloc(v->data, yangi * sizeof *p);
+    if (p == NULL) {
+        return 0;
+    }
+    v->data = p;
+    v->cap = yangi;
+    return 1;
+}
+
+int main(void) {
+    Vektor v = {0};
+    for (int i = 1; i <= 5; i++) {
+        if (!zaxira(&v, v.size + 1)) {
+            free(v.data);
+            return 1;
+        }
+        v.data[v.size++] = i;
+    }
+    printf("size=%zu cap=%zu\n", v.size, v.cap);
+    for (size_t i = 0; i < v.size; i++) {
+        printf("%d%s", v.data[i], i + 1 < v.size ? " " : "\n");
+    }
+    free(v.data);
+    return 0;
+}`,
+            output: "size=5 cap=8\n1 2 3 4 5",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "realloc ning nozik joylari",
+            html: "1) <code>realloc(NULL, n)</code> — <code>malloc(n)</code> kabi ishlaydi. 2) <code>realloc(p, 0)</code> natijasi implementatsiyaga bog'liq; ko'chiriladigan standart kodda noldan qoching. 3) Xato bo'lsa eski blok saqlanadi, shuning uchun <code>p = realloc(p, n)</code> yozmang. 4) <code>calloc</code> ham ko'paytirishni tekshiradi, lekin har doim ham emas — o'z tekshiruvingizni saqlang. POSIX'dagi <code>reallocarray</code> aynan shu muammoni hal qiladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "a * b hajmini ajratishdan oldin qaysi shart toshib ketishni aniqlaydi?",
+            options: [
+              "a + b > SIZE_MAX",
+              "a != 0 && b > SIZE_MAX / a",
+              "a < b",
+              "b == 0",
+            ],
+            answer: 1,
+            explain: "Ko'paytirishdan oldin bo'linish orqali tekshirish kerak: b > SIZE_MAX / a bo'lsa, natija size_t ga sig'maydi.",
+          },
+          {
+            q: "realloc muvaffaqiyatsiz bo'lsa eski blokka nima bo'ladi?",
+            options: [
+              "Avtomatik bo'shatiladi",
+              "Yangi blokka ko'chiriladi",
+              "Nolga to'ldiriladi",
+              "O'z joyida va yaroqli qoladi",
+            ],
+            answer: 3,
+            explain: "Standart bo'yicha xato bo'lsa eski blok o'zgarmaydi; shuning uchun natijani vaqtinchalik ko'rsatkichga olish kerak.",
+          },
+          {
+            q: "realloc(p, 0) haqidagi to'g'ri gap qaysi?",
+            options: [
+              "Har doim NULL qaytaradi",
+              "Har doim yangi blok yaratadi",
+              "Natijasi implementatsiyaga bog'liq, ko'chma kodda undan qochish kerak",
+              "Eski blokni majburiy free qiladi",
+            ],
+            answer: 2,
+            explain: "Nol hajmli so'rov natijasi standartda bir xil emas; ishonchli kod nol hajmni alohida boshqaradi.",
+          },
+        ],
+      },
+      {
+        id: 58,
+        title: "Ikki tomonlama bog'langan ro'yxat",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Ikki tomonlama ro'yxatda har bir tugun <code>keyingi</code> va <code>oldingi</code> ko'rsatkichlarini saqlaydi. Bu boshdan ham, oxirdan ham yurish, tugun ko'rsatkichi bo'lsa O(1) o'chirish imkonini beradi. Evaziga har bir tugun qo'shimcha ko'rsatkich egallaydi va har bir o'zgarishda to'rtta bog'lanishni yangilash kerak. Head va tail ni alohida saqlash amallarni soddalashtiradi.",
+          },
+          {
+            type: "code",
+            title: "ikki_tomonlama.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Tugun {
+    int qiymat;
+    struct Tugun *oldingi;
+    struct Tugun *keyingi;
+} Tugun;
+
+typedef struct {
+    Tugun *bosh;
+    Tugun *oxir;
+    size_t soni;
+} Royxat;
+
+Tugun *qosh(Royxat *r, int qiymat) {
+    Tugun *t = malloc(sizeof *t);
+    if (t == NULL) {
+        return NULL;
+    }
+    t->qiymat = qiymat;
+    t->keyingi = NULL;
+    t->oldingi = r->oxir;
+    if (r->oxir != NULL) {
+        r->oxir->keyingi = t;
+    } else {
+        r->bosh = t;
+    }
+    r->oxir = t;
+    r->soni++;
+    return t;
+}
+
+void chop(Royxat *r, Tugun *t) {
+    if (t->oldingi != NULL) {
+        t->oldingi->keyingi = t->keyingi;
+    } else {
+        r->bosh = t->keyingi;
+    }
+    if (t->keyingi != NULL) {
+        t->keyingi->oldingi = t->oldingi;
+    } else {
+        r->oxir = t->oldingi;
+    }
+    free(t);
+    r->soni--;
+}
+
+void chiqar(const Royxat *r, int teskari) {
+    Tugun *t = teskari ? r->oxir : r->bosh;
+    while (t != NULL) {
+        printf("%d%s", t->qiymat, (teskari ? t->oldingi : t->keyingi) ? " " : "\n");
+        t = teskari ? t->oldingi : t->keyingi;
+    }
+}
+
+int main(void) {
+    Royxat r = {0};
+    Tugun *a = qosh(&r, 10);
+    Tugun *b = qosh(&r, 20);
+    qosh(&r, 30);
+
+    printf("soni=%zu\n", r.soni);
+    chiqar(&r, 0);
+    chiqar(&r, 1);
+
+    chop(&r, b);
+    printf("o'chirildi=%d\n", 20);
+    chiqar(&r, 0);
+    printf("oxir=%d\n", r.oxir->qiymat);
+    printf("a_keyingi=%d\n", a->keyingi->qiymat);
+    return 0;
+}`,
+            output: "soni=3\n10 20 30\n30 20 10\no'chirildi=20\n10 30\noxir=30\na_keyingi=30",
+          },
+          {
+            type: "p",
+            html: "O'chirishda to'rtta holat bor: tugun boshda, oxirda, ikkalasi ham, o'rtada. Yuqoridagi <code>chop</code> funksiyasi avval oldingi tugunning <code>keyingi</code>sini, keyin keyingi tugunning <code>oldingi</code>sini yangilaydi; agar qo'shni bo'lmasa, <code>bosh</code> yoki <code>oxir</code> ni o'zgartiradi. Tugunni bo'shatishdan oldin uning ko'rsatkichlarini saqlab qolish shart emas, chunki ular allaqachon qo'shnilarga yozilgan.",
+          },
+          {
+            type: "code",
+            title: "ikki_tomonlama_ochirish.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Tugun {
+    int qiymat;
+    struct Tugun *oldingi;
+    struct Tugun *keyingi;
+} Tugun;
+
+typedef struct {
+    Tugun *bosh;
+    Tugun *oxir;
+    size_t soni;
+} Royxat;
+
+Tugun *qosh(Royxat *r, int qiymat) {
+    Tugun *t = malloc(sizeof *t);
+    if (t == NULL) return NULL;
+    t->qiymat = qiymat;
+    t->keyingi = NULL;
+    t->oldingi = r->oxir;
+    if (r->oxir) r->oxir->keyingi = t;
+    else r->bosh = t;
+    r->oxir = t;
+    r->soni++;
+    return t;
+}
+
+void chop(Royxat *r, Tugun *t) {
+    if (t->oldingi) t->oldingi->keyingi = t->keyingi;
+    else r->bosh = t->keyingi;
+    if (t->keyingi) t->keyingi->oldingi = t->oldingi;
+    else r->oxir = t->oldingi;
+    free(t);
+    r->soni--;
+}
+
+int main(void) {
+    Royxat r = {0};
+    for (int i = 1; i <= 3; i++) {
+        qosh(&r, i * 10);
+    }
+
+    chop(&r, r.bosh);
+    printf("bosh=%d oldingi=%s\n", r.bosh->qiymat,
+           r.bosh->oldingi == NULL ? "NULL" : "bor");
+    printf("soni=%zu\n", r.soni);
+
+    chop(&r, r.oxir);
+    printf("oxir=%d keyingi=%s\n", r.oxir->qiymat,
+           r.oxir->keyingi == NULL ? "NULL" : "bor");
+    printf("soni=%zu\n", r.soni);
+    return 0;
+}`,
+            output: "bosh=20 oldingi=NULL\nsoni=2\noxir=20 keyingi=NULL\nsoni=1",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Bog'lanishlarni tartib bilan yangilang",
+            html: "O'chirishda avval qo'shnilarni bog'lang, keyin <code>free</code> qiling; aks holda tugun ichidagi manzillar yo'qoladi. Ro'yxatni tozalashda har bir tugunning <code>keyingi</code>sini bo'shatishdan oldin saqlang. Ikki tomonlama ro'yxat LRU kesh, brauzer tarixi va matn muharriri kursorlari uchun qulay, lekin indeks bo'yicha murojaat O(n) bo'lib qoladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Ikki tomonlama ro'yxatda bosh tugun o'chirilganda nimani yangilash kerak?",
+            options: [
+              "Yangi boshning oldingi ko'rsatkichini NULL ga qo'yish",
+              "Oxir tugunning keyingisini NULL ga qo'yish",
+              "Hech narsani, bosh avtomatik o'zgaradi",
+              "Faqat soni ni kamaytirish",
+            ],
+            answer: 0,
+            explain: "Yangi boshning oldingi ko'rsatkichi NULL bo'lishi kerak; bosh ko'rsatkichi ham yangilanadi.",
+          },
+          {
+            q: "Tugun ko'rsatkichi berilganda ikki tomonlama ro'yxatda o'chirish murakkabligi qanday?",
+            options: ["O(n)", "O(n log n)", "O(1)", "O(log n)"],
+            answer: 2,
+            explain: "Oldingi va keyingi ko'rsatkichlar mavjud bo'lsa, qo'shnilarni O(1) da bog'lash mumkin.",
+          },
+          {
+            q: "Ikki tomonlama ro'yxatning asosiy kamchiligi nima?",
+            options: [
+              "Oxiriga qo'shib bo'lmaydi",
+              "Har bir tugunda qo'shimcha oldingi ko'rsatkichi va murakkabroq yangilanish",
+              "Faqat butun sonlarni saqlaydi",
+              "Qidiruv umuman ishlamaydi",
+            ],
+            answer: 1,
+            explain: "Qo'shimcha ko'rsatkich xotira sarfini oshiradi va har bir amalda ko'proq bog'lanishni yangilashni talab qiladi.",
+          },
+        ],
+      },
+      {
+        id: 59,
+        title: "Halqali ro'yxat va Josephus masalasi",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "Halqali (circular) ro'yxatda oxirgi tugunning <code>keyingi</code>si <code>NULL</code> emas, balki bosh tugunga ishora qiladi. Bunday tuzilma navbat, o'yin navbati va bufer aylanishi uchun qulay. Lekin cheksiz tsikl xavfi bor: yurishni to'xtatish sharti <code>p != bosh</code> yoki sanagich bo'lishi kerak. Josephus masalasi — halqali ro'yxatning klassik qo'llanishi.",
+          },
+          {
+            type: "code",
+            title: "halqa.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Tugun {
+    int qiymat;
+    struct Tugun *keyingi;
+} Tugun;
+
+int main(void) {
+    Tugun *bosh = NULL;
+    Tugun *oxir = NULL;
+
+    for (int i = 1; i <= 5; i++) {
+        Tugun *t = malloc(sizeof *t);
+        if (t == NULL) {
+            return 1;
+        }
+        t->qiymat = i;
+        t->keyingi = NULL;
+        if (bosh == NULL) {
+            bosh = t;
+        } else {
+            oxir->keyingi = t;
+        }
+        oxir = t;
+    }
+    oxir->keyingi = bosh;
+
+    Tugun *p = bosh;
+    for (int i = 0; i < 5; i++) {
+        if (i > 0) {
+            printf(" ");
+        }
+        printf("%d", p->qiymat);
+        p = p->keyingi;
+    }
+    printf("\nqaytdi=%d\n", p == bosh);
+    return 0;
+}`,
+            output: "1 2 3 4 5\nqaytdi=1",
+          },
+          {
+            type: "p",
+            html: "Josephus masalasida n kishi halqa bo'lib turadi va har k-chi odam chiqariladi. Har qadamda oldingi tugunni saqlab, <code>k-1</code> marta oldinga yuriladi, keyin joriy tugun halqadan uziladi. Chiqarilgan tugun darhol bo'shatiladi, qolgan bitta tugun esa yashovchi bo'ladi. Bu yerda <code>prev</code> ni yangilash tartibi halqani buzmaslikning kalitidir.",
+          },
+          {
+            type: "code",
+            title: "josephus.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Tugun {
+    int qiymat;
+    struct Tugun *keyingi;
+} Tugun;
+
+int main(void) {
+    int n = 7, k = 3;
+    Tugun *bosh = NULL;
+    Tugun *oxir = NULL;
+
+    for (int i = 1; i <= n; i++) {
+        Tugun *t = malloc(sizeof *t);
+        if (t == NULL) {
+            return 1;
+        }
+        t->qiymat = i;
+        t->keyingi = NULL;
+        if (bosh == NULL) {
+            bosh = t;
+        } else {
+            oxir->keyingi = t;
+        }
+        oxir = t;
+    }
+    oxir->keyingi = bosh;
+
+    Tugun *p = bosh;
+    Tugun *oldin = oxir;
+    printf("tartib:");
+
+    while (p->keyingi != p) {
+        for (int i = 1; i < k; i++) {
+            oldin = p;
+            p = p->keyingi;
+        }
+        printf(" %d", p->qiymat);
+        oldin->keyingi = p->keyingi;
+        Tugun *ochirilgan = p;
+        p = p->keyingi;
+        free(ochirilgan);
+    }
+    printf(" %d\n", p->qiymat);
+    free(p);
+    return 0;
+}`,
+            output: "tartib: 3 6 2 7 5 1 4",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Halqada sentinel va LRU",
+            html: "Bo'sh ro'yxatni ham bir xil kod bilan boshqarish uchun <b>sentinel</b> tugun ishlatiladi: u ma'lumot saqlamaydi, <code>keyingi</code> va <code>oldingi</code> doim mavjud. LRU keshda kalitlar halqali ikki tomonlama ro'yxatda saqlanadi: har murojaat tugunni boshga suradi, sig'im tugaganda oxirgi tugun o'chiriladi. Bunga hash jadval qo'shilsa, O(1) kesh olinadi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Halqali ro'yxatning oxirgi tuguni qayerga ishora qiladi?",
+            options: [
+              "NULL ga",
+              "O'ziga",
+              "Oldingi tugunga",
+              "Bosh tugunga",
+            ],
+            answer: 3,
+            explain: "Halqani yopish uchun oxirgi tugunning keyingi ko'rsatkichi bosh tugun manzilini saqlaydi.",
+          },
+          {
+            q: "Halqali ro'yxat bo'ylab yurganda eng katta xavf nima?",
+            options: [
+              "Xotira avtomatik tugashi",
+              "To'xtash sharti noto'g'ri bo'lsa cheksiz tsikl",
+              "Tugunlar soni o'zgarishi",
+              "Ko'rsatkichlar avtomatik NULL bo'lishi",
+            ],
+            answer: 1,
+            explain: "NULL oxiri yo'q; sanagich yoki boshga qaytish sharti bo'lmasa tsikl cheksiz davom etadi.",
+          },
+          {
+            q: "LRU keshda sig'im tugaganda qaysi element chiqariladi?",
+            options: [
+              "Eng ko'p ishlatilgani",
+              "Tasodifiy element",
+              "Eng uzoq vaqt ishlatilmagani",
+              "Birinchi qo'shilgani, murojaatdan qat'i nazar",
+            ],
+            answer: 2,
+            explain: "LRU — least recently used: eng uzoq vaqt murojaat qilinmagan element chiqariladi.",
+          },
+        ],
+      },

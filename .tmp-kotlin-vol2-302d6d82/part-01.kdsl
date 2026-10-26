@@ -1,0 +1,429 @@
+@@lesson 50
+@@title Inline funksiyalar: noinline, crossinline va non-local return
+@@minutes 17
+@@p
+<code>inline</code> modifikatori lambda parametrli funksiyaning tanasini chaqiruv joyiga ko'chiradi. Natijada lambda uchun alohida obyekt yaratilmaydi va kompilyator qo'shimcha imkoniyatlar beradi: inline lambda ichidan tashqi funksiyadan <code>return</code> qilish (non-local return) mumkin. Bu vosita ayniqsa kichik, tez-tez chaqiriladigan API'larda foydali.
+@@code inline.kt
+inline fun qayta(marotaba: Int, amal: (Int) -> Unit) {
+    for (i in 1..marotaba) amal(i)
+}
+
+fun birinchiJuft(sonlar: List<Int>): Int? {
+    qayta(sonlar.size) { index ->
+        if (sonlar[index] % 2 == 0) return sonlar[index]
+    }
+    return null
+}
+
+fun main() {
+    println(birinchiJuft(listOf(3, 5, 8, 10)))
+    println(birinchiJuft(listOf(1, 3, 5)))
+    println(birinchiJuft(emptyList()))
+}
+@@out
+8
+null
+null
+@@p
+Lambda inline qilingani uchun <code>return sonlar[index]</code> lambda ichidan emas, <code>birinchiJuft</code> funksiyasidan chiqadi. Agar lambda boshqa funksiyaga uzatilsa yoki saqlansa, uni inline qilib bo'lmaydi — shunda <code>noinline</code> ishlatiladi. <code>crossinline</code> esa lambda'ni boshqa bajarilish kontekstiga (masalan, thread yoki callback) uzatishga ruxsat beradi, lekin non-local return'ni taqiqlaydi.
+@@code crossinline.kt
+inline fun orqada(crossinline ish: () -> Unit) {
+    val oqim = Thread({ ish() }, "ishchi-1")
+    oqim.start()
+    oqim.join()
+}
+
+inline fun tanla(noinline shart: () -> Boolean, amal: () -> Unit) {
+    if (shart()) amal()
+}
+
+fun main() {
+    orqada { println(Thread.currentThread().name) }
+    tanla({ true }) { println("tanlandi") }
+    tanla({ false }) { println("bu chiqmaydi") }
+}
+@@out
+ishchi-1
+tanlandi
+@@table
+Yozuv | Ma'nosi
+<code>inline fun</code> | Lambda tanasi chaqiruv joyiga ko'chiriladi
+<code>noinline ish</code> | Bu lambda inline qilinmaydi, obyekt sifatida uzatiladi
+<code>crossinline ish</code> | Boshqa kontekstda ishlaydi, non-local return taqiqlanadi
+<code>return</code> inline lambda ichida | Tashqi funksiyadan chiqadi
+<code>return@qayta</code> | Faqat lambda'dan chiqadi
+@@note warning | Inline chegaralari
+Katta funksiyani har joyda inline qilish bayt-kod hajmini oshiradi. Public inline funksiya <code>private</code> a'zolarga murojaat qila olmaydi — bunday API uchun <code>@PublishedApi internal</code> ishlatiladi. Rekursiv inline funksiya yozib bo'lmaydi, virtual funksiyalarni ham inline qilish mumkin emas.
+@@quiz
+Inline funksiya lambda parametri bilan ishlaganda asosiy texnik foyda nima?
+- Lambda uchun oraliq obyekt allokatsiyasini kamaytiradi
+- Nullable qiymatlarni avtomatik tekshiradi
+- Klasslarga meros olishni taqiqlaydi
+- Runtime'da reflection'ni yoqadi
+= 0
+! Inline lambda tanasi chaqiruv joyiga ko'chiriladi, shuning uchun alohida lambda obyekti kerak bo'lmaydi.
+@@quiz
+<code>crossinline</code> qanday cheklov qo'yadi?
+- Lambda'ni faqat bir marta chaqirishga majbur qiladi
+- Lambda ichidan tashqi funksiyadan return qilishni taqiqlaydi
+- Lambda'ni suspend funksiyaga aylantiradi
+- Parametrni vararg qiladi
+= 1
+! crossinline lambda boshqa kontekstda bajarilishi mumkin, shuning uchun non-local return xavfsiz emas va taqiqlanadi.
+@@quiz
+Qaysi holatda funksiyani inline qilish tavsiya etilmaydi?
+- Funksiya juda katta va ko'p joyda chaqiriladi
+- Funksiya bitta lambda qabul qiladi
+- Funksiya reified tip parametridan foydalanadi
+- Funksiya qisqa va tez-tez chaqiriladi
+= 0
+! Katta tanani ko'p joyga ko'chirish bayt-kod hajmini sezilarli oshiradi; inline kichik API'lar uchun mos.
+@@lesson 51
+@@title Value class: tip xavfsizligi va nol allokatsiya
+@@minutes 16
+@@p
+<code>@JvmInline value class</code> bitta <code>val</code> xossani o'raydi va kompilyatsiya paytida ko'p hollarda alohida obyekt yaratmaydi. Uning asosiy kuchi — bir xil asosiy tipdagi qiymatlarni semantik jihatdan ajratish: <code>UserId</code> va <code>OrderId</code> ikkalasi ham <code>Int</code> bo'lsa ham, ularni aralashtirib bo'lmaydi. Value class konstruktori xususiy bo'lishi va validatsiya bilan nomlangan zavod funksiyasini berishi mumkin.
+@@code email.kt
+@JvmInline
+value class UserId(val value: Int)
+
+@JvmInline
+value class Email private constructor(val value: String) {
+    companion object {
+        fun parse(xom: String): Email {
+            val tozalangan = xom.trim().lowercase()
+            require("@" in tozalangan) { "Email noto'g'ri" }
+            return Email(tozalangan)
+        }
+    }
+}
+
+fun foydalanuvchiNomi(id: UserId) = "Foydalanuvchi #${id.value}"
+
+fun main() {
+    val id = UserId(42)
+    println(id)
+    println(foydalanuvchiNomi(id))
+    println(Email.parse("  AZIZA@NOLDAN.UZ "))
+    val xato = runCatching { Email.parse("aziza") }
+    println(xato.exceptionOrNull()?.message)
+}
+@@out
+UserId(value=42)
+Foydalanuvchi #42
+Email(value=aziza@noldan.uz)
+Email noto'g'ri
+@@p
+Value class JVM'da ko'p hollarda oddiy <code>Int</code> yoki <code>String</code> kabi saqlanadi, lekin nullable bo'lganda, generic tipga argument bo'lganda yoki interfeys ortiga yashirilganda “qutiga” (boxing) solinadi. Shuning uchun uning qiymati katta bo'lsa yoki tez-tez generic kolleksiyalarda ishlatilsa, allokatsiya qaytishi mumkin. Value class meros ololmaydi va faqat bitta orqa fon maydoniga ega bo'ladi.
+@@code olchov.kt
+@JvmInline
+value class Metr(val qiymat: Double)
+
+@JvmInline
+value class Sekund(val qiymat: Double)
+
+fun tezlik(masofa: Metr, vaqt: Sekund): Double = masofa.qiymat / vaqt.qiymat
+
+inline fun <reified T> qutidanChiqar(qiymat: T): String = "${T::class.simpleName}: $qiymat"
+
+fun main() {
+    val m = Metr(100.0)
+    val s = Sekund(8.0)
+    println("${tezlik(m, s)} m/s")
+    println(qutidanChiqar(Metr(2.5)))
+    println(m == Metr(100.0))
+}
+@@out
+12.5 m/s
+Metr: Metr(qiymat=2.5)
+true
+@@table
+Holat | Natija
+Oddiy lokal o'zgaruvchi | Odatda qutisiz
+Nullable <code>Metr?</code> | Boxing bo'ladi
+<code>List&lt;Metr&gt;</code> | Elementlar qutiga solinadi
+Interfeys tipidagi o'zgaruvchi | Boxing bo'ladi
+<code>Metr(0.0)</code> tengligi | <code>equals</code> orqali qiymat bo'yicha
+@@note tip | Typealias emas
+Value class yangi runtime tipini yaratadi va tenglikni o'z qiymati bo'yicha aniqlaydi. <code>typealias Metr = Double</code> esa shunchaki nom almashtirish: u hech qanday himoya bermaydi. Validatsiya kerak bo'lsa — <code>init</code> yoki private konstruktor + factory ishlatiladi.
+@@quiz
+Value class qaysi holatda albatta boxing bilan saqlanadi?
+- Faqat lokal o'zgaruvchi sifatida
+- Nullable tip yoki generic argument sifatida
+- Faqat funksiya parametri sifatida
+- Faqat companion object ichida
+= 1
+! Nullable va generic kontekstlarda value classning aniq tipi saqlanishi uchun u obyektga o'raladi.
+@@quiz
+Value class'ning typealias'dan asosiy farqi nimada?
+- Value class yangi tip va validatsiya beradi, typealias esa faqat nom
+- Typealias runtime'da qutisiz ishlaydi, value class esa har doim qutiladi
+- Value class faqat String'ni o'rashi mumkin
+- Typealias meros olishni taqiqlaydi
+= 0
+! typealias mavjud tipga taxallus beradi; value class esa alohida tip bo'lib, konstruktor validatsiyasini saqlaydi.
+@@quiz
+Value class bo'yicha qaysi cheklov to'g'ri?
+- Ichida bir nechta var xossa bo'lishi mumkin
+- Boshqa klassdan meros olishi mumkin
+- Bitta val orqa fon maydoni bo'ladi va klassdan meros olmaydi
+- Faqat JVM'da ishlamaydi
+= 2
+! Value class bitta val xossaga tayanadi, sinflar ierarxiyasida qatnashmaydi, lekin interfeyslarni amalga oshirishi mumkin.
+@@lesson 52
+@@title Typealias va domen tipidagi aliaslar
+@@minutes 14
+@@p
+<code>typealias</code> mavjud tipga o'qish uchun qulay nom beradi. U yangi tip yaratmaydi: kompilyator uchun <code>UserId</code> va <code>Long</code> bir xil. Shuning uchun typealias uzun generic imzolarni, lambda tiplarini va domen atamalarini soddalashtirish uchun ishlatiladi, lekin xavfsizlik kafolati sifatida qabul qilinmasligi kerak.
+@@code aliaslar.kt
+typealias UserId = Long
+typealias UserMap = Map<UserId, String>
+typealias Handler<T> = (T) -> Unit
+
+fun salomla(id: UserId, foydalanuvchilar: UserMap) {
+    val ism = foydalanuvchilar[id] ?: "Noma'lum"
+    println("$ism (#$id)")
+}
+
+fun main() {
+    val foydalanuvchilar: UserMap = mapOf(1L to "Aziza", 2L to "Bek")
+    salomla(2L, foydalanuvchilar)
+    println(foydalanuvchilar.keys)
+    val handler: Handler<String> = { println("Salom, $it") }
+    handler("Noldan")
+}
+@@out
+Bek (#2)
+[1, 2]
+Salom, Noldan
+@@p
+Lambda tipiga nom berish, ayniqsa bir nechta parametrli funksiyalarda imzoni o'qishni yengillashtiradi. Quyidagi misolda <code>Predicate&lt;T&gt;</code> va <code>Mapper&lt;A, B&gt;</code> aliaslari kodni qisqartiradi. Diqqat: aliasni extension funksiyaga qo'llash asosiy tipga extension yozish bilan bir xil natija beradi.
+@@code predikat.kt
+typealias Predicate<T> = (T) -> Boolean
+typealias Mapper<A, B> = (A) -> B
+
+fun <T> List<T>.filterBy(shart: Predicate<T>): List<T> = filter(shart)
+
+fun main() {
+    val sonlar = listOf(1, 2, 3, 4, 5)
+    val juft: Predicate<Int> = { it % 2 == 0 }
+    val matnga: Mapper<Int, String> = { "son-$it" }
+    println(sonlar.filterBy(juft))
+    println(sonlar.filterBy(juft).map(matnga))
+    val katta: Predicate<String> = { it.length > 4 }
+    println(listOf("Kotlin", "Ktor", "Compose").filterBy(katta))
+}
+@@out
+[2, 4]
+[son-2, son-4]
+[Kotlin, Compose]
+@@table
+Vosita | Yangi tipmi? | Validatsiya | Runtime farqi
+<code>typealias</code> | Yo'q | Yo'q | Yo'q
+Value class | Ha | Ha | Odatda qutisiz
+<code>data class</code> | Ha | Ha | To'liq obyekt
+@@note warning | Aliasni suiiste'mol qilmang
+<code>typealias Milliliters = Int</code> va <code>typealias Grams = Int</code> bir-biridan himoyalanmaydi: funksiya ikkalasini ham qabul qiladi. Bu xatoni runtime'da topish qiyin. Agar birliklar aralashishi mumkin bo'lsa, value class bilan alohida tip yarating. Public API'da aliasdan foydalansangiz, IDE ba'zan asosiy tipni ko'rsatadi — hujjatda kelishuvni yozib qo'ying.
+@@quiz
+<code>typealias</code> qanday imkoniyat beradi?
+- Yangi runtime tipini yaratadi
+- Mavjud tip uchun qisqa nom beradi
+- Konstruktorda validatsiya qo'shadi
+- Nullable tipni avtomatik xavfsiz qiladi
+= 1
+! typealias faqat nomlash vositasidir; u yangi tip, meros yoki runtime tekshiruvi yaratmaydi.
+@@quiz
+Qaysi vazifa uchun typealias mos?
+- Millilitr va grammni bir-biridan himoyalash
+- Email formatini tekshirish
+- Uzun lambda imzosiga o'qiladigan nom berish
+- Klassga yangi metod qo'shish
+= 2
+! Lambda yoki generic imzolarni nomlash typealias'ning eng foydali qo'llanishi; validatsiya va tip himoyasi boshqa vositalar bilan hal qilinadi.
+@@quiz
+<code>typealias Milliliters = Int</code> haqida qaysi gap to'g'ri?
+- Millilitrni grammdan ajratib turuvchi yangi tip yaratadi
+- Aslida Int bo'lgani uchun boshqa Int qiymatlar bilan aralashishi mumkin
+- Faqat JVM bo'lmagan platformalarda ishlaydi
+- Avtomatik ravishda value class'ga aylanadi
+= 1
+! Alias yangi tip emas; kompilyator uchun Milliliters ham, Grams ham Int. Himoya kerak bo'lsa value class ishlating.
+@@lesson 53
+@@title Reified generics va inline API dizayni
+@@minutes 16
+@@p
+JVM'da generic tip argumentlari odatda runtime'da o'chiriladi (type erasure). Shu sababli oddiy funksiya ichida <code>T::class</code> yoki <code>x is T</code> yozib bo'lmaydi. <code>inline</code> funksiya bilan birga <code>reified</code> ishlatilsa, kompilyator tip argumentini kodga “tikib” qo'yadi va bu amallar mumkin bo'ladi. Bu imkoniyat <code>filterIsInstance</code>, <code>enumValues</code> kabi stdlib API'larida keng qo'llanadi.
+@@code reified.kt
+inline fun <reified T> List<*>.filtr(): List<T> = filterIsInstance<T>()
+
+inline fun <reified T : Any> Any.kabi(): T = this as T
+
+inline fun <reified T> boshQiymat(): T? = null
+
+fun main() {
+    val aralash: List<Any> = listOf(1, "ikki", 3.0, 4)
+    println(aralash.filtr<Int>())
+    println(aralash.filtr<String>())
+    val qiymat: Any = "Kotlin"
+    println(qiymat.kabi<String>().uppercase())
+    println(boshQiymat<String>() ?: "null")
+}
+@@out
+[1, 4]
+[ikki]
+KOTLIN
+null
+@@p
+Reified tipni kolleksiya yaratish, enum ro'yxatini olish yoki DI konteynerida tur bo'yicha registratsiya qilishda ishlatish mumkin. Lekin reified parametrni klass darajasida saqlab bo'lmaydi: <code>class Repo&lt;reified T&gt;</code> noto'g'ri. Bunday holatda <code>KClass&lt;T&gt;</code> yoki <code>typeOf&lt;T&gt;()</code> kabi runtime ma'lumotni alohida uzatish kerak.
+@@code enumlar.kt
+inline fun <reified T> royxat(vararg qiymatlar: T): List<T> = qiymatlar.toList()
+
+inline fun <reified T : Enum<T>> nomlar(): List<String> =
+    enumValues<T>().map { it.name }
+
+enum class Rang { QIZIL, YASHIL, KOK }
+
+class Konteyner {
+    private val ombor = mutableMapOf<String, Any>()
+
+    inline fun <reified T : Any> qoy(qiymat: T) {
+        ombor[T::class.qualifiedName!!] = qiymat
+    }
+
+    inline fun <reified T : Any> ol(): T? =
+        ombor[T::class.qualifiedName!!] as? T
+}
+
+fun main() {
+    println(royxat("a", "b", "c"))
+    println(nomlar<Rang>())
+    val k = Konteyner()
+    k.qoy("Kotlin")
+    println(k.ol<String>())
+}
+@@out
+[a, b, c]
+[QIZIL, YASHIL, KOK]
+Kotlin
+@@table
+Imkoniyat | Oddiy generic | reified inline
+<code>is T</code> | Mumkin emas | Mumkin
+<code>T::class</code> | Mumkin emas | Mumkin
+<code>enumValues&lt;T&gt;()</code> | Mumkin emas | Mumkin
+Klass tipida saqlash | Mumkin | Mumkin emas
+@@note tip | Public inline API
+Public inline funksiya tanasi chaqiruvchi modulda kompilyatsiya qilinadi. Shu sababli uning ichida ishlatilgan <code>internal</code> a'zolar <code>@PublishedApi</code> bilan belgilanishi kerak. Reified funksiya imzosini keyinchalik o'zgartirish binary moslikni buzishi mumkin — kutubxona API'sida ehtiyot bo'ling.
+@@quiz
+<code>reified</code> tip parametri qayerda ishlatilishi mumkin?
+- Har qanday generic klassda
+- Faqat inline funksiyada
+- Faqat interfeys metodida
+- Faqat suspend funksiyada
+= 1
+! reified uchun tip argumenti chaqiruv joyida ma'lum bo'lishi kerak; shuning uchun funksiya inline bo'lishi shart.
+@@quiz
+Nega oddiy generic funksiyada <code>x is T</code> yozib bo'lmaydi?
+- JVM generic tipni runtime'da o'chiradi
+- Kotlin `is` operatorini qo'llamaydi
+- T faqat nullable bo'ladi
+- Bunday tekshiruv faqat Java'da mavjud
+= 0
+! Type erasure tufayli runtime'da T haqida ma'lumot qolmaydi; reified inline bu ma'lumotni kodga joylaydi.
+@@quiz
+Reified funksiyaning qaysi cheklovi mavjud?
+- U hech qanday kolleksiya bilan ishlamaydi
+- U faqat `String` tipi uchun ishlaydi
+- Uni klass darajasidagi tip parametri sifatida saqlab bo'lmaydi
+- U suspension funksiyalarda chaqirilmaydi
+= 2
+! reified faqat inline funksiya doirasida ma'lum; klassning generic parametriga aylantirib bo'lmaydi.
+@@lesson 54
+@@title Contracts: kompilyatorga niyatingizni ayting
+@@minutes 17
+@@p
+Kontrakt funksiyaning kompilyatorga ma'lum bo'lgan xatti-harakatini e'lon qiladi: “bu funksiya normal qaytsa, shart bajarilgan bo'ladi” yoki “lambda aynan bir marta chaqiriladi”. Shu tufayli <code>require(x != null)</code> dan keyin kompilyator <code>x</code> ni smart cast qiladi. Custom kontraktlar <code>kotlin.contracts</code> DSL'i bilan yoziladi va odatda <code>@OptIn(ExperimentalContracts::class)</code> talab qiladi.
+@@code shart.kt
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
+
+@OptIn(ExperimentalContracts::class)
+fun talabIsm(qiymat: String?) {
+    contract { returns() implies (qiymat != null) }
+    if (qiymat == null) throw IllegalArgumentException("ism null")
+}
+
+fun salomla(ism: String?) {
+    talabIsm(ism)
+    println(ism.length)
+}
+
+fun main() {
+    salomla("Aziza")
+    val xato = runCatching { salomla(null) }
+    println(xato.exceptionOrNull()?.message)
+}
+@@out
+5
+ism null
+@@p
+<code>callsInPlace</code> kontrakti lambda qancha marta chaqirilishini bildiradi. <code>EXACTLY_ONCE</code> bo'lsa, kompilyator lambda ichida <code>val</code> ni bir marta tayinlashni “aniq bajarilgan” deb hisoblaydi. Bu stdlib'dagi <code>run</code>, <code>with</code>, <code>buildList</code> kabi funksiyalarning qulayligi asosida yotadi.
+@@code birmarta.kt
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
+@OptIn(ExperimentalContracts::class)
+inline fun birMarta(blok: () -> Unit) {
+    contract { callsInPlace(blok, InvocationKind.EXACTLY_ONCE) }
+    blok()
+}
+
+fun main() {
+    val narx: Int
+    birMarta { narx = 42 }
+    println(narx)
+
+    val royxat = buildList {
+        add("Kotlin")
+        add("Ktor")
+        add("Compose")
+    }
+    println(royxat)
+    println(royxat.size)
+}
+@@out
+42
+[Kotlin, Ktor, Compose]
+3
+@@table
+Kontrakt | Ma'nosi
+<code>returns() implies (x != null)</code> | Normal qaytsa, x null emas
+<code>returns(false) implies (...)</code> | false qaytsa, shart bajarilgan
+<code>callsInPlace(blok, EXACTLY_ONCE)</code> | Lambda aynan bir marta chaqiriladi
+<code>callsInPlace(blok, AT_LEAST_ONCE)</code> | Lambda kamida bir marta chaqiriladi
+@@note warning | Kontrakt — va'da
+Kontrakt runtime'da tekshirilmaydi; u faqat kompilyatorga ma'lumot beradi. Agar funksiya kontraktni buzsa (masalan, “bir marta” deb aytib, lambda'ni ikki marta chaqirsa), dastur noto'g'ri ishlashi mumkin. Kontraktni faqat haqiqatan kafolatlay oladigan funksiyalarga yozing.
+@@quiz
+Custom kontraktning vazifasi nima?
+- Runtime'da qo'shimcha tekshiruv qo'shish
+- Kompilyatorga funksiya xatti-harakati haqida ma'lumot berish
+- Istisnolarni avtomatik ushlash
+- Funksiyani suspendga aylantirish
+= 1
+! Kontraktlar kompilyator tahlili uchun ma'lumot beradi; ular bajariladigan kod emas.
+@@quiz
+<code>contract { callsInPlace(blok, InvocationKind.EXACTLY_ONCE) }</code> qanday imkoniyat beradi?
+- Lambda ichida val'ni bir marta tayinlab, keyin o'qishga ruxsat beradi
+- Lambda'ni ikki marta chaqiradi
+- Lambda'ni alohida thread'da bajaradi
+- Nullable qiymatni majburiy qiladi
+= 0
+! EXACTLY_ONCE kompilyatorga tayinlash aniq bajarilishini bildiradi, shuning uchun val'ni lambda ichida boshlash mumkin.
+@@quiz
+<code>returns() implies (qiymat != null)</code> kontraktidan keyin kompilyator nima qiladi?
+- Qiymatni avtomatik `lateinit` qiladi
+- Normal qaytishda qiymat null emasligini hisobga oladi
+- Runtime'da NullPointerException tashlaydi
+- Qiymatni String'ga aylantiradi
+= 1
+! Kontrakt normal qaytish shartini ifodalaydi, shu asosda smart cast qo'llanadi. Tekshiruvning o'zi funksiya tanasida bajarilishi kerak.

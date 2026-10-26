@@ -1,0 +1,517 @@
+[
+  {
+    "id": 50,
+    "title": "Zone: asinxron xatolar va kontekst",
+    "minutes": 17,
+    "desc": "Zone yordamida asinxron xatolarni markazlashgan ushlash va kontekst qiymatlarini butun zanjir bo'ylab uzatishni o'rganing.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "Zone — asinxron kod bajariladigan mantiqiy kontekst. Har bir <code>Future</code>, <code>Timer</code> va <code>Stream</code> o'zi yaratilgan Zone ichida ishlaydi. Shu sababli Zone yordamida kutilmagan xatolarni bitta joyda ushlash, log yozish va so'rovga tegishli ma'lumotlarni butun asinxron zanjir bo'ylab olib yurish mumkin."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "zone_xato.dart",
+        "code": "import 'dart:async';\n\nvoid main() {\n  runZonedGuarded(() {\n    print('zone: ${Zone.current[#nomi]}');\n    Future.microtask(() => throw StateError('boom'));\n    print('oxirgi sinxron qator');\n  }, (error, stack) {\n    print('tutildi: $error');\n  }, zoneValues: {#nomi: 'yuklash'});\n  print('main tugadi');\n}",
+        "output": "zone: yuklash\noxirgi sinxron qator\nmain tugadi\ntutildi: Bad state: boom"
+      },
+      {
+        "type": "p",
+        "html": "<code>runZonedGuarded()</code> tanani sinxron bajaradi, so'ngra shu Zone ichida yuz bergan ushlanmagan asinxron xatolarni <code>onError</code> callback'iga yuboradi. Oddiy <code>try/catch</code> kechikkan xatoni ushlamaydi, chunki xato sinxron blok tugagach alohida mikrotaskda paydo bo'ladi. Zone esa butun asinxron zanjirni qamrab oladi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "zone_qiymat.dart",
+        "code": "import 'dart:async';\n\nvoid main() {\n  runZoned(() {\n    print('tashqi: ${Zone.current[#til]}');\n    runZoned(() {\n      print('ichki: ${Zone.current[#til]}');\n      Zone.current.fork(zoneValues: {#til: 'dart'}).run(() {\n        print('fork: ${Zone.current[#til]}');\n      });\n    }, zoneValues: {#til: 'flutter'});\n    print('tashqi qayta: ${Zone.current[#til]}');\n  }, zoneValues: {#til: 'dasturlash'});\n}",
+        "output": "tashqi: dasturlash\nichki: flutter\nfork: dart\ntashqi qayta: dasturlash"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Vosita",
+          "Vazifasi",
+          "Eslatma"
+        ],
+        "rows": [
+          [
+            "<code>runZoned</code>",
+            "Kodni yangi Zone ichida bajaradi",
+            "Xatoni o'zi ushlamaydi"
+          ],
+          [
+            "<code>runZonedGuarded</code>",
+            "Bajaradi va ushlanmagan xatolarni qabul qiladi",
+            "<code>onError</code> majburiy"
+          ],
+          [
+            "<code>Zone.current</code>",
+            "Joriy Zone'ga murojaat qiladi",
+            "Har asinxron callback o'z Zone'ida ishlaydi"
+          ],
+          [
+            "<code>zoneValues</code>",
+            "Kontekst qiymatlarini uzatadi",
+            "Kalitlar odatda Symbol bo'ladi"
+          ],
+          [
+            "<code>fork</code>",
+            "Mavjud Zone'dan yangi Zone yasaydi",
+            "Qiymatlarni meros oladi"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "warning",
+        "title": "Zone hamma xatoni ushlamaydi",
+        "html": "Flutter'da widget qurishdagi xatolar <code>FlutterError.onError</code> ga, dvigatel darajasidagi xatolar <code>PlatformDispatcher.instance.onError</code> ga boradi. <code>runZonedGuarded</code> faqat o'z Zone'idagi ushlanmagan asinxron xatolarni oladi. Shuning uchun ilovada bu uch kanalni birgalikda sozlang va xatoni jimgina yutmasdan, log va foydalanuvchi uchun tushunarli xabar bering."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "runZonedGuarded() ning ikkinchi argumenti qanday vazifani bajaradi?",
+        "options": [
+          "Zone ichida ushlanmagan xatoni qabul qiladi",
+          "Yangi isolate yaratadi",
+          "Stream'ni broadcast oqimga aylantiradi",
+          "Faqat sinxron xatolarni e'tiborsiz qoldiradi"
+        ],
+        "answer": 0,
+        "explain": "Ikkinchi argument onError callback bo'lib, Zone ichida ushlanmagan asinxron xatoni va stack trace'ni oladi."
+      },
+      {
+        "q": "zoneValues haqidagi qaysi gap to'g'ri?",
+        "options": [
+          "Ular faqat main() funksiyasida o'qiladi",
+          "Ular har bir Future'ni avtomatik bekor qiladi",
+          "Ichki Zone tashqi qiymatlarni meros oladi va bir xil kalitni almashtira oladi",
+          "Ular faqat String qiymatlarni saqlaydi"
+        ],
+        "answer": 2,
+        "explain": "Bola Zone ota Zone'ning zoneValues qiymatlarini meros oladi; bir xil kalit berilsa, yangi qiymat amal qiladi."
+      },
+      {
+        "q": "Nega Future.microtask ichidagi xato oddiy try/catch bilan ushlanmasligi mumkin?",
+        "options": [
+          "Microtasklar umuman xato bermaydi",
+          "Xato sinxron kod tugagach, alohida mikrotaskda yuz beradi",
+          "try/catch faqat Stream bilan ishlaydi",
+          "Future.microtask har doim xatoni yutib yuboradi"
+        ],
+        "answer": 1,
+        "explain": "try/catch faqat o'sha paytda bajarilayotgan sinxron qismni qamraydi; mikrotask keyinroq bajariladi va uning xatosi Zone'ga boradi."
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "title": "Isolate.spawn va port aloqasi",
+    "minutes": 18,
+    "desc": "Yangi isolate ochish, SendPort va ReceivePort orqali ikki tomonlama xabar almashishni amalda qo'llang.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "Dart isolate'i alohida xotira va alohida event loop'ga ega. Shu sababli u haqiqiy parallellik beradi, lekin oddiy o'zgaruvchilar orqali ma'lumot almashib bo'lmaydi. Aloqa <b>port</b>lar orqali quriladi: <code>ReceivePort</code> xabar qabul qiladi, <code>SendPort</code> esa xabar yuboradi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "port_aloqa.dart",
+        "code": "import 'dart:async';\nimport 'dart:isolate';\n\nFuture<void> main() async {\n  final qabul = ReceivePort();\n  final isolate = await Isolate.spawn(ishchi, qabul.sendPort);\n  late StreamSubscription sub;\n  sub = qabul.listen((xabar) {\n    if (xabar is SendPort) {\n      xabar.send('salom');\n      return;\n    }\n    print(xabar);\n    if (xabar == 'ishchi: salom') {\n      sub.cancel();\n      qabul.close();\n      isolate.kill();\n    }\n  }, onDone: () {\n    print('yakun');\n  });\n}\n\nvoid ishchi(SendPort ota) {\n  final qabul = ReceivePort();\n  ota.send(qabul.sendPort);\n  qabul.listen((xabar) {\n    ota.send('ishchi: $xabar');\n  });\n}",
+        "output": "ishchi: salom\nyakun"
+      },
+      {
+        "type": "p",
+        "html": "Ishchi isolate o'zining <code>ReceivePort</code>ini yaratib, uning <code>sendPort</code>ini ota isolate'ga yuboradi. Ota bu portni saqlab qo'yadi va keyingi xabarlarni aynan shu portga yuboradi. Shu yo'l bilan ikki tomonlama kanal paydo bo'ladi. Xabar sifatida son, matn, ro'yxat, xarita va boshqa yuboriladigan (sendable) obyektlarni uzatish mumkin."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "yigindi_isolate.dart",
+        "code": "import 'dart:isolate';\n\nFuture<void> main() async {\n  final natijalar = ReceivePort();\n  await Isolate.spawn(yigindi, [natijalar.sendPort, 1000000]);\n  final sum = await natijalar.first;\n  print('yigindi: $sum');\n  natijalar.close();\n}\n\nvoid yigindi(List<dynamic> args) {\n  final SendPort port = args[0];\n  final int n = args[1];\n  var total = 0;\n  for (var i = 1; i <= n; i++) {\n    total += i;\n  }\n  port.send(total);\n}",
+        "output": "yigindi: 500000500000"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Atama",
+          "Ma'nosi",
+          "Eslatma"
+        ],
+        "rows": [
+          [
+            "<code>ReceivePort</code>",
+            "Xabarlarni qabul qiluvchi oqim",
+            "Bir marta tinglanadi"
+          ],
+          [
+            "<code>SendPort</code>",
+            "Xabar yuborish uchun tutqich",
+            "Boshqa isolate'ga uzatish mumkin"
+          ],
+          [
+            "<code>Isolate.spawn</code>",
+            "Yangi isolate'da funksiya ishga tushiradi",
+            "<code>Isolate</code> obyektini qaytaradi"
+          ],
+          [
+            "<code>isolate.kill</code>",
+            "Isolate'ni to'xtatadi",
+            "Resurslarni yopish imkonini bermaydi"
+          ],
+          [
+            "<code>close()</code>",
+            "Portni yopadi",
+            "Tinglovchiga done signali boradi"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "tip",
+        "title": "Katta ma'lumotni nusxalashdan saqlaning",
+        "html": "Isolate'lar orasida xabar nusxalanadi yoki kodlanadi. Juda katta ro'yxatni har safar yuborish xotira va vaqtni ko'p sarflaydi. Katta bayt massivlari uchun <code>TransferableTypedData</code> dan foydalaning, doimiy ishchi isolate uchun esa bir marta port ochib, vazifalarni navbat bilan yuboring."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Isolate'lar o'rtasida ikki tomonlama aloqa uchun odatda nima kerak?",
+        "options": [
+          "SendPort va ReceivePort juftligi",
+          "Global o'zgaruvchi",
+          "Faqat File obyekti",
+          "SharedPreferences"
+        ],
+        "answer": 0,
+        "explain": "Har bir tomon ReceivePort ochib, uning SendPort'ini qarshi tomonga uzatadi; xabarlar shu portlar orqali boradi."
+      },
+      {
+        "q": "Isolate.spawn() ga uzatilgan funksiya qanday bajariladi?",
+        "options": [
+          "Asosiy isolate'da sinxron",
+          "Yangi isolate'da, alohida xotira bilan",
+          "Faqat UI thread'da",
+          "Umumiy xotirada, lekin yangi Zone'da"
+        ],
+        "answer": 1,
+        "explain": "Isolate.spawn yangi isolate yaratadi; u o'z xotirasi va event loop'ida ishlaydi, shuning uchun haqiqiy parallellik beradi."
+      },
+      {
+        "q": "Nega har qanday obyektni isolate'ga to'g'ridan-to'g'ri uzatib bo'lmaydi?",
+        "options": [
+          "Chunki xabar faqat fayl orqali uzatiladi",
+          "Chunki SendPort faqat sonlarni tashiydi",
+          "Chunki isolate'lar xotirani baham ko'rmaydi va xabar nusxalanadi",
+          "Chunki obyektlar avtomatik UI'ga bog'lanadi"
+        ],
+        "answer": 2,
+        "explain": "Xotira baham ko'rilmagani uchun xabar kodlanadi yoki nusxalanadi; faqat yuboriladigan (sendable) qiymatlar o'tadi."
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "title": "Isolate.run bilan og'ir hisoblash",
+    "minutes": 16,
+    "desc": "Isolate.run yordamida og'ir hisobni fon oqimiga ko'chirish, natija va xatolarni Future orqali olishni o'rganing.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "Ko'p holatlarda doimiy ishchi isolate shart emas: bitta og'ir hisobni bajarib, natijani qaytarish kifoya. <code>Isolate.run()</code> aynan shu ish uchun mo'ljallangan. U funksiyani yangi isolate'da bajaradi va natijani <code>Future&lt;T&gt;</code> sifatida qaytaradi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "run_asosiy.dart",
+        "code": "import 'dart:isolate';\n\nFuture<void> main() async {\n  print('boshlandi');\n  final juftlar = await Isolate.run(() {\n    return List.generate(10, (i) => i * 2);\n  });\n  print(juftlar);\n  print('tugadi');\n}",
+        "output": "boshlandi\n[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]\ntugadi"
+      },
+      {
+        "type": "p",
+        "html": "<code>Isolate.run</code> ga berilgan closure o'zi ishlatgan qiymatlarni avtomatik ravishda yangi isolate'ga uzatadi. Hisob tugagach natija qaytadi va ota isolate'dagi <code>await</code> davom etadi. Agar closure xato tashlasa, u Future xatosi sifatida qaytadi va oddiy <code>try/catch</code> bilan ushlanadi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "tub_sonlar.dart",
+        "code": "import 'dart:isolate';\n\nFuture<void> main() async {\n  final chegara = 50;\n  final tub = await Isolate.run(() {\n    final topildi = <int>[];\n    for (var n = 2; n <= chegara; n++) {\n      var tubmi = true;\n      for (var d = 2; d * d <= n; d++) {\n        if (n % d == 0) {\n          tubmi = false;\n          break;\n        }\n      }\n      if (tubmi) topildi.add(n);\n    }\n    return topildi;\n  });\n  print('tub sonlar: $tub');\n  print('soni: ${tub.length}');\n}",
+        "output": "tub sonlar: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47]\nsoni: 15"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Xususiyat",
+          "Isolate.run",
+          "Isolate.spawn"
+        ],
+        "rows": [
+          [
+            "Bitta hisob uchun",
+            "Sodda va qulay",
+            "Portlarni qo'lda sozlash kerak"
+          ],
+          [
+            "Uzoq yashovchi ishchi",
+            "Mo'ljallanmagan",
+            "Mos keladi"
+          ],
+          [
+            "Natija",
+            "<code>Future&lt;T&gt;</code>",
+            "<code>SendPort</code> orqali"
+          ],
+          [
+            "Xato",
+            "Future xatosi bo'ladi",
+            "Ota isolate'da ushlanadi"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "warning",
+        "title": "Har kichik ish uchun isolate ochmang",
+        "html": "Isolate yaratishning o'z narxi bor: xotira, ishga tushish va xabar uzatish. Bir necha millisekundlik hisob uchun <code>Isolate.run</code> foyda emas, balki sekinlashuv beradi. Bir nechta vazifani birlashtiring yoki doimiy ishchi isolate yarating. Muhim shart: closure ichida ochiq fayl, socket yoki UI obyekti kabi yuborilmaydigan resurs bo'lmasin."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Isolate.run() qanday natija qaytaradi?",
+        "options": [
+          "Darhol hisoblash natijasini",
+          "Hisoblash natijasini beruvchi Future",
+          "Faqat SendPort",
+          "Hech narsa, natija portga keladi"
+        ],
+        "answer": 1,
+        "explain": "Isolate.run funksiyani fon isolate'ida bajaradi va natijani Future<T> ko'rinishida qaytaradi."
+      },
+      {
+        "q": "Isolate.run() ichidagi funksiya xato tashlasa nima yuz beradi?",
+        "options": [
+          "Xato butun ilovani darhol yopadi",
+          "Xato jimgina e'tiborsiz qoladi",
+          "Xato faqat konsolga chiqadi, Future tugamaydi",
+          "Future xato bilan yakunlanadi va await joyida ushlanadi"
+        ],
+        "answer": 3,
+        "explain": "Isolate ichidagi xato ota isolate'ga uzatiladi; Future xato bilan yakunlanadi, shuning uchun try/catch ishlaydi."
+      },
+      {
+        "q": "Qaysi qiymatni isolate'dan qaytarish xavfsiz?",
+        "options": [
+          "Oddiy son, matn yoki ro'yxat kabi yuboriladigan qiymat",
+          "Ochiq fayl deskriptori",
+          "Faol HTTP ulanishi",
+          "UI widget obyekti"
+        ],
+        "answer": 0,
+        "explain": "Isolate'lar orasida faqat sendable qiymatlar o'tadi; fayl, socket va UI obyektlari boshqa isolate'ga uzatilmaydi."
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "title": "Flutter'da compute() va fon vazifalari",
+    "minutes": 16,
+    "desc": "Flutter ilovasida compute() bilan og'ir funksiyani fon isolate'ida bajarish va UI javobgarligini saqlashni o'rganing.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "Flutter'da UI va event loop bitta asosiy isolate'da ishlaydi. Agar <code>build()</code> yoki tugma callback'i ichida og'ir hisob qilsangiz, kadrlar kechikadi va interfeys muzlaydi. <code>compute()</code> — Flutter'ning qulay yordamchisi: funksiya va argumentni fon isolate'iga yuborib, natijani Future bilan qaytaradi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "fib_compute.dart",
+        "code": "import 'package:flutter/foundation.dart';\n\nint fibonacci(int n) {\n  if (n < 2) return n;\n  return fibonacci(n - 1) + fibonacci(n - 2);\n}\n\nvoid main() {\n  compute(fibonacci, 10).then((qiymat) {\n    debugPrint('fib(10) = $qiymat');\n  });\n  debugPrint('UI bloklanmadi');\n}",
+        "output": "flutter: UI bloklanmadi\nflutter: fib(10) = 55"
+      },
+      {
+        "type": "p",
+        "html": "<code>compute</code> chaqirilganda hisob darhol bajarilmaydi: avval isolate tayyorlanadi, keyin funksiya ishga tushadi. Shu sababli asosiy oqim davom etadi va foydalanuvchi interfeys bilan ishlashda davom etadi. Natija kelganda <code>setState</code> yoki <code>FutureBuilder</code> orqali ekranni yangilang."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "compute_xato.dart",
+        "code": "import 'package:flutter/foundation.dart';\n\nint yigindi(Map<String, int> data) => data['a']! + data['b']!;\n\nint bolish(Map<String, int> data) {\n  final b = data['b']!;\n  if (b == 0) throw ArgumentError('bolish nolga ruxsat etilmaydi');\n  return data['a']! ~/ b;\n}\n\nFuture<void> main() async {\n  final natija = await compute(yigindi, {'a': 12, 'b': 30});\n  debugPrint('yigindi: $natija');\n  try {\n    await compute(bolish, {'a': 10, 'b': 0});\n  } catch (e) {\n    debugPrint('xato: $e');\n  }\n}",
+        "output": "flutter: yigindi: 42\nflutter: xato: Invalid argument(s): bolish nolga ruxsat etilmaydi"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Vazifa turi",
+          "Tavsiya",
+          "Sabab"
+        ],
+        "rows": [
+          [
+            "JSON parse (kichik)",
+            "Asosiy isolate",
+            "Isolate narxi foydadan katta"
+          ],
+          [
+            "Rasm dekodlash",
+            "<code>compute</code> yoki kutubxona",
+            "Katta massivlarda UI muzlaydi"
+          ],
+          [
+            "Fayl indekslash",
+            "Doimiy ishchi isolate",
+            "Uzoq va takroriy ish"
+          ],
+          [
+            "Tarmoq so'rovi",
+            "<code>Future</code> yetarli",
+            "Kutish I/O, CPU band emas"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "tip",
+        "title": "Argumentni bitta obyektga jamlang",
+        "html": "<code>compute</code> faqat bitta argument qabul qiladi. Bir nechta qiymat kerak bo'lsa, ularni <code>Map</code>, record yoki kichik sinfga jamlang. Argument va natija sendable bo'lishi shart. Natijani olgach <code>mounted</code> ni tekshiring: foydalanuvchi ekrandan chiqib ketgan bo'lsa, <code>setState</code> chaqirmang."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Flutter'da compute() qanday vazifani bajaradi?",
+        "options": [
+          "Widget daraxtini qayta quradi",
+          "Tarmoq so'rovini keshlaydi",
+          "Og'ir funksiyani fon isolate'ida bajarib, Future qaytaradi",
+          "Ilovani qayta ishga tushiradi"
+        ],
+        "answer": 2,
+        "explain": "compute funksiya va argumentni yangi isolate'ga yuboradi, natijani Future orqali qaytaradi va UI isolate'ini bo'sh qoldiradi."
+      },
+      {
+        "q": "compute() ishlatishda qaysi cheklov eng muhim?",
+        "options": [
+          "Funksiya albatta void bo'lishi kerak",
+          "Faqat String qaytarish mumkin",
+          "Funksiya widget ichida e'lon qilinishi shart",
+          "Argument va natija sendable bo'lishi kerak"
+        ],
+        "answer": 3,
+        "explain": "Isolate'ga faqat yuboriladigan qiymatlar o'tadi; yopiq resurslar yoki UI obyektlari argument bo'la olmaydi."
+      },
+      {
+        "q": "UI isolate'ida uzoq hisoblash nega muammo tug'diradi?",
+        "options": [
+          "Kadrlar kechikadi va interfeys muzlaydi",
+          "Dart kodi kompilyatsiya qilinmaydi",
+          "Barcha Future'lar bekor qilinadi",
+          "Isolate'lar avtomatik o'chadi"
+        ],
+        "answer": 0,
+        "explain": "UI va event loop bitta isolate'da; uzoq sinxron hisob eventlarni qayta ishlashga to'sqinlik qiladi va kadrlar tushib ketadi."
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "title": "Debounce, throttle va navbat naqshlari",
+    "minutes": 17,
+    "desc": "Tez-tez keladigan hodisalarni boshqarish uchun debounce, throttle va ketma-ket navbat naqshlarini qo'llang.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "Qidiruv maydoni, scroll yoki tugmani tez-tez bosish har safar so'rov yuborishga sabab bo'lmasligi kerak. <b>Debounce</b> oxirgi hodisadan keyin kutadi, <b>throttle</b> belgilangan oraliqda bittadan o'tkazadi, <b>navbat</b> esa vazifalarni ketma-ket bajaradi. Bu naqshlar tarmoq yukini va keraksiz qayta hisoblashni kamaytiradi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "debounce.dart",
+        "code": "import 'dart:async';\n\nvoid main() {\n  Timer? taymer;\n\n  void qidiruv(String soz) {\n    taymer?.cancel();\n    taymer = Timer(const Duration(milliseconds: 300), () {\n      print('qidiruv: $soz');\n    });\n  }\n\n  qidiruv('d');\n  qidiruv('da');\n  qidiruv('dart');\n  print('so\\'rovlar yuborildi');\n}",
+        "output": "so'rovlar yuborildi\nqidiruv: dart"
+      },
+      {
+        "type": "p",
+        "html": "Har yangi belgi oldingi taymerni bekor qiladi. Natijada faqat oxirgi qiymat uchun ish bajariladi. Debounce kechikishni to'liq kutadi; throttle esa birinchi hodisani darhol o'tkazib, keyingilarini oraliq tugaguncha bloklaydi. Ikkalasi ham <code>Timer</code> yoki stream operatorlari bilan quriladi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "navbat.dart",
+        "code": "import 'dart:async';\n\nclass Navbat {\n  Future<void> _oxirgi = Future.value();\n\n  Future<T> qosh<T>(Future<T> Function() ish) {\n    final keyingi = _oxirgi.then((_) => ish());\n    _oxirgi = keyingi.then((_) {}, onError: (_) {});\n    return keyingi;\n  }\n}\n\nFuture<void> main() async {\n  final navbat = Navbat();\n  navbat.qosh(() async {\n    await Future<void>.delayed(const Duration(milliseconds: 20));\n    print('1-tugadi');\n  });\n  navbat.qosh(() async {\n    await Future<void>.delayed(const Duration(milliseconds: 5));\n    print('2-tugadi');\n  });\n  await navbat.qosh(() async => print('3-tugadi'));\n}",
+        "output": "1-tugadi\n2-tugadi\n3-tugadi"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Naqsh",
+          "Xatti-harakati",
+          "Qayerda foydali"
+        ],
+        "rows": [
+          [
+            "Debounce",
+            "Oxirgi hodisadan keyin kutadi",
+            "Qidiruv maydoni, validatsiya"
+          ],
+          [
+            "Throttle",
+            "Oraliqda ko'pi bilan bitta hodisa",
+            "Scroll, tugmani qayta bosish"
+          ],
+          [
+            "Navbat",
+            "Vazifalarni ketma-ket bajaradi",
+            "Fayl yozish, to'lov so'rovi"
+          ],
+          [
+            "Retry",
+            "Xatodan keyin qayta urinadi",
+            "Vaqtinchalik tarmoq xatosi"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "warning",
+        "title": "Taymerlarni tozalang",
+        "html": "<code>State</code> ichida yaratilgan <code>Timer</code> ni <code>dispose()</code> da bekor qiling, aks holda u o'chirilgan widget'ga tegib xatolik berishi yoki xotirani ushlab turishi mumkin. Stream asosidagi debounce'da <code>StreamSubscription</code> ni ham yoping. Navbatda esa har bir vazifa xatosini alohida ushlang: bitta xato keyingi vazifalarni to'xtatib qo'ymasin."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Debounce nimani kechiktiradi?",
+        "options": [
+          "Barcha so'rovlarni butunlay bekor qiladi",
+          "Oxirgi chaqiruvdan keyin belgilangan vaqt o'tgach ishni bajaradi",
+          "Har bir chaqiruvni darhol bajaradi",
+          "Faqat birinchi chaqiruvni bajaradi"
+        ],
+        "answer": 1,
+        "explain": "Debounce har yangi hodisada taymerni qayta boshlaydi va faqat tinchlik davridan keyin oxirgi qiymat bilan ishni bajaradi."
+      },
+      {
+        "q": "Throttle odatda qanday ishlaydi?",
+        "options": [
+          "Har bir hodisani navbatga qo'yadi",
+          "Faqat xato bo'lganda ishlaydi",
+          "Hodisalarni butunlay e'tiborsiz qoldiradi",
+          "Belgilangan oraliqda ko'pi bilan bitta chaqiruv o'tkazadi"
+        ],
+        "answer": 3,
+        "explain": "Throttle chastotani cheklaydi: birinchi hodisa o'tadi, keyingilari oraliq tugaguncha bloklanadi."
+      },
+      {
+        "q": "Navbat (queue) naqshining asosiy maqsadi nima?",
+        "options": [
+          "Vazifalarni ketma-ket, oldingisi tugagach bajarish",
+          "Barcha vazifalarni bir vaqtda boshlash",
+          "Xatolarni butunlay yashirish",
+          "Har bir vazifani alohida isolate'da bajarish"
+        ],
+        "answer": 0,
+        "explain": "Navbat oldingi Future tugagach keyingisini boshlaydi; bu fayl yozish yoki to'lov kabi ketma-ketlik talab qiladigan ishlarda muhim."
+      }
+    ]
+  }
+]

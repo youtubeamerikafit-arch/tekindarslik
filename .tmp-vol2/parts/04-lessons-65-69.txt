@@ -1,0 +1,888 @@
+      {
+        id: 65,
+        title: "AVL daraxti: balanslash va aylanishlar",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Oddiy BST ga tartiblangan kalitlar qo'shilsa, u ro'yxatga aylanadi va qidiruv O(n) bo'ladi. <b>AVL daraxti</b> har bir tugunda balandlikni saqlaydi va balans omili (chap balandlik minus o'ng balandlik) −1, 0 yoki 1 bo'lishini ta'minlaydi. Buzilishda kichik yoki katta aylanish bajariladi. Natijada qidiruv, qo'shish va o'chirish kafolatlangan O(log n) bo'ladi.",
+          },
+          {
+            type: "code",
+            title: "avl.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Tugun {
+    int kalit;
+    int balandlik;
+    struct Tugun *chap;
+    struct Tugun *ong;
+} Tugun;
+
+int h(Tugun *t) { return t ? t->balandlik : 0; }
+int katta(int a, int b) { return a > b ? a : b; }
+int balans(Tugun *t) { return t ? h(t->chap) - h(t->ong) : 0; }
+
+Tugun *yangi(int kalit) {
+    Tugun *t = malloc(sizeof *t);
+    if (!t) return NULL;
+    t->kalit = kalit;
+    t->balandlik = 1;
+    t->chap = t->ong = NULL;
+    return t;
+}
+
+Tugun *ongga(Tugun *y) {
+    Tugun *x = y->chap;
+    Tugun *o = x->ong;
+    x->ong = y;
+    y->chap = o;
+    y->balandlik = 1 + katta(h(y->chap), h(y->ong));
+    x->balandlik = 1 + katta(h(x->chap), h(x->ong));
+    return x;
+}
+
+Tugun *chapga(Tugun *x) {
+    Tugun *y = x->ong;
+    Tugun *o = y->chap;
+    y->chap = x;
+    x->ong = o;
+    x->balandlik = 1 + katta(h(x->chap), h(x->ong));
+    y->balandlik = 1 + katta(h(y->chap), h(y->ong));
+    return y;
+}
+
+Tugun *qosh(Tugun *t, int kalit) {
+    if (!t) return yangi(kalit);
+    if (kalit < t->kalit) t->chap = qosh(t->chap, kalit);
+    else if (kalit > t->kalit) t->ong = qosh(t->ong, kalit);
+    else return t;
+
+    t->balandlik = 1 + katta(h(t->chap), h(t->ong));
+    int b = balans(t);
+
+    if (b > 1 && kalit < t->chap->kalit) return ongga(t);
+    if (b < -1 && kalit > t->ong->kalit) return chapga(t);
+    if (b > 1 && kalit > t->chap->kalit) {
+        t->chap = chapga(t->chap);
+        return ongga(t);
+    }
+    if (b < -1 && kalit < t->ong->kalit) {
+        t->ong = ongga(t->ong);
+        return chapga(t);
+    }
+    return t;
+}
+
+void chiqar(Tugun *t) {
+    if (!t) return;
+    chiqar(t->chap);
+    printf("%d ", t->kalit);
+    chiqar(t->ong);
+}
+
+int main(void) {
+    Tugun *ildiz = NULL;
+    int kalitlar[] = {10, 20, 30, 40, 50, 25};
+    for (int i = 0; i < 6; i++) {
+        ildiz = qosh(ildiz, kalitlar[i]);
+    }
+    chiqar(ildiz);
+    printf("\nbalandlik=%d\n", h(ildiz));
+    return 0;
+}`,
+            output: "10 20 25 30 40 50 \nbalandlik=3",
+          },
+          {
+            type: "table",
+            head: ["Balans omili", "Holat", "Aylanish"],
+            rows: [
+              ["b > 1, kalit chap-chapda", "LL", "o'ngga"],
+              ["b < -1, kalit o'ng-o'ngda", "RR", "chapga"],
+              ["b > 1, kalit chap-o'ngda", "LR", "chapga, keyin o'ngga"],
+              ["b < -1, kalit o'ng-chapda", "RL", "o'ngga, keyin chapga"],
+            ],
+          },
+          {
+            type: "code",
+            title: "avl_sorted.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct T {
+    int k;
+    int h;
+    struct T *l;
+    struct T *r;
+} T;
+
+int baland(T *t) { return t ? t->h : 0; }
+int max2(int a, int b) { return a > b ? a : b; }
+int bf(T *t) { return t ? baland(t->l) - baland(t->r) : 0; }
+
+T *yangi(int k) {
+    T *t = malloc(sizeof *t);
+    t->k = k;
+    t->h = 1;
+    t->l = t->r = NULL;
+    return t;
+}
+
+T *ongga(T *y) {
+    T *x = y->l;
+    y->l = x->r;
+    x->r = y;
+    y->h = 1 + max2(baland(y->l), baland(y->r));
+    x->h = 1 + max2(baland(x->l), baland(x->r));
+    return x;
+}
+
+T *chapga(T *x) {
+    T *y = x->r;
+    x->r = y->l;
+    y->l = x;
+    x->h = 1 + max2(baland(x->l), baland(x->r));
+    y->h = 1 + max2(baland(y->l), baland(y->r));
+    return y;
+}
+
+T *qosh(T *t, int k) {
+    if (!t) return yangi(k);
+    if (k < t->k) t->l = qosh(t->l, k);
+    else if (k > t->k) t->r = qosh(t->r, k);
+    else return t;
+    t->h = 1 + max2(baland(t->l), baland(t->r));
+    int b = bf(t);
+    if (b > 1 && k < t->l->k) return ongga(t);
+    if (b < -1 && k > t->r->k) return chapga(t);
+    if (b > 1 && k > t->l->k) {
+        t->l = chapga(t->l);
+        return ongga(t);
+    }
+    if (b < -1 && k < t->r->k) {
+        t->r = ongga(t->r);
+        return chapga(t);
+    }
+    return t;
+}
+
+int main(void) {
+    T *ildiz = NULL;
+    for (int i = 1; i <= 7; i++) {
+        ildiz = qosh(ildiz, i);
+    }
+    printf("ildiz=%d balandlik=%d\n", ildiz->k, ildiz->h);
+    return 0;
+}`,
+            output: "ildiz=4 balandlik=3",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Aylanishlarda balandlikni yangilang",
+            html: "Aylanishdan keyin avval pastki tugun, keyin yuqori tugun balandligi qayta hisoblanadi; tartib buzilsa daraxtning keyingi balanslashi noto'g'ri bo'ladi. AVL qidiruvga juda qulay, lekin tez-tez qo'shish/o'chirishda ko'proq aylanish qiladi. Red-black daraxt kamroq balanslash bilan o'xshash kafolat beradi; amalda ikkalasi ham ishlatiladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "AVL daraxtida balans omili qanday hisoblanadi?",
+            options: [
+              "O'ng balandlik minus chap balandlik",
+              "Chap balandlik minus o'ng balandlik",
+              "Tugunlar soni minus balandlik",
+              "Kalit qiymatlari ayirmasi",
+            ],
+            answer: 1,
+            explain: "Balans omili chap pastki daraxt balandligidan o'ng pastki daraxt balandligini ayirish orqali topiladi.",
+          },
+          {
+            q: "Chap-chap (LL) holatida qaysi aylanish bajariladi?",
+            options: ["Chapga", "O'ngga", "Avval chapga, keyin o'ngga", "Aylanish kerak emas"],
+            answer: 1,
+            explain: "Chap og'irlikni tuzatish uchun o'ngga aylanish bajariladi va o'rta tugun ildizga ko'tariladi.",
+          },
+          {
+            q: "1 dan 7 gacha kalitlarni AVL ga qo'shsak, daraxt balandligi nechaga teng bo'ladi?",
+            options: ["7", "6", "3", "4"],
+            answer: 2,
+            explain: "AVL muvozanatni saqlaydi; 7 tugun uchun minimal balandlik 3 bo'ladi (ildiz 4).",
+          },
+        ],
+      },
+      {
+        id: 66,
+        title: "Trie: prefiks daraxti va lug'at qidiruvi",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "<b>Trie</b> satrlarni harflar bo'yicha daraxtga joylaydi: ildizdan boshlab har bir belgi alohida tugunga mos keladi. Bir xil prefiksli so'zlar yo'lni bo'lishadi, shuning uchun prefiks bo'yicha qidiruv va avtoto'ldirish juda tez. Qidiruv murakkabligi so'z uzunligiga bog'liq — O(L), lug'at hajmidan deyarli mustaqil. Evaziga har bir tugunda alifbo bo'yicha ko'rsatkichlar massivi saqlanadi.",
+          },
+          {
+            type: "code",
+            title: "trie.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define ALIFBO 26
+
+typedef struct Tugun {
+    struct Tugun *bola[ALIFBO];
+    int soz_oxiri;
+} Tugun;
+
+Tugun *yangi(void) {
+    return calloc(1, sizeof(Tugun));
+}
+
+void qosh(Tugun *ildiz, const char *soz) {
+    Tugun *p = ildiz;
+    for (size_t i = 0; soz[i] != '\0'; i++) {
+        int idx = soz[i] - 'a';
+        if (p->bola[idx] == NULL) {
+            p->bola[idx] = yangi();
+        }
+        p = p->bola[idx];
+    }
+    p->soz_oxiri = 1;
+}
+
+int bor(Tugun *ildiz, const char *soz) {
+    Tugun *p = ildiz;
+    for (size_t i = 0; soz[i] != '\0'; i++) {
+        int idx = soz[i] - 'a';
+        if (p->bola[idx] == NULL) {
+            return 0;
+        }
+        p = p->bola[idx];
+    }
+    return p->soz_oxiri;
+}
+
+void tozala(Tugun *t) {
+    if (!t) return;
+    for (int i = 0; i < ALIFBO; i++) {
+        tozala(t->bola[i]);
+    }
+    free(t);
+}
+
+int main(void) {
+    Tugun *ildiz = yangi();
+    qosh(ildiz, "cat");
+    qosh(ildiz, "car");
+    qosh(ildiz, "dog");
+
+    printf("cat=%d\n", bor(ildiz, "cat"));
+    printf("ca=%d\n", bor(ildiz, "ca"));
+    printf("dog=%d\n", bor(ildiz, "dog"));
+    tozala(ildiz);
+    return 0;
+}`,
+            output: "cat=1\nca=0\ndog=1",
+          },
+          {
+            type: "p",
+            html: "<code>ca</code> so'z emas, lekin u trie da mavjud yo'l. Shuning uchun <code>bor</code> so'z oxiri belgisini tekshiradi. Prefiks bo'yicha barcha so'zlarni chiqarish uchun avval prefiks tuguniga yetib boriladi, keyin o'sha tugundan barcha bolalar bo'ylab rekursiv yuriladi va <code>soz_oxiri</code> belgilangan tugunlarda to'plangan bufer chiqariladi. Bu avtoto'ldirishning asosi.",
+          },
+          {
+            type: "code",
+            title: "trie_prefiks.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define ALIFBO 26
+
+typedef struct T {
+    struct T *bola[ALIFBO];
+    int oxiri;
+} T;
+
+T *yangi(void) { return calloc(1, sizeof(T)); }
+
+void qosh(T *r, const char *s) {
+    for (size_t i = 0; s[i]; i++) {
+        int idx = s[i] - 'a';
+        if (!r->bola[idx]) r->bola[idx] = yangi();
+        r = r->bola[idx];
+    }
+    r->oxiri = 1;
+}
+
+T *top(T *r, const char *p) {
+    for (size_t i = 0; p[i]; i++) {
+        int idx = p[i] - 'a';
+        if (!r->bola[idx]) return NULL;
+        r = r->bola[idx];
+    }
+    return r;
+}
+
+void chiqar(T *t, char *buf, int len) {
+    if (!t) return;
+    if (t->oxiri) {
+        buf[len] = '\0';
+        printf(" %s", buf);
+    }
+    for (int i = 0; i < ALIFBO; i++) {
+        if (t->bola[i]) {
+            buf[len] = (char)('a' + i);
+            chiqar(t->bola[i], buf, len + 1);
+        }
+    }
+}
+
+int main(void) {
+    T *r = yangi();
+    qosh(r, "cat");
+    qosh(r, "car");
+    qosh(r, "cart");
+    qosh(r, "dog");
+
+    T *p = top(r, "ca");
+    char buf[32];
+    memcpy(buf, "ca", 2);
+    printf("ca_bor=%d\n", p != NULL);
+    printf("ca_so'zlar:");
+    chiqar(p, buf, 2);
+    printf("\n");
+    return 0;
+}`,
+            output: "ca_bor=1\nca_so'zlar: car cart cat",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Xotira va alifbo",
+            html: "Har bir tugunda 26 ta ko'rsatkich 64-bit tizimda 208 bayt; katta lug'atda bu juda ko'p. Muqobil variantlar: bolalarni bog'langan ro'yxat yoki hash jadvalda saqlash, siqilgan radix daraxti (patricia trie) yoki ikki massivli (double-array) trie. Trie IP-manzil, telefon raqamlari va DNS kabi prefiksli qidiruvlarda ham ishlatiladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Trie da so'z qidiruvining murakkabligi nimaga bog'liq?",
+            options: [
+              "Lug'atdagi so'zlar soniga",
+              "So'z uzunligiga",
+              "Alifbo kvadratiga",
+              "Jadval yuk omiliga",
+            ],
+            answer: 1,
+            explain: "Har bir belgi bo'yicha bitta tugunga o'tiladi; vaqt so'z uzunligi L ga proporsional, O(L).",
+          },
+          {
+            q: "Trie da 'ca' ni qidirib topilgan tugun nimani anglatadi?",
+            options: [
+              "Albatta to'liq so'z bor",
+              "Hech qanday ma'no yo'q",
+              "Shu prefiksli yo'l bor, lekin so'z tugagan bo'lishi shart emas",
+              "Daraxt buzilgan",
+            ],
+            answer: 2,
+            explain: "Prefiks tuguni mavjud bo'lishi mumkin, ammo so'z ekanligini faqat oxiri belgisi tasdiqlaydi.",
+          },
+          {
+            q: "Trie ning asosiy kamchiligi nima?",
+            options: [
+              "Qidiruv juda sekin",
+              "Faqat sonlarni saqlaydi",
+              "Prefiks qidiruvni qo'llamaydi",
+              "Har bir tugunda katta bolalar massivi xotira sarflaydi",
+            ],
+            answer: 3,
+            explain: "Alifbo katta bo'lsa, har bir tugundagi ko'rsatkichlar massivi xotira sarfini oshiradi.",
+          },
+        ],
+      },
+      {
+        id: 67,
+        title: "Graflar: adjacency list, BFS va DFS",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Graf — tugunlar va ular orasidagi qirralar. C'da ikki asosiy tasvir bor: <b>adjacency matrix</b> (n×n jadval, qirra bor-yo'qligi O(1)) va <b>adjacency list</b> (har tugun uchun qo'shnilar ro'yxati, kam qirrali graflar uchun tejamkor). BFS navbat bilan qatlamma-qatlam yuradi va eng qisqa qirralar sonini topadi; DFS stek yoki rekursiya bilan chuqurga ketadi.",
+          },
+          {
+            type: "code",
+            title: "bfs.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+#define N 6
+
+typedef struct Qirra {
+    int to;
+    struct Qirra *keyingi;
+} Qirra;
+
+typedef struct {
+    Qirra *bosh[N];
+} Graf;
+
+void qosh(Graf *g, int u, int v) {
+    Qirra *a = malloc(sizeof *a);
+    a->to = v;
+    a->keyingi = g->bosh[u];
+    g->bosh[u] = a;
+
+    Qirra *b = malloc(sizeof *b);
+    b->to = u;
+    b->keyingi = g->bosh[v];
+    g->bosh[v] = b;
+}
+
+void bfs(Graf *g, int start) {
+    int navbat[N];
+    int bosh = 0, oxir = 0;
+    int tashrif[N] = {0};
+
+    navbat[oxir++] = start;
+    tashrif[start] = 1;
+
+    printf("BFS:");
+    while (bosh < oxir) {
+        int u = navbat[bosh++];
+        printf(" %d", u);
+        for (Qirra *q = g->bosh[u]; q; q = q->keyingi) {
+            if (!tashrif[q->to]) {
+                tashrif[q->to] = 1;
+                navbat[oxir++] = q->to;
+            }
+        }
+    }
+    printf("\n");
+}
+
+int main(void) {
+    Graf g = {0};
+    qosh(&g, 0, 1);
+    qosh(&g, 0, 2);
+    qosh(&g, 1, 3);
+    qosh(&g, 2, 3);
+    qosh(&g, 3, 4);
+    qosh(&g, 4, 5);
+    bfs(&g, 0);
+    return 0;
+}`,
+            output: "BFS: 0 2 1 3 4 5",
+          },
+          {
+            type: "p",
+            html: "Yuqoridagi ro'yxatda qirralar boshiga qo'shiladi, shuning uchun 0 ning qo'shnilari teskari tartibda: 2, keyin 1. BFS avval 0 ni, keyin 2 va 1 ni, keyin ularning qo'shnilarini chiqaradi. DFS esa birinchi qo'shnidan oxirigacha chuqur ketadi. Ikkala algoritmda ham <code>tashrif</code> massivi tsikl va takroriy tashrifdan saqlaydi.",
+          },
+          {
+            type: "code",
+            title: "dfs.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+#define N 6
+
+typedef struct Qirra {
+    int to;
+    struct Qirra *keyingi;
+} Qirra;
+
+typedef struct {
+    Qirra *bosh[N];
+} Graf;
+
+void qosh(Graf *g, int u, int v) {
+    Qirra *a = malloc(sizeof *a);
+    a->to = v;
+    a->keyingi = g->bosh[u];
+    g->bosh[u] = a;
+    Qirra *b = malloc(sizeof *b);
+    b->to = u;
+    b->keyingi = g->bosh[v];
+    g->bosh[v] = b;
+}
+
+void dfs(Graf *g, int u, int *tashrif) {
+    tashrif[u] = 1;
+    printf(" %d", u);
+    for (Qirra *q = g->bosh[u]; q; q = q->keyingi) {
+        if (!tashrif[q->to]) {
+            dfs(g, q->to, tashrif);
+        }
+    }
+}
+
+int main(void) {
+    Graf g = {0};
+    qosh(&g, 0, 1);
+    qosh(&g, 0, 2);
+    qosh(&g, 1, 3);
+    qosh(&g, 2, 3);
+    qosh(&g, 3, 4);
+    qosh(&g, 4, 5);
+
+    int tashrif[N] = {0};
+    printf("DFS:");
+    dfs(&g, 0, tashrif);
+    printf("\n");
+    return 0;
+}`,
+            output: "DFS: 0 2 3 4 5 1",
+          },
+          {
+            type: "table",
+            head: ["Tasvir", "Xotira", "Qirra tekshirish", "Mos holat"],
+            rows: [
+              ["Matrix", "O(n²)", "O(1)", "zich graflar"],
+              ["List", "O(n + m)", "O(daraja)", "siyrak graflar"],
+              ["Edge list", "O(m)", "O(m)", "Kruskal, tashqi ishlov"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Tashrifsiz DFS cheksiz aylanadi",
+            html: "Grafda tsikl bo'lsa, tashrif belgisisiz DFS bir tugunga qayta-qayta kirib ketadi. Tugunni rekursiyaga kirishdan oldin yoki chiqishda belgilang — invariantni izchil saqlang. Katta graflarda rekursiv DFS stekni toshirishi mumkin; navbatni massivda emas, dinamik ajrating yoki iterativ stek ishlating.",
+          },
+        ],
+        quiz: [
+          {
+            q: "BFS qaysi ma'lumot tuzilmasidan foydalanadi?",
+            options: ["Stek", "Navbat", "Uyum", "Hash jadval"],
+            answer: 1,
+            explain: "BFS tugunlarni kirish tartibida qayta ishlash uchun navbatdan foydalanadi.",
+          },
+          {
+            q: "DFS ning rekursiv ko'rinishi aslida qaysi tuzilmaga tayanadi?",
+            options: ["Navbat", "Uyum", "Daraxt", "Chaqiruv steki"],
+            answer: 3,
+            explain: "Har bir rekursiv chaqiruv chaqiruv stekida saqlanadi; bu DFS ning tabiiy stek xatti-harakatidir.",
+          },
+          {
+            q: "Siyrak graf (kam qirrali) uchun qaysi tasvir tejamkor?",
+            options: [
+              "Adjacency matrix",
+              "Adjacency list",
+              "To'liq n×n massiv",
+              "Faqat edge list",
+            ],
+            answer: 1,
+            explain: "Adjacency list faqat mavjud qirralar uchun xotira sarflaydi: O(n + m); matrix har doim n².",
+          },
+        ],
+      },
+      {
+        id: 68,
+        title: "Dijkstra va topologik saralash",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Dijkstra algoritmi manba tugundan boshqalargacha eng qisqa yo'lni topadi. Har qadamda eng kichik masofali hali ishlanmagan tugun tanlanadi va uning qo'shnilari yangilanadi. Manfiy qirralar bo'lsa algoritm noto'g'ri natija beradi — u holda Bellman-Ford kerak. Oddiy O(n²) ko'rinish kichik graflar uchun yetarli, katta graflarda min-uyum ishlatiladi.",
+          },
+          {
+            type: "code",
+            title: "dijkstra.c",
+            code: String.raw`#include <stdio.h>
+#include <limits.h>
+
+#define N 5
+#define INF 1000000
+
+int main(void) {
+    int g[N][N] = {
+        {0, 4, 1, 0, 0},
+        {0, 0, 0, 1, 0},
+        {0, 2, 0, 5, 0},
+        {0, 0, 0, 0, 3},
+        {0, 0, 0, 0, 0},
+    };
+    int masofa[N];
+    int tashrif[N] = {0};
+
+    for (int i = 0; i < N; i++) masofa[i] = INF;
+    masofa[0] = 0;
+
+    for (int qadam = 0; qadam < N; qadam++) {
+        int u = -1;
+        for (int i = 0; i < N; i++) {
+            if (!tashrif[i] && (u == -1 || masofa[i] < masofa[u])) {
+                u = i;
+            }
+        }
+        if (u == -1 || masofa[u] == INF) break;
+        tashrif[u] = 1;
+        for (int v = 0; v < N; v++) {
+            if (g[u][v] != 0 && masofa[u] + g[u][v] < masofa[v]) {
+                masofa[v] = masofa[u] + g[u][v];
+            }
+        }
+    }
+
+    for (int i = 0; i < N; i++) {
+        printf("%d:%d%s", i, masofa[i], i + 1 < N ? " " : "\n");
+    }
+    return 0;
+}`,
+            output: "0:0 1:3 2:1 3:4 4:7",
+          },
+          {
+            type: "p",
+            html: "Topologik saralash faqat yo'naltirilgan sikliz graflarda (DAG) mavjud. Kahn algoritmi kirish darajasi (indegree) 0 bo'lgan tugunlardan boshlaydi, ularni navbatga qo'yadi va qirralarini olib tashlaydi. Agar oxirida barcha tugunlar chiqmasa, grafda sikl bor. Bu bog'liqliklar tartibini aniqlashda — masalan, build tizimlarida — ishlatiladi.",
+          },
+          {
+            type: "code",
+            title: "topologik.c",
+            code: String.raw`#include <stdio.h>
+
+#define N 6
+
+int main(void) {
+    int g[N][N] = {0};
+    int indeg[N] = {0};
+    int navbat[N];
+    int bosh = 0, oxir = 0;
+
+    int qirralar[][2] = {{5, 2}, {5, 0}, {4, 0}, {4, 1}, {2, 3}, {3, 1}};
+    int m = (int)(sizeof qirralar / sizeof qirralar[0]);
+
+    for (int i = 0; i < m; i++) {
+        int u = qirralar[i][0], v = qirralar[i][1];
+        g[u][v] = 1;
+        indeg[v]++;
+    }
+
+    for (int i = 0; i < N; i++) {
+        if (indeg[i] == 0) navbat[oxir++] = i;
+    }
+
+    printf("tartib:");
+    while (bosh < oxir) {
+        int u = navbat[bosh++];
+        printf(" %d", u);
+        for (int v = 0; v < N; v++) {
+            if (g[u][v]) {
+                if (--indeg[v] == 0) navbat[oxir++] = v;
+            }
+        }
+    }
+    printf("\n");
+    return 0;
+}`,
+            output: "tartib: 4 5 0 2 3 1",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Manfiy qirralar va sikl",
+            html: "Dijkstra manfiy qirra bilan noto'g'ri ishlaydi, chunki tanlangan masofa keyin kamayishi mumkin. Manfiy qirralar uchun Bellman-Ford, barcha juftliklar uchun Floyd-Warshall ishlatiladi. Topologik saralashda barcha N tugun chiqmasa, DAG emas — sikl bor. Dijkstra'ni min-uyum bilan yozsangiz O((n+m) log n) bo'ladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Dijkstra algoritmi qaysi holatda noto'g'ri natija berishi mumkin?",
+            options: [
+              "Graf yo'naltirilgan bo'lsa",
+              "Qirralar manfiy bo'lsa",
+              "Graf siyrak bo'lsa",
+              "Manba 0 indeksda bo'lsa",
+            ],
+            answer: 1,
+            explain: "Manfiy qirra tanlangan eng qisqa masofani keyin kamaytirishi mumkin; bu Dijkstra invarianti bilan ziddir.",
+          },
+          {
+            q: "Kahn topologik saralashida navbatga qaysi tugunlar birinchi qo'yiladi?",
+            options: [
+              "Chiqish darajasi 0 bo'lganlar",
+              "Kirish darajasi 0 bo'lganlar",
+              "Eng katta indekslilar",
+              "Barcha barglar",
+            ],
+            answer: 1,
+            explain: "Hech qanday oldingi bog'liqligi yo'q tugunlar indegree 0 bo'ladi va birinchi bo'lib chiqariladi.",
+          },
+          {
+            q: "Dijkstra'ni min-uyum bilan amalga oshirishning murakkabligi qanday?",
+            options: ["O(n²)", "O(n)", "O((n + m) log n)", "O(2^n)"],
+            answer: 2,
+            explain: "Har bir qirra ko'pi bilan bir marta bo'shatiladi va uyum amallari O(log n) oladi.",
+          },
+        ],
+      },
+      {
+        id: 69,
+        title: "Union-Find va Kruskal: minimal qoplovchi daraxt",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "<b>Union-Find</b> (disjoint set) elementlarni guruhlarga birlashtiradi va ikki element bir guruhdami degan savolga javob beradi. <code>find</code> ildizni topadi, <code>union</code> guruhlarni birlashtiradi. Yo'l siqish (path compression) va o'lcham bo'yicha birlashtirish amallarni deyarli O(1) qiladi. Bu tuzilma Kruskal algoritmining asosi: qirralar og'irlik bo'yicha saralanadi va tsikl yaratmaydiganlari olinadi.",
+          },
+          {
+            type: "code",
+            title: "union_find.c",
+            code: String.raw`#include <stdio.h>
+
+#define N 6
+
+int ota[N];
+int olcham[N];
+
+void init(void) {
+    for (int i = 0; i < N; i++) {
+        ota[i] = i;
+        olcham[i] = 1;
+    }
+}
+
+int top(int x) {
+    while (ota[x] != x) {
+        ota[x] = ota[ota[x]];
+        x = ota[x];
+    }
+    return x;
+}
+
+int birlashtir(int a, int b) {
+    int ra = top(a), rb = top(b);
+    if (ra == rb) return 0;
+    if (olcham[ra] < olcham[rb]) {
+        int t = ra;
+        ra = rb;
+        rb = t;
+    }
+    ota[rb] = ra;
+    olcham[ra] += olcham[rb];
+    return 1;
+}
+
+int main(void) {
+    init();
+    birlashtir(0, 1);
+    birlashtir(2, 3);
+    birlashtir(1, 2);
+
+    printf("0_va_3=%d\n", top(0) == top(3));
+    printf("4_va_5=%d\n", top(4) == top(5));
+
+    int komponent = 0;
+    for (int i = 0; i < N; i++) {
+        if (top(i) == i) komponent++;
+    }
+    printf("komponent=%d\n", komponent);
+    return 0;
+}`,
+            output: "0_va_3=1\n4_va_5=0\nkomponent=3",
+          },
+          {
+            type: "p",
+            html: "Kruskal'da qirralar og'irlik bo'yicha o'sish tartibida ko'rib chiqiladi. Har bir qirra uchun ikki uchi turli komponentlarda bo'lsa, u MST ga qo'shiladi va komponentlar birlashtiriladi. n tugun uchun n−1 qirra tanlangach to'xtaladi. Agar qirralar tugasa ham n−1 ga yetmasa, graf bog'langan emas.",
+          },
+          {
+            type: "code",
+            title: "kruskal.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+#define N 5
+#define M 7
+
+typedef struct {
+    int u, v, w;
+} Qirra;
+
+int ota[N], olcham[N];
+
+int top(int x) {
+    while (ota[x] != x) {
+        ota[x] = ota[ota[x]];
+        x = ota[x];
+    }
+    return x;
+}
+
+int birlashtir(int a, int b) {
+    a = top(a);
+    b = top(b);
+    if (a == b) return 0;
+    if (olcham[a] < olcham[b]) {
+        int t = a; a = b; b = t;
+    }
+    ota[b] = a;
+    olcham[a] += olcham[b];
+    return 1;
+}
+
+int taqqos(const void *x, const void *y) {
+    const Qirra *a = x;
+    const Qirra *b = y;
+    return (a->w > b->w) - (a->w < b->w);
+}
+
+int main(void) {
+    Qirra qirralar[M] = {
+        {0, 1, 2}, {0, 2, 3}, {1, 2, 1}, {1, 3, 4},
+        {2, 3, 5}, {3, 4, 6}, {2, 4, 7},
+    };
+    for (int i = 0; i < N; i++) {
+        ota[i] = i;
+        olcham[i] = 1;
+    }
+    qsort(qirralar, M, sizeof qirralar[0], taqqos);
+
+    int jami = 0, tanlangan = 0;
+    printf("MST:");
+    for (int i = 0; i < M && tanlangan < N - 1; i++) {
+        if (birlashtir(qirralar[i].u, qirralar[i].v)) {
+            printf(" %d-%d", qirralar[i].u, qirralar[i].v);
+            jami += qirralar[i].w;
+            tanlangan++;
+        }
+    }
+    printf("\njami=%d\n", jami);
+    return 0;
+}`,
+            output: "MST: 1-2 0-1 1-3 3-4\njami=13",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Path compression va union by size",
+            html: "Ikkalasini birga ishlatganda amortizatsiyalangan murakkablik <code>O(α(n))</code> bo'ladi, bu amalda o'zgarmasga yaqin. <code>find</code> ni rekursiv yozsangiz yo'l siqish chiroyli chiqadi, lekin chuqur daraxtda stek xavfi bor. Kruskal O(m log m) — qirralarni saralash ustunlik qiladi; zich graflarda Prim algoritmi ham raqobatbardosh.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Union-Find da path compression nima qiladi?",
+            options: [
+              "Yangi tugun qo'shadi",
+              "Yo'ldagi tugunlarni bevosita ildizga bog'lab, keyingi find ni tezlashtiradi",
+              "Barcha guruhlarni o'chiradi",
+              "Qirralarni saralaydi",
+            ],
+            answer: 1,
+            explain: "Find paytida uchragan tugunlar ildizga ulanadi; keyingi qidiruvlar qisqaroq yo'l bosadi.",
+          },
+          {
+            q: "Kruskal qirralarni qanday tartibda ko'rib chiqadi?",
+            options: [
+              "Tasodifiy",
+              "Og'irlik bo'yicha kamayish tartibida",
+              "Og'irlik bo'yicha o'sish tartibida",
+              "Faqat bog'langan qirralarni",
+            ],
+            answer: 2,
+            explain: "Eng yengil qirradan boshlash MST ning minimal bo'lishini ta'minlaydi (cut property).",
+          },
+          {
+            q: "Kruskal'da qirra tanlanmasligining sababi nima?",
+            options: [
+              "Og'irligi juda kichik",
+              "Ikki uchi allaqachon bir komponentda bo'lsa, tsikl hosil bo'ladi",
+              "Graf yo'naltirilgan",
+              "Qirra soni yetarli emas",
+            ],
+            answer: 1,
+            explain: "Bir komponentdagi ikki tugunni ulasangiz tsikl paydo bo'ladi; bunday qirra MST ga kirmaydi.",
+          },
+        ],
+      },

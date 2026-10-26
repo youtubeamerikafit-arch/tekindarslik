@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amaliyot maydoni — brauzerda Python | Noldan</title>
+  <meta name="description" content="Python kodini brauzerda bepul yozing va ishga tushiring. Hech narsa o'rnatish shart emas — Noldan amaliyot maydoni.">
+  <meta property="og:title" content="Amaliyot maydoni — brauzerda Python">
+  <meta property="og:description" content="Kod yozing, ishga tushiring va natijani darhol ko'ring. O'rnatish shart emas.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/app.js" defer></script>
+  <script src="assets/js/runner.js" defer></script>
+  <script src="assets/js/playground.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Asosiy mazmunga o'tish</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Noldan — bosh sahifa">
+        <span class="brand__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-5 6 5 6M16 6l5 6-5 6M14 4l-4 16"/></svg>
+        </span>
+        <span>
+          <span class="brand__name">noldan<span class="brand__dot">.</span></span>
+          <span class="brand__tag">dasturlashni noldan</span>
+        </span>
+      </a>
+
+      <nav class="main-nav" id="mainNav" aria-label="Asosiy menyu">
+        <a class="nav-link" href="index.html">Bosh sahifa</a>
+        <a class="nav-link" href="kurslar.html">Kurslar</a>
+        <a class="nav-link" href="python.html">Python kursi</a>
+        <a class="nav-link" href="maydon.html" aria-current="page">Amaliyot maydoni</a>
+        <div class="auth-zone mobile-auth" data-auth-zone></div>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-zone" data-auth-zone></div>
+        <button class="menu-toggle" type="button" aria-label="Menyuni ochish" aria-expanded="false" aria-controls="mainNav">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="page-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Sahifa yo'li">
+          <a href="index.html">Bosh sahifa</a>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          <span aria-current="page">Amaliyot maydoni</span>
+        </nav>
+
+        <div class="page-hero__grid" style="margin-top:26px">
+          <div>
+            <h1>Kodni shu yerda yozing.<br>Natijani darhol ko'ring.</h1>
+            <p class="lead">Bu maydon Python kodini brauzerda ishga tushiradi. Hech narsa o'rnatish, hisob yaratish yoki terminal ochish shart emas. Kodni o'zgartiring, tajriba qiling va xato qilishdan qo'rqmay o'rganing.</p>
+            <div class="page-hero__chips">
+              <span class="badge badge--lime">Python 3.12</span>
+              <span class="badge">Brauzerda ishlaydi</span>
+              <span class="badge">Tayyor misollar</span>
+              <span class="badge">O'rnatish shart emas</span>
+            </div>
+          </div>
+          <aside class="page-hero__aside">
+            <strong>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 6-11 11-5-5"/></svg>
+              Python muhiti tayyor
+            </strong>
+            <p>Birinchi ishga tushirishda muhit yuklanadi (bir necha soniya). Keyingi urinishlar tez bajariladi. Natija konsol panelida ko'rinadi.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="playground-section">
+      <div class="container">
+        <div class="playground-grid">
+          <div class="ide-panel">
+            <div class="ide-head">
+              <div class="ide-head__dots" aria-hidden="true"><i></i><i></i><i></i></div>
+              <span class="ide-head__name">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+                main.py
+              </span>
+              <div class="ide-head__actions">
+                <label class="sr-only" for="snippetSelect">Tayyor misol tanlash</label>
+                <select class="ide-select" id="snippetSelect" data-snippet-select>
+                  <option value="salom">Salom, dunyo</option>
+                  <option value="input">Ism bilan salomlashish</option>
+                  <option value="kalkulyator">Konsol kalkulyatori</option>
+                  <option value="fizzbuzz">FizzBuzz</option>
+                  <option value="royxat">Ro'yxat bilan ishlash</option>
+                  <option value="yulduz">Yulduzchalar</option>
+                </select>
+                <button class="ide-run-btn" type="button" data-play-run>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5.5v13l11-6.5Z"/></svg>
+                  <span data-play-run-label>Ishga tushirish</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="ide-editor-area">
+              <div class="ide-gutter" data-gutter aria-hidden="true">1</div>
+              <label class="sr-only" for="playgroundCode">Python kodi</label>
+              <textarea class="ide-editor" id="playgroundCode" data-play-code spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="editorHint"></textarea>
+            </div>
+
+            <details class="playground-stdin">
+              <summary>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+                Kirish ma'lumotlari (input uchun)
+              </summary>
+              <label class="sr-only" for="playgroundStdin">Kiritiladigan qiymatlar</label>
+              <textarea id="playgroundStdin" data-play-stdin spellcheck="false" placeholder="Har bir qiymatni alohida qatorda yozing"></textarea>
+            </details>
+
+            <div class="ide-foot">
+              <span class="status">
+                <span class="status-dot" data-play-dot></span>
+                <span data-play-status>Ishga tayyor</span>
+              </span>
+              <span id="editorHint">Ctrl + Enter — ishga tushirish</span>
+            </div>
+          </div>
+
+          <div class="ide-panel ide-panel--light ide-panel--console">
+            <div class="ide-head ide-head--light">
+              <div class="console-head">
+                <h2>Natija</h2>
+                <span class="badge badge--muted" data-console-badge>Kutilmoqda</span>
+              </div>
+              <button class="console-clear" type="button" data-play-clear>Tozalash</button>
+            </div>
+            <pre class="console-body" data-play-console aria-live="polite"><span class="console-muted">Kodni ishga tushirish uchun yuqoridagi «Ishga tushirish» tugmasini bosing. Natija shu yerda ko'rinadi.</span></pre>
+            <div class="ide-foot" style="border-top-color:var(--border);color:var(--muted-light);background:var(--surface-2)">
+              <span class="status">
+                <span class="status-dot is-ready"></span>
+                Python 3.12 · Pyodide
+              </span>
+              <span>Natija faqat sizning brauzeringizda</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="playground-tips">
+          <article class="tip-card">
+            <span class="tip-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+            </span>
+            <div>
+              <b>Kod yozib ko'ring</b>
+              <p>Misollardan boshlang, keyin o'zgartiring. Har bir o'zgarish natijani qanday ta'sir qilishini kuzating.</p>
+            </div>
+          </article>
+          <article class="tip-card">
+            <span class="tip-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 3 17a2 2 0 0 0 1.7 3h14.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+            </span>
+            <div>
+              <b>Xatolardan qo'rqmay</b>
+              <p>Xato — o'rganishning bir qismi. Konsoldagi xabar qaysi qatorda muammo borligini ko'rsatadi.</p>
+            </div>
+          </article>
+          <article class="tip-card">
+            <span class="tip-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg>
+            </span>
+            <div>
+              <b>Ko'proq o'rganing</b>
+              <p>Amaliyotdan keyin Python kursidagi tushuntirishlarni o'qing va test savollari bilan bilimni mustahkamlang.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="cta-banner" style="margin-top:22px">
+          <div class="cta-banner__body">
+            <h2>Tizimli o'rganishga tayyormisiz?</h2>
+            <p>Amaliyot maydoni yaxshi, lekin kurs bilan bilim tartibli va to'liq bo'ladi. Python 31 dars, qolgan 16 ta kurs 50 tadan dars — jami 831 dars, testlar va yakuniy sertifikat sizni kutmoqda.</p>
+          </div>
+          <div class="cta-banner__actions">
+            <a class="btn btn--lime btn--lg" href="python.html" data-python-cta><span data-cta-label>Python kursini boshlash</span></a>
+            <a class="btn btn--white btn--lg" href="kurslar.html">Barcha kurslar</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="index.html" aria-label="Noldan — bosh sahifa">
+            <span class="brand__mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-5 6 5 6M16 6l5 6-5 6M14 4l-4 16"/></svg>
+            </span>
+            <span>
+              <span class="brand__name">noldan<span class="brand__dot">.</span></span>
+              <span class="brand__tag">dasturlashni noldan</span>
+            </span>
+          </a>
+          <p class="footer__desc">O'zbek tilida, noldan boshlovchilar uchun yaratilgan bepul dasturlash platformasi. Kod yozishni bugun boshlang.</p>
+        </div>
+        <div class="footer__col">
+          <h3>Platforma</h3>
+          <ul>
+            <li><a href="kurslar.html">Kurslar</a></li>
+            <li><a href="python.html">Python kursi</a></li>
+            <li><a href="maydon.html">Amaliyot maydoni</a></li>
+            <li><a href="python.html#dars-31">Yakuniy imtihon</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Bo'limlar</h3>
+          <ul>
+            <li><a href="python.html#dars-1">Asoslar</a></li>
+            <li><a href="python.html#dars-9">Mantiq va tsikllar</a></li>
+            <li><a href="python.html#dars-13">Ma'lumotlar tuzilmalari</a></li>
+            <li><a href="python.html#dars-20">OOP va loyiha</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Yordam</h3>
+          <ul>
+            <li><a href="index.html#faq">Savollar</a></li>
+            <li><a href="kurslar.html">Kurslar haqida</a></li>
+            <li><button type="button" data-open-auth="register">Ro'yxatdan o'tish</button></li>
+            <li><button type="button" data-open-auth="login">Kirish</button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© <span data-year>2026</span> Noldan. Barcha huquqlar himoyalangan.</span>
+        <span>Dasturlashni o'zbek tilida o'rganing<span class="dot"></span>0 dan boshlab</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

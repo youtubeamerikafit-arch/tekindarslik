@@ -1,0 +1,50 @@
+1 | Ruby nima va birinchi dastur
+2 | O'zgaruvchilar, belgilar va matnlar
+3 | Shartlar, unless va case
+4 | Tsikllar: each, times va range
+5 | Metodlar va bloklar
+6 | Massivlar va xeshlar
+7 | Klasslar, obyektlar va attr_accessor
+8 | Meros, modullar va mixinlar
+9 | Xatolar va fayllar bilan ishlash
+10 | Gemlar, Bundler va standart kutubxona
+11 | Idiomatik Ruby va Minitest asoslari
+12 | Mini loyiha: konsol vazifa menejeri
+13 | Matnlar bilan chuqur ishlash
+14 | Massivlar: indeks, slice va mutatsiya
+15 | Hash'lar: fetch, dig va guruhlash
+16 | Bloklar, yield va block_given?
+17 | Proc, lambda va closure
+18 | Enumerable: map, select, reduce
+19 | Comparable va obyektlarni saralash
+20 | Struct va Data bilan qiymat obyektlari
+21 | OOP chuqur: private, class metodlar, to_s
+22 | Meros: super, prepend va metod qidiruvi
+23 | Modullar: namespace, extend va hooks
+24 | Metaprogramming 1: send va define_method
+25 | Metaprogramming 2: method_missing va hooks
+26 | Xatolar chuqur: custom error, retry, ensure
+27 | Fayllar va IO: o'qish, yozish, Pathname
+28 | Idiomatik Ruby va pattern matching
+29 | Pattern matching: massiv, hash va find
+30 | RegExp asoslari: qidirish va almashtirish
+31 | RegExp amaliyoti: validatsiya va guruhlar
+32 | Sana va vaqt bilan ishlash
+33 | JSON: API ma'lumotlarini o'qish va yozish
+34 | CSV: jadval ma'lumotlarini o'qish
+35 | HTTP client: Net::HTTP bilan API
+36 | Gemlar va Bundler chuqur
+37 | Minitest chuqur: assertion va setup
+38 | RSpec asoslari: describe, let va expect
+39 | Rake: vazifalarni avtomatlashtirish
+40 | CLI: OptionParser bilan argumentlar
+41 | Sinatra asoslari: route va JSON API
+42 | Sinatra: CRUD, ERB va status kodlar
+43 | Rails kirish: MVC va loyiha tuzilmasi
+44 | Rails routing va controllers
+45 | ActiveRecord: model, so'rov va assotsiatsiya
+46 | Rails views: ERB, layout va partial
+47 | Rails validatsiyalari va callback'lar
+48 | Loyiha 1: kutubxona domenini loyihalash
+49 | Loyiha 2: Sinatra API va Rack testlari
+50 | Yakuniy imtihon

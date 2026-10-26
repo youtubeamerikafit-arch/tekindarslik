@@ -1,0 +1,159 @@
+1 | Kotlin kodi qanday bajariladi?
+1 | Kotlin dasturining kirish nuqtasi qaysi?
+1 | Konsolga matn chiqarish uchun qaysi funksiya ishlatiladi?
+2 | Qiymati keyinchalik o'zgarmaydigan havola qaysi kalit so'z bilan yaratiladi?
+2 | "Salom, $ism" yozuvi nima qiladi?
+2 | val narx = 4.8; da narx qanday tip oladi?
+3 | Kotlin'da if nimasi bilan JavaScript'nikidan farq qiladi?
+3 | when ichida in 500..599 nimani tekshiradi?
+3 | when ifoda sifatida ishlatilganda qaysi tarmoq majburiy bo'lishi mumkin?
+4 | 1 until 5 oraliq qaysi sonlarni beradi?
+4 | 5 downTo 1 step 2 ketma-ketligi qanday?
+4 | continue operatori nima qiladi?
+5 | Standart qiymatli parametrga argument berilmasa nima bo'ladi?
+5 | Nomi bilan argument uzatish nimani beradi?
+5 | Bitta parametrli lambdada parametrning standart nomi qanday?
+6 | listOf() bilan yaratilgan ro'yxatni o'zgartirish mumkinmi?
+6 | Map'da mavjud bo'lmagan kalit bilan murojaat qilinsa nima qaytadi?
+6 | setOf(1, 2, 2, 3) natijasida nechta element bo'ladi?
+7 | ism null bo'lganda ism?.length qanday natija beradi?
+7 | ?: operatori nima qiladi?
+7 | Null qiymatga !! qo'llansa nima bo'ladi?
+8 | data class avtomatik qaysi funksiyani yaratadi?
+8 | Klassning asosiy konstruktori qayerda yoziladi?
+8 | Konstruktorda private var balans bo'lsa, unga tashqaridan murojaat qilish mumkinmi?
+9 | Klassdan meros olish uchun nima qilish kerak?
+9 | Sealed klass when bilan ishlatilganda nimasi qulay?
+9 | Interfeys metodini klassda qayta yozish uchun qaysi kalit so'z ishlatiladi?
+10 | finally bloki qachon bajariladi?
+10 | require(b != 0) shart bajarilmasa qanday istisno tashlaydi?
+10 | File.readLines() qanday natija qaytaradi?
+11 | suspend funksiya ichida qaysi funksiyani chaqirish mumkin?
+11 | async va launch orasidagi asosiy farq nima?
+11 | runBlocking qanday maqsadda ishlatiladi?
+12 | VazifaRoyxati vazifalarni qayerda saqlaydi?
+12 | CLI variantida argument bo'lmasa, id qanday qiymat oladi?
+12 | bajar(id) funksiyasi nima qaytaradi?
+13 | Zanjirli xavfsiz chaqiruvda (a?.b?.c) natija qachon null bo'ladi?
+13 | takeIf { it.isNotEmpty() } shart bajarilmasa nima qaytaradi?
+13 | requireNotNull(x) x null bo'lganda qaysi istisnoni tashlaydi?
+14 | Standart qiymatli parametrlarni nomi bilan uzatishning asosiy foydasi nima?
+14 | Infix funksiyaning infix chaqiruv shakli qaysi?
+14 | tailrec optimizatsiyasi qanday shartda qo'llanadi?
+15 | private set qaysi imkoniyatni yopadi?
+15 | Setter ichidagi field nimani bildiradi?
+15 | Qo'shimcha konstruktordagi : this(...) nima qiladi?
+16 | Enum'dagi barcha konstantalar ro'yxatini qaysi xossa beradi?
+16 | Sealed interfeys ustidagi when nima uchun else talab qilmaydi?
+16 | Enum konstantasining nomini matn ko'rinishida olish uchun qaysi xossa ishlatiladi?
+17 | Kotlin'da klass sukut bo'yicha qanday bo'ladi?
+17 | class Xizmat(private val logger: Logger) : Logger by logger yozuvi nima beradi?
+17 | Qayta yozilgan metodda ota klass versiyasini chaqirish uchun nima yoziladi?
+18 | <T : Comparable<T>> cheklovi nimani talab qiladi?
+18 | List<out T> dagi out nimani bildiradi?
+18 | Generic tip ma'lumotlari JVM'da ish vaqtida saqlanadimi?
+19 | Extension funksiya klassning private a'zolariga kira oladimi?
+19 | Bir xil nomli member funksiya va extension mavjud bo'lsa qaysi biri tanlanadi?
+19 | String? uchun yozilgan extension funksiyani null qiymatda chaqirish mumkinmi?
+20 | apply qanday qiymat qaytaradi?
+20 | let va run orasidagi asosiy farq nima?
+20 | also odatda nima uchun ishlatiladi?
+21 | (Int) -> String tipi nimani bildiradi?
+21 | Inline lambda ichidagi non-local return nimani anglatadi?
+21 | Mavjud funksiyaga havola qanday yoziladi?
+22 | partition qanday natija qaytaradi?
+22 | associateBy da bir xil kalit qayta uchrasa nima bo'ladi?
+22 | Sequence'dagi oraliq map va filter qachon bajariladi?
+23 | by lazy bloki qachon bajariladi?
+23 | Data class'ni destructuring orqali ochish qaysi funksiyalarga tayanadi?
+23 | Smart cast qaysi holatda ishlaydi?
+24 | runCatching xatoni qanday qaytaradi?
+24 | require shart buzilganda qaysi istisnoni tashlaydi?
+24 | Muvaffaqiyatli Result uchun exceptionOrNull() nima qaytaradi?
+25 | @Serializable annotatsiyasi nimani ta'minlaydi?
+25 | Files.readAllLines(path) qanday natija qaytaradi?
+25 | Json.decodeFromString nima qiladi?
+26 | Java metodidan qaytgan String! nimani bildiradi?
+26 | @JvmStatic nima qiladi?
+26 | Kotlin'da checked exception bormi?
+27 | src/main/kotlin papkasida nima saqlanadi?
+27 | testImplementation bog'liqligi qayerda ko'rinadi?
+27 | application pluginidagi mainClass nimani ko'rsatadi?
+28 | assertFailsWith nima qaytaradi?
+28 | assertEquals da birinchi argument nima bo'lishi kerak?
+28 | Test metodi qaysi annotatsiya bilan belgilanadi?
+29 | withContext nima qiladi?
+29 | cancelAndJoin() qanday ishlaydi?
+29 | supervisorScope ichida bitta bola xato bersa nima bo'ladi?
+30 | flow { } quruvchisi qanday oqim yaratadi?
+30 | StateFlow haqida qaysi gap to'g'ri?
+30 | flowOn qaysi qismning dispatcherini o'zgartiradi?
+31 | close() chaqirilgach qabul qiluvchi for tsikli nima qiladi?
+31 | produce quruvchisi qanday tip qaytaradi?
+31 | capacity = 3 bo'lgan kanalda yuboruvchi qachon kutadi?
+32 | Ktor'da marshrutlar qaysi DSL ichida yoziladi?
+32 | call.respond(obj) obyektni JSON qilib qaytarishi uchun nima kerak?
+32 | start(wait = true) nima qiladi?
+33 | HttpClient'ni har so'rovda yangidan yaratish nima uchun tavsiya etilmaydi?
+33 | body<Post>() nima qiladi?
+33 | Ktor client'da ContentNegotiation nima uchun kerak?
+34 | Activity UI birinchi marta yaratilganda qaysi metod chaqiriladi?
+34 | Konfiguratsiya o'zgarganda (masalan, ekran burilganda) ViewModel saqlanadimi?
+34 | Android'da uzoq ishlar uchun qaysi scope tavsiya etiladi?
+35 | @Composable annotatsiyasi nimani bildiradi?
+35 | remember { mutableStateOf(...) } nima uchun kerak?
+35 | Compose'da UI qanday yangilanadi?
+36 | collectAsStateWithLifecycle() nimasi bilan foydali?
+36 | LaunchedEffect(Unit) qachon qayta ishga tushadi?
+36 | LazyColumn nima uchun ishlatiladi?
+37 | @Entity annotatsiyasi nimani bildiradi?
+37 | @Query metodi qanday natija qaytarishi mumkin?
+37 | Room DAO metodlari nima uchun suspend qilinadi?
+38 | viewModelScope qachon bekor qilinadi?
+38 | repeatOnLifecycle(STARTED) nima qiladi?
+38 | runCatching natijasini muvaffaqiyat va xato bo'yicha ishlash uchun qaysi metod qulay?
+39 | MVVM'da View qatlami nimaga bog'liq bo'lmasligi kerak?
+39 | Repository qatlamining vazifasi nima?
+39 | ViewModel tashqariga holatni qanday bergani ma'qul?
+40 | expect va actual nimani ta'minlaydi?
+40 | KMP'da umumiy kod qaysi source set'da saqlanadi?
+40 | KMP faqat Android va iOS uchunmi?
+41 | Royxat.() -> Unit tipidagi lambda nima imkon beradi?
+41 | @DslMarker nima uchun kerak?
+41 | Builder funksiyasi odatda nimani qaytaradi?
+42 | Annotatsiyani reflection orqali ish vaqtida o'qish uchun qaysi retention kerak?
+42 | KClass obyektini qanday olish mumkin?
+42 | @Target nimani belgilaydi?
+43 | AtomicInteger nima uchun ishlatiladi?
+43 | Mutex nimasi bilan synchronized dan farq qiladi?
+43 | Race condition qachon yuzaga keladi?
+44 | Sequence'dagi oraliq operatorlar qachon bajariladi?
+44 | Value class'ning asosiy afzalligi nima?
+44 | Inline funksiya nimani kamaytiradi?
+45 | object deklaratsiyasi nimani beradi?
+45 | Strategy pattern'ni Kotlin'da qanday soddalashtirish mumkin?
+45 | : Narx by asosiy qaysi patternni amalga oshiradi?
+46 | Repository interfeysi nima uchun kerak?
+46 | hammasi() nima uchun toList() qaytaradi?
+46 | Mavjud vazifani yangilash uchun qaysi funksiya ishlatiladi?
+47 | Biznes qoidalar qaysi qatlamda tekshirilishi kerak?
+47 | require shart buzilganda runCatching natijasi qanday bo'ladi?
+47 | Nega validatsiyani to'g'ridan-to'g'ri route ichida yozish tavsiya etilmaydi?
+48 | POST yangi resurs yaratganda qaysi status kod mos?
+48 | call.receive<YangiVazifa>() nima qiladi?
+48 | Mavjud bo'lmagan vazifa ID'si uchun qaysi status qaytariladi?
+49 | HttpClient bilan qanday ishlash ma'qul?
+49 | UI holatini yuklanmoqda, tayyor va xato deb ifodalash uchun nima qulay?
+49 | API manzilini kodga qattiq yozish o'rniga nima qilish kerak?
+EX | Kotlin'da qiymat ichidagi ifodani string shablonga qo'shish uchun qaysi yozuv ishlatiladi?
+EX | as? operatori qiymatni mos tipga aylantirib bo'lmasa nima qaytaradi?
+EX | Klassning init bloki qachon bajariladi?
+EX | Sealed interfeysning to'g'ridan-to'g'ri avlodlari qayerda e'lon qilinishi kerak?
+EX | MutableList<in String> tipidagi kolleksiya bilan qaysi amal xavfsiz?
+EX | groupBy funksiyasi qanday natija qaytaradi?
+EX | @BeforeTest annotatsiyasi nima qiladi?
+EX | Dispatchers.IO qanday ishlar uchun mo'ljallangan?
+EX | Flow operatorlari qachon haqiqatan bajariladi?
+EX | Ktor server route'ida yo'l parametrini qaysi ifoda orqali olasiz?
+EX | Compose'da state hoisting mohiyati nimada?
+EX | MVVM'da use case qatlamining vazifasi nima?

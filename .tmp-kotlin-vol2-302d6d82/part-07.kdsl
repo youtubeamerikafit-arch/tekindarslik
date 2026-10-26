@@ -1,0 +1,385 @@
+@@lesson 80
+@@title Kotlin Multiplatform: expect/actual va KMP tuzilishi
+@@minutes 17
+@@p
+Kotlin Multiplatform (KMP) bir xil biznes kodni Android, iOS, JVM, JS va Native platformalarda ishlatish imkonini beradi. Umumiy kod <code>commonMain</code> source set'ida, platformaga xos qismlar esa <code>androidMain</code>, <code>iosMain</code>, <code>jvmMain</code> kabi set'larda turadi. <code>expect</code> umumiy API'ni e'lon qiladi, <code>actual</code> esa har bir platformada uni amalga oshiradi.
+@@code common.kt
+// commonMain/kotlin/Platform.kt
+expect fun platformName(): String
+
+class Salomlashuv {
+    fun matn(): String = "Salom, ${platformName()}"
+}
+
+// jvmMain/kotlin/Platform.jvm.kt
+actual fun platformName(): String = "JVM"
+
+fun main() {
+    println(Salomlashuv().matn())
+}
+@@out
+Salom, JVM
+@@p
+Gradle'da target'lar va source set'lar aniq ko'rsatiladi. Har bir platforma uchun kerakli dependency alohida qo'shiladi: umumiy Ktor core <code>commonMain</code> da, engine esa platforma set'ida. iOS target'lari faqat macOS'da to'liq kompilyatsiya qilinadi, lekin loyiha tuzilishi barcha platformalarda bir xil qoladi.
+@@code build.gradle.kts
+kotlin {
+    androidTarget()
+    jvm()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    sourceSets {
+        commonMain.dependencies {
+            implementation("io.ktor:ktor-client-core:3.0.3")
+        }
+        androidMain.dependencies {
+            implementation("io.ktor:ktor-client-okhttp:3.0.3")
+        }
+        jvmMain.dependencies {
+            implementation("io.ktor:ktor-client-cio:3.0.3")
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+    }
+}
+@@out
+> Task :shared:compileKotlinJvm
+> Task :shared:jvmTest
+BUILD SUCCESSFUL in 8s
+@@note warning | Expect/actual chegaralari
+<code>expect class</code> uchun har bir platformada <code>actual class</code> bo'lishi shart; konstruktor imzosi mos kelishi kerak. Ortiqcha expect/actual kodni ikkiga bo'lib yuboradi — imkon qadar umumiy mantiqni <code>commonMain</code> da saqlang. KMP faqat Android va iOS uchun emas: JVM, JS, Wasm va Native target'lari ham mavjud.
+@@quiz
+KMP'da umumiy biznes kodi qaysi source set'da saqlanadi?
+- <code>androidMain</code>
+- <code>commonMain</code>
+- <code>iosMain</code>
+- <code>jvmTest</code>
+= 1
+! commonMain barcha target'lar uchun kompilyatsiya qilinadigan umumiy kodni saqlaydi.
+@@quiz
+<code>expect fun</code> uchun platformaga xos implementatsiya qanday e'lon qilinadi?
+- <code>override fun</code>
+- <code>actual fun</code>
+- <code>implementation fun</code>
+- <code>platform fun</code>
+= 1
+! Har bir target o'z source set'ida <code>actual</code> e'lonini beradi; imzolar mos bo'lishi kerak.
+@@quiz
+KMP faqat Android va iOS'ni qo'llab-quvvatlaydimi?
+- Ha, boshqa target yo'q
+- Yo'q, JVM, JS, Wasm va Native ham bor
+- Faqat desktop uchun
+- Faqat server uchun
+= 1
+! KMP bir nechta target'ni qo'llab-quvvatlaydi; Android/iOS — eng ko'p uchraydigan juftlik xolos.
+@@lesson 81
+@@title KMP amaliyoti: shared modul, Ktor va SQLDelight
+@@minutes 18
+@@p
+Amaliy KMP loyihasida shared modul uch qatlamga bo'linadi: <code>commonMain</code> (API, domen, repository interfeysi), platform source set'lari (engine, database driver, platforma API'lari) va <code>commonTest</code> (umumiy testlar). Ktor client'ning engine'i platformaga xos: Android'da OkHttp, iOS'da Darwin, JVM'da CIO. SQLDelight ham xuddi shunday driver'ni expect/actual orqali oladi.
+@@code api.kt
+// commonMain
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import kotlinx.serialization.Serializable
+
+@Serializable data class Vazifa(val id: Int, val sarlavha: String, val bajarildi: Boolean)
+
+expect fun httpClient(): HttpClient
+
+class VazifaApi(private val client: HttpClient = httpClient()) {
+    suspend fun hammasi(): List<Vazifa> =
+        client.get("https://api.noldan.uz/tasks").body()
+}
+
+// androidMain
+actual fun httpClient(): HttpClient = HttpClient(OkHttp) {
+    install(ContentNegotiation) { json() }
+}
+@@out
+I/System.out: engine: okhttp
+I/System.out: vazifalar: 2
+@@p
+Umumiy kodni testlash uchun haqiqiy tarmoq shart emas: <code>MockEngine</code> barcha target'larda ishlaydi. Test <code>commonTest</code> da yoziladi va JVM'da ham, Android'da ham bir xil bajariladi. Bu KMP'ning asosiy foydasi: biznes mantiq bir marta yoziladi va bir nechta platformada tekshiriladi.
+@@code apitest.kt
+// commonTest
+import io.ktor.client.*
+import io.ktor.client.engine.mock.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class VazifaApiTest {
+    @Test
+    fun hammasi() = runTest {
+        val engine = MockEngine {
+            respond(
+                content = """[{"id":1,"sarlavha":"Kotlin","bajarildi":false}]""",
+                headers = headersOf(HttpHeaders.ContentType, "application/json")
+            )
+        }
+        val client = HttpClient(engine) { install(ContentNegotiation) { json() } }
+        val natija = VazifaApi(client).hammasi()
+        println(natija)
+        assertEquals(1, natija.size)
+        client.close()
+    }
+}
+@@out
+[Vazifa(id=1, sarlavha=Kotlin, bajarildi=false)]
+BUILD SUCCESSFUL
+@@note tip | SQLDelight
+SQLDelight SQL fayllaridan type-safe Kotlin API yaratadi. <code>expect class DriverFactory</code> platformaga xos driver qaytaradi: Android'da <code>AndroidSqliteDriver</code>, iOS'da <code>NativeSqliteDriver</code>. Repository commonMain'da qoladi, driver esa actual. Ma'lumotlar bazasi so'rovlari ham umumiy testlarda tekshiriladi.
+@@quiz
+KMP'da Ktor engine qayerda e'lon qilinadi?
+- <code>commonMain</code> da
+- Platformaga xos source set'da, actual orqali
+- Faqat <code>commonTest</code> da
+- Gradle root faylida
+= 1
+! Engine platformaga bog'liq (OkHttp, Darwin, CIO), shuning uchun actual implementatsiya platform source set'ida bo'ladi.
+@@quiz
+KMP'da commonTest qanday afzallik beradi?
+- Bir marta yozilgan test barcha target'larda ishlaydi
+- Faqat Android'da ishlaydi
+- Tarmoqni avtomatik yoqadi
+- UI testlarini almashtiradi
+= 0
+! commonTest umumiy kodni barcha target'larda tekshiradi, bu mantiqning izchilligini ta'minlaydi.
+@@quiz
+SQLDelight'da platformaga xos qism nima?
+- SQL fayllari
+- Driver (DriverFactory actual)
+- Repository interfeysi
+- DTO klasslari
+= 1
+! SQLDelight schema va so'rovlarni umumiy qiladi, lekin databaza driver'i platformaga xos bo'ladi.
+@@lesson 82
+@@title Performance: allokatsiya, inline va profiler
+@@minutes 17
+@@p
+Kotlin'da unumdorlikni oshirishning birinchi qadami — o'lchash. <code>measureTimeMillis</code> faqat qo'pol baho beradi; jiddiy taqqoslash uchun JMH yoki Android Profiler ishlatiladi. Ko'p uchraydigan muammolar: ortiqcha obyekt allokatsiyasi, boxing, katta ro'yxatlarda oraliq kolleksiyalar va noto'g'ri dispatcher. Avvalo profiler bilan qaynoq nuqtani toping, keyin optimallashtiring.
+@@code sequence.kt
+fun main() {
+    val sonlar = (1..1_000_000).toList()
+    val natija = sonlar.asSequence()
+        .filter { it % 2 == 0 }
+        .map { it * it }
+        .take(3)
+        .toList()
+    println(natija)
+    println(sonlar.asSequence().take(5).toList())
+}
+@@out
+[4, 16, 36]
+[1, 2, 3, 4, 5]
+@@p
+Primitiv massivlar <code>List&lt;Int&gt;</code> dan farqli ravishda boxing qilmaydi. Katta hisob-kitoblarda <code>IntArray</code>, <code>LongArray</code> va <code>FloatArray</code> ishlatish xotira va tezlikni yaxshilaydi. <code>StringBuilder</code> esa ko'p bo'lakli matnni birlashtirishda oraliq String obyektlarini kamaytiradi. Bu o'zgarishlar kodni murakkablashtirmasdan sezilarli foyda beradi.
+@@code massiv.kt
+fun main() {
+    val sonlar = IntArray(1_000_000) { it }
+    var jami = 0L
+    for (x in sonlar) jami += x
+    println(jami)
+
+    val q = StringBuilder(64)
+    repeat(3) { q.append("satr-").append(it).append(';') }
+    println(q)
+}
+@@out
+499999500000
+satr-0;satr-1;satr-2;
+@@note tip | Optimallashtirish tartibi
+Avval algoritm va murakkablikni tekshiring, keyin allokatsiyani, shundan keyingina mikro-optimallashtirishni. <code>inline</code> kod hajmini oshirishi mumkin; hamma joyda ishlatmang. Android'da R8, baseline profillar va Macrobenchmark real foyda beradi. Sequence har doim tezroq emas — kichik ro'yxatlarda oddiy List operatorlari yaxshiroq.
+@@quiz
+Sequence'dagi oraliq operatorlar qachon bajariladi?
+- Har bir operator qo'shilganda darhol
+- Terminal operator chaqirilganda, elementlar oqim sifatida
+- Faqat dastur yopilganda
+- Faqat parallel thread'da
+= 1
+! Sequence lazy: filter/map kabi oraliq operatorlar terminal amal bajarilganda elementma-element ishlaydi.
+@@quiz
+<code>IntArray</code> <code>List&lt;Int&gt;</code> dan nimasi bilan farq qiladi?
+- Primitiv qiymatlarni boxing qilmasdan saqlaydi
+- U faqat nullable qiymatlarni saqlaydi
+- U o'zgarmas kolleksiya
+- U avtomatik saralaydi
+= 0
+! IntArray primitiv int massivi, List<Int> esa boxing qilingan Integer obyektlarini saqlashi mumkin.
+@@quiz
+Unumdorlikni optimallashtirishni nima bilan boshlash kerak?
+- Har bir funksiyani inline qilish
+- Profiler bilan qaynoq nuqtani o'lchash
+- Barcha List'larni Sequence'ga almashtirish
+- Thread sonini oshirish
+= 1
+! O'lchovsiz optimallashtirish ko'pincha foyda bermaydi; profiler haqiqiy muammoni ko'rsatadi.
+@@lesson 83
+@@title Gradle Kotlin DSL va convention pluginlar
+@@minutes 17
+@@p
+Gradle build skriptlari Kotlin DSL'da yoziladi va oddiy Kotlin kabi tip tekshiruvidan o'tadi. Ko'p modulli loyihada bir xil konfiguratsiyani har bir <code>build.gradle.kts</code> ga takrorlash yomon. Convention plugin — bu qayta ishlatiladigan build mantiqi: uni <code>build-logic</code> modulida yozib, boshqa modullar <code>plugins { id("...") }</code> bilan qo'llaydi.
+@@code app.gradle.kts
+plugins {
+    kotlin("jvm") version "2.1.0"
+    application
+}
+
+group = "uz.noldan"
+version = "1.0.0"
+
+kotlin {
+    jvmToolchain(21)
+}
+
+application {
+    mainClass.set("uz.noldan.MainKt")
+}
+
+dependencies {
+    implementation("io.ktor:ktor-server-core:3.0.3")
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+@@out
+$ ./gradlew build
+> Task :compileKotlin
+> Task :test
+BUILD SUCCESSFUL in 6s
+@@p
+Convention plugin ichida umumiy toolchain, test va dependency sozlamalari yoziladi. Uni <code>build-logic/src/main/kotlin</code> ichida <code>.gradle.kts</code> fayl sifatida saqlash mumkin. Modul faqat plugin ID'sini qo'llaydi — versiyalar va sozlamalar markazlashadi. Versiyalar uchun <code>libs.versions.toml</code> katalogi ishlatilsa, yangilash yanada osonlashadi.
+@@code convention.gradle.kts
+// build-logic/src/main/kotlin/noldan.kotlin-library.gradle.kts
+plugins {
+    `java-library`
+    kotlin("jvm")
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+
+dependencies {
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+@@out
+$ ./gradlew :core:build
+> Task :core:compileKotlin
+> Task :core:test
+BUILD SUCCESSFUL in 3s
+@@note tip | Build unumdorligi
+<code>tasks.register</code> bilan lazy konfiguratsiya ishlating; <code>tasks.create</code> darhol bajariladi. Configuration cache va build cache'ni yoqing. <code>buildSrc</code> o'rniga alohida <code>build-logic</code> ko'proq mos: u izolyatsiyalangan va versiyalash oson. Dependency versiyalarini faqat version catalog'da saqlang.
+@@quiz
+Convention plugin nima uchun kerak?
+- Bir xil build konfiguratsiyasini modullar orasida qayta ishlatish
+- Ilova kodini kompilyatsiyasiz ishga tushirish
+- Faqat Android manifestni o'zgartirish
+- Tarmoq so'rovlarini keshlash
+= 0
+! Convention plugin umumiy Gradle mantiqini bir joyda saqlab, modullarda qayta ishlatadi.
+@@quiz
+Dependency versiyalarini markazlashtirish uchun qaysi fayl ishlatiladi?
+- <code>settings.gradle.kts</code> faqat
+- <code>gradle/libs.versions.toml</code>
+- <code>AndroidManifest.xml</code>
+- <code>proguard-rules.pro</code>
+= 1
+! Version catalog barcha dependency va versiyalarni bitta joyda saqlaydi.
+@@quiz
+<code>tasks.register</code> ning <code>tasks.create</code> dan afzalligi nima?
+- Task faqat kerak bo'lganda konfiguratsiya qilinadi
+- Task umuman bajarilmaydi
+- U faqat testlarda ishlaydi
+- U versiyalarni avtomatik yangilaydi
+= 0
+! register lazy ro'yxatdan o'tkazadi, bu build vaqtini qisqartiradi; create darhol yaratadi.
+@@lesson 84
+@@title Kod sifati: detekt, ktlint va CI
+@@minutes 16
+@@p
+Kod sifati vositalari xatolarni kompilyatordan oldin topadi. <b>detekt</b> murakkab funksiyalar, uzun parametr ro'yxatlari, istisnolarni yutish kabi muammolarni statik tahlil qiladi. <b>ktlint</b> formatlash qoidalarini tekshiradi va avtomatik tuzatadi. Ikkalasi ham Gradle task sifatida CI'ga ulanadi va jamoada uslub birligini saqlaydi.
+@@code detekt.gradle.kts
+plugins {
+    id("io.gitlab.arturbosch.detekt") version "1.23.7"
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom(files("$rootDir/config/detekt.yml"))
+    parallel = true
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    jvmTarget = "21"
+    reports {
+        html.required.set(true)
+        sarif.required.set(true)
+    }
+}
+@@out
+$ ./gradlew detekt
+> Task :detekt FAILED
+ComplexMethod - VazifaService.kt:42
+BUILD FAILED in 2s
+@@p
+Formatlashni alohida task qilib qo'ying: <code>ktlintCheck</code> CI'da, <code>ktlintFormat</code> lokalda ishlatiladi. CI'da <code>check</code> task'i test, detekt va ktlint'ni birga bajarishi kerak. Muhim qoida: ogohlantirishlarni cheksiz o'chirmang — har bir istisno sabab bilan hujjatlashtirilsin.
+@@code ktlint.gradle.kts
+plugins {
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.2"
+}
+
+subprojects {
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        android.set(false)
+        verbose.set(true)
+    }
+}
+
+tasks.register("sifat") {
+    dependsOn("detekt", "ktlintCheck", "test")
+}
+@@out
+$ ./gradlew ktlintCheck
+> Task :ktlintMainSourceSetCheck
+BUILD SUCCESSFUL in 3s
+@@note tip | CI pipeline
+CI'da <code>./gradlew --no-daemon check</code> ishlatilsa, test, lint va statik tahlil birga bajariladi. Kesh uchun Gradle build cache va dependency cache'ni saqlang. Pull request'da faqat o'zgargan modullarni tekshirish uchun Gradle'ning incremental imkoniyatlaridan foydalaning. Sifat darvozasi branch protection bilan mustahkamlanadi.
+@@quiz
+detekt qanday vazifani bajaradi?
+- Kodni formatlaydi
+- Statik tahlil orqali sifat muammolarini topadi
+- APK'ni imzolaydi
+- Ma'lumotlar bazasini migratsiya qiladi
+= 1
+! detekt kodni bajarishsiz tahlil qiladi va murakkablik, xavfli patternlar haqida xabar beradi.
+@@quiz
+ktlint asosan nimaga javobgar?
+- Kod uslubi va formatlash qoidalariga
+- Tarmoq konfiguratsiyasiga
+- Test qamroviga
+- Dependency versiyalariga
+= 0
+! ktlint Kotlin kod uslubini tekshiradi va avtomatik formatlaydi.
+@@quiz
+CI'da barcha tekshiruvlarni bitta buyruq bilan ishga tushirish uchun nima ishlatiladi?
+- <code>./gradlew check</code>
+- <code>./gradlew clean</code>
+- <code>./gradlew wrapper</code>
+- <code>./gradlew projects</code>
+= 0
+! check task test, lint va boshqa verification task'larini bog'laydi.

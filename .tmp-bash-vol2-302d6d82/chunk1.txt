@@ -1,0 +1,400 @@
+### LESSON 50
+TITLE: Jarayon daraxti: PID, PPID va /proc anatomiyasi
+MIN: 16
+DESC: Har bir jarayonning pasporti: PID, PPID, jarayon guruhi va /proc fayl tizimidan ma'lumot o'qishni o'rganamiz.
+P: Dastur diskda yotgan fayl, jarayon esa uning xotirada ishlayotgan nusxasi. Linux har bir jarayonga <b>PID</b> beradi va otasi bo'lgan jarayonning PID'i <b>PPID</b> deb ataladi. Birinchi jarayon odatda <code>systemd</code> bo'lib, uning PID'i 1 ga teng. Shell ham jarayon: buyruq ishga tushganda u avval <code>fork</code> bilan nusxa yaratadi, keyin <code>exec</code> bilan dasturni yuklaydi.
+H: Jarayonlar jadvalini o'qish
+CODE: jarayonlar.sh
+ps -eo pid,ppid,pgid,comm --sort=pid | head -4
+OUT:
+    PID    PPID    PGID COMMAND
+      1       0       1 systemd
+      2       0       0 kthreadd
+    712       1     712 accounts-daemon
+ENDCODE
+P: <code>PGID</code> — jarayon guruhi identifikatori. Terminaldan ishga tushirilgan buyruqlar bitta guruhga tushadi, shuning uchun <code>Ctrl-C</code> butun guruhga signal yuboradi. <code>SID</code> esa sessiya identifikatori; u terminal va job control bilan bog'liq. <code>ps -o</code> yordamida faqat kerakli ustunlarni tanlash mumkin.
+CODE: proc-status.sh
+awk -F'\t' '/^(Name|State|Tgid|PPid|Threads):/ {
+  gsub(/[0-9]+/, "N", $2)
+  printf "%-9s %s\n", $1, $2
+}' "/proc/$$/status"
+OUT:
+Name:     bash
+State:    S (sleeping)
+Tgid:     N
+PPid:     N
+Threads:  N
+ENDCODE
+NOTE: tip | /proc — jarayonning jonli oynasi
+<code>/proc/&lt;pid&gt;/status</code> odam o'qiydigan holatni, <code>cmdline</code> buyruq satrini, <code>fd</code> ochiq deskriptorlarni, <code>environ</code> esa muhitni ko'rsatadi. Bu fayllar diskda emas, yadro xotirada yaratadi. <code>$$</code> joriy shell PID'ini beradi; skriptda u butun ish davomida bir xil qoladi.
+ENDNOTE
+QUIZ
+Q: PPID maydoni nimani bildiradi?
+O: Jarayonning ota jarayoni PID raqamini
+O: Jarayonning umumiy xotira hajmini
+O: Jarayon ishlayotgan terminal raqamini
+O: Jarayonning ustuvorlik darajasini
+A: 0
+E: PPID — parent PID, ya'ni jarayonni yaratgan ota jarayonning identifikatori. PID esa jarayonning o'z raqami.
+Q: Bitta terminalda ishga tushirilgan buyruqlar uchun PGID nima uchun muhim?
+O: U har bir faylning ruxsatlarini belgilaydi
+O: U jarayonlarni bitta guruh sifatida signal bilan boshqarish imkonini beradi
+O: U jarayonning ishlash vaqtini cheklaydi
+O: U faqat tarmoq portlarini ajratadi
+A: 1
+E: Signal manzili sifatida manfiy PID yoki jarayon guruhi ishlatiladi; Ctrl-C butun guruhga SIGINT yuboradi.
+Q: `$$` skript ichida nimani qaytaradi?
+O: Oxirgi buyruqning exit kodini
+O: Skriptning ota jarayoni PID'ini
+O: Joriy shell jarayonining PID'ini
+O: Birinchi argument qiymatini
+A: 2
+E: `$$` joriy shell PID'ini beradi. `$?` oxirgi buyruq kodini, `$PPID` esa ota jarayon PID'ini beradi.
+ENDQUIZ
+### LESSON 51
+TITLE: Holatlar, zombie va orphan: kutish madaniyati
+MIN: 15
+DESC: R, S, D, T va Z holatlarini farqlaymiz, zombie jarayonlar qanday paydo bo'lishini va ularni qanday tozalashni ko'ramiz.
+P: Jarayonning holati <code>ps</code> ning <code>STAT</code> ustunida ko'rinadi. <code>R</code> — bajarilmoqda, <code>S</code> — uzilishi mumkin bo'lgan kutish, <code>D</code> — disk yoki boshqa I/O uchun uzilmas kutish, <code>T</code> — to'xtatilgan, <code>Z</code> — zombie. Zombie o'lgan, lekin ota jarayon uning chiqish kodini hali o'qimagan jarayondir.
+H: Fon jarayonini holatini tekshirish va kutish
+CODE: holat.sh
+sleep 30 &
+worker=$!
+holat=$(ps -o stat= -p "$worker" | tr -d ' ')
+printf 'holat: %s\n' "$holat"
+kill -TERM "$worker"
+wait "$worker" || kod=$?
+printf 'wait kodi: %s\n' "${kod:-0}"
+OUT:
+holat: S
+wait kodi: 143
+ENDCODE
+P: <code>wait</code> ota jarayonga bolaning tugashini kutish va uning exit kodini olish imkonini beradi. SIGTERM bilan tugagan jarayon uchun bash 128 + 15 = 143 qaytaradi. Agar ota <code>wait</code> qilmasa, tugagan bola <b>zombie</b> bo'lib qoladi va jarayonlar jadvalida joy egallaydi.
+CODE: zombie.sh
+( sleep 0.2 & exec sleep 1 ) &
+parent=$!
+sleep 0.5
+ps -o stat=,comm= --ppid "$parent" | awk '{print "bola holati: " $1}'
+wait "$parent"
+printf 'ota tugadi\n'
+OUT:
+bola holati: Z
+ota tugadi
+ENDCODE
+P: Yuqoridagi hiyla ota jarayonni <code>exec</code> bilan <code>sleep</code> ga almashtiradi. Bola tugagach, ota hali yashaydi va uni <code>wait</code> qilmaydi, shuning uchun qisqa vaqt zombie ko'rinadi. Ota tugashi bilan yadro zombieni yo'q qiladi yoki uni PID 1 ga qayta tarbiyalaydi.
+NOTE: warning | Zombie'ni kill bilan o'ldirib bo'lmaydi
+Zombie allaqachon o'lgan; uning jarayon yozuvi faqat ota <code>wait</code> qilmagani uchun turadi. <code>kill -9</code> yechim emas — otani tuzatish yoki uni tugatish kerak. <code>SIGCHLD</code> uchun trap o'rnatish ham bolalarni muntazam yig'ib turishga yordam beradi.
+ENDNOTE
+QUIZ
+Q: Qaysi holat uzilmas I/O kutishini bildiradi?
+O: R
+O: S
+O: D
+O: T
+A: 2
+E: D holati odatda disk yoki tarmoq I/O tugashini kutayotgan jarayonda ko'rinadi va uni oddiy signal bilan to'xtatish qiyin.
+Q: Zombie jarayon qanday yo'qoladi?
+O: Faqat `kill -9` bilan
+O: Ota jarayon `wait` chaqirganda yoki o'zi tugaganda
+O: `renice` bajarilganda
+O: Terminal yopilganda har doim
+A: 1
+E: Zombie yozuvi ota chiqish kodini olgach o'chadi; ota tugasa, yadro bolani qayta joylashtiradi va yig'adi.
+Q: Ota jarayon tugagach, uning yosh bolalari odatda kimga o'tadi?
+O: Eng katta PID'li jarayonga
+O: Kernel thread'ga
+O: PID 1 yoki subreaper jarayonga
+O: Hech kimga, ular darhol o'chadi
+A: 2
+E: Orphan jarayonlar PID 1 yoki subreaper tomonidan qabul qilinadi; ular ishlashda davom etadi.
+ENDQUIZ
+### LESSON 52
+TITLE: Job control: jobs, bg, fg, disown va nohup
+MIN: 16
+DESC: Interaktiv shell joblarini boshqarish, uzilgan terminaldan keyin ishni saqlab qolish va fon jarayonlarini to'g'ri ajratishni o'rganamiz.
+P: Job control — interaktiv shellning fon va old plan vazifalarini boshqarish mexanizmi. <code>Ctrl-Z</code> old plan jarayoniga <code>SIGTSTP</code> yuborib uni to'xtatadi, <code>bg</code> fonda davom ettiradi, <code>fg</code> yana oldinga qaytaradi. Har bir job <code>%1</code>, <code>%2</code> kabi belgilar bilan murojaat qilinadi.
+H: Jobni fonda boshlash va undan voz kechish
+CODE: jobs.sh
+sleep 300 &
+job=$!
+printf 'ishga tushdi: %s\n' "$job"
+jobs -l
+disown "$job"
+printf 'disown dan keyin:\n'
+jobs -l
+OUT:
+ishga tushdi: 4211
+[1]+  4211 Running                 sleep 300 &
+disown dan keyin:
+ENDCODE
+P: <code>disown</code> jobni shell jadvalidan olib tashlaydi. Terminal yopilganda shell barcha joblarga <code>SIGHUP</code> yuboradi; <code>disown -h</code> esa faqat HUP yuborilishini to'xtatadi, job jadvalda qoladi. <code>nohup</code> ham SIGHUP'ni e'tiborsiz qoldiradi va chiqishni <code>nohup.out</code> ga yo'naltiradi.
+CODE: nohup.sh
+nohup bash -c 'sleep 0.2; printf "tugadi\n"' >nohup.out 2>&1 &
+wait
+cat nohup.out
+OUT:
+tugadi
+ENDCODE
+P: Skriptlar odatda job control rejimisiz ishlaydi, shuning uchun <code>jobs</code> bo'sh bo'lishi mumkin. Uzoq muddatli xizmat uchun <code>nohup</code> vaqtinchalik yechim; ishlab chiqarishda <b>systemd</b>, <b>supervisor</b> yoki konteyner ishlatiladi. Ular qayta ishga tushirish, log va resurs cheklovlarini beradi.
+NOTE: warning | Terminal yopilishi jobni o'ldirishi mumkin
+SSH sessiyasi uzilganda SIGHUP butun sessiyaga tegishli jarayonlarga tarqalishi mumkin. Muhim ishni <code>tmux</code> yoki <code>screen</code> ichida boshlang yoki uni systemd xizmatiga aylantiring. Faqat <code>disown</code> qilish yetarli kafolat emas.
+ENDNOTE
+QUIZ
+Q: Ctrl-Z qaysi signalni yuboradi?
+O: SIGINT
+O: SIGTSTP
+O: SIGHUP
+O: SIGTERM
+A: 1
+E: Ctrl-Z odatda SIGTSTP yuborib jarayonni to'xtatadi; Ctrl-C esa SIGINT yuboradi.
+Q: `disown %1` bajarilganda nima bo'ladi?
+O: Job darhol o'ldiriladi
+O: Job fondan oldinga qaytariladi
+O: Job shell jadvalidan chiqariladi
+O: Jobning exit kodi 1 ga o'zgaradi
+A: 2
+E: disown jobni jadvaldan olib tashlaydi; shell endi unga job nazorati orqali signal yubormaydi.
+Q: `nohup` qaysi signalning ta'sirini cheklaydi?
+O: SIGHUP
+O: SIGKILL
+O: SIGSTOP
+O: SIGSEGV
+A: 0
+E: nohup SIGHUP'ni e'tiborsiz qoldiradi, shuning uchun terminal uzilganda jarayon odatda yashashda davom etadi.
+ENDQUIZ
+### LESSON 53
+TITLE: coproc: bash ichida hamkor jarayon
+MIN: 17
+DESC: Ikki tomonlama quvur yaratib, bash skripti ichidan boshqa jarayon bilan bir vaqtda muloqot qilishni o'rganamiz.
+P: <b>coproc</b> — bash ichida fonda ishlaydigan hamkor jarayon va unga ulangan ikki quvur. Skript hamkorning chiqishini o'qiydi, kirishiga yozadi. Bu ishni bitta jarayon ichida bajarish imkonini beradi, lekin o'lik blokirovka (deadlock) va buferlash xavfini olib keladi.
+H: Ikki tomonlama quvur
+CODE: coproc-calc.sh
+coproc CALC {
+  while IFS= read -r qator; do
+    read -r a b <<< "$qator"
+    printf '%s\n' "$((a + b))"
+  done
+}
+printf '2 3\n10 7\n' >&"${CALC[1]}"
+read -r birinchi <&"${CALC[0]}"
+read -r ikkinchi <&"${CALC[0]}"
+printf 'natijalar: %s %s\n' "$birinchi" "$ikkinchi"
+OUT:
+natijalar: 5 17
+ENDCODE
+P: <code>CALC[0]</code> — hamkorning standart chiqishi (skript o'qiydi), <code>CALC[1]</code> — uning standart kirishi (skript yozadi). <code>CALC_PID</code> hamkor PID'ini saqlaydi. Hamkor tugashini kutish uchun yozish uchini yopish kerak, aks holda u EOF ko'rmaydi.
+CODE: coproc-upper.sh
+coproc UP {
+  while IFS= read -r qator; do
+    printf '%s\n' "${qator^^}"
+  done
+}
+printf 'noldan bash\n' >&"${UP[1]}"
+IFS= read -r javob <&"${UP[0]}"
+printf 'javob: %s\n' "$javob"
+OUT:
+javob: NOLDAN BASH
+ENDCODE
+P: Hamkor sifatida tashqi dastur ishlatilsa, masalan <code>coproc FILTER { grep xato; }</code>, u chiqishni buferlashi mumkin. <code>stdbuf -oL</code> yoki <code>--line-buffered</code> kabi variantlar buferni qatorga moslaydi. Har doim qaysi tomon qaysi oqimni yopayotganini kuzatib boring.
+NOTE: warning | Deadlock'dan qoching
+Agar skript hamkorga katta hajmda yozsa-yu, uning chiqishini o'qimasа, ikkala quvur ham to'lib qolishi mumkin. Yozish va o'qishni navbatlashtiring, kichik bo'laklarda ishlang va kerak bo'lmaganda yozish fd'sini yoping.
+ENDNOTE
+QUIZ
+Q: coproc nimani yaratadi?
+O: Faqat bitta fon jarayonini, quvursiz
+O: Ikki tomonlama quvur bilan fonda ishlaydigan hamkor jarayonni
+O: Yangi terminal sessiyasini
+O: Faqat vaqtinchalik faylni
+A: 1
+E: coproc hamkor jarayonni ikkita quvur bilan bog'laydi: biri o'qish, biri yozish uchun.
+Q: `CALC[1]` odatda nima uchun ishlatiladi?
+O: Hamkor chiqishini o'qish uchun
+O: Hamkor jarayon PID'ini olish uchun
+O: Hamkor kirishiga yozish uchun
+O: Hamkorning exit kodini saqlash uchun
+A: 2
+E: CALC[1] — coprocning standart kirishi; unga yozilgan ma'lumot hamkor tomonidan o'qiladi.
+Q: Tashqi dastur coproc ichida javobni kechiktirib bersa, birinchi tekshiriladigan yechim nima?
+O: `stdbuf -oL` yoki qator buferlash variantini qo'llash
+O: SIGKILL yuborish
+O: Skriptni root bilan ishga tushirish
+O: Quvurni oddiy faylga almashtirish
+A: 0
+E: Ko'p dasturlar quvurga yozganda blok bufer ishlatadi; stdbuf yoki dasturning line-buffered bayrog'i javobni darhol chiqaradi.
+ENDQUIZ
+### LESSON 54
+TITLE: Signallar: TERM, INT, HUP va raqamlari
+MIN: 15
+DESC: Jarayonlararo signallar, ularning raqamlari, tutib bo'lmaydigan signallar va signal bilan to'g'ri muloqot qilishni o'rganamiz.
+P: Signal — jarayonga yuboriladigan asinxron xabar. U jarayonni to'xtatishi, davom ettirishi yoki maxsus ishlov beruvchini ishga tushirishi mumkin. Signallar nom yoki raqam bilan yuboriladi, lekin raqamlar platformalar orasida farq qilishi mumkin, shuning uchun skriptda nom ishlatish xavfsizroq.
+H: Signal nomlari va raqamlari
+CODE: signallar.sh
+for sig in HUP INT QUIT KILL TERM USR1; do
+  printf '%-5s %s\n' "$sig" "$(kill -l "$sig")"
+done
+OUT:
+HUP   1
+INT   2
+QUIT  3
+KILL  9
+TERM  15
+USR1  10
+ENDCODE
+P: <code>SIGKILL</code> va <code>SIGSTOP</code> ni trap qilib bo'lmaydi: ular yadro tomonidan majburan bajariladi. <code>SIGTERM</code> — nazokatli to'xtatish so'rovi, <code>SIGINT</code> — Ctrl-C, <code>SIGHUP</code> — terminal uzilishi, <code>SIGUSR1</code> va <code>SIGUSR2</code> esa dastur uchun erkin signallar. <code>kill -0 PID</code> signal yubormaydi, faqat jarayon mavjudligini tekshiradi.
+CODE: usr1.sh
+bash -c 'trap "echo USR1 ushlandi; exit 42" USR1; while :; do sleep 0.1; done' &
+pid=$!
+sleep 0.3
+kill -USR1 "$pid"
+wait "$pid"
+printf 'exit: %s\n' "$?"
+OUT:
+USR1 ushlandi
+exit: 42
+ENDCODE
+P: Skriptda signal tutib olinganda resurslarni tozalash, lock faylini olib tashlash va jurnalga yozish mumkin. Ammo <code>SIGKILL</code> hech qanday tozalashni kafolatlamaydi. Shuning uchun muhim yozuvlarni atomar bajaring: vaqtinchalik faylga yozib, keyin <code>mv</code> bilan almashtiring.
+NOTE: warning | SIGKILL — oxirgi chora
+<code>kill -9</code> jarayonni tozalash imkonini bermaydi: yarim yozilgan fayl, ochiq lock yoki buzilgan kesh qolishi mumkin. Avval SIGTERM yuboring, bir necha soniya kuting, keyin SIGKILL ishlating.
+ENDNOTE
+QUIZ
+Q: Qaysi signalni trap bilan tutib bo'lmaydi?
+O: SIGTERM
+O: SIGINT
+O: SIGKILL
+O: SIGHUP
+A: 2
+E: SIGKILL va SIGSTOP yadro tomonidan majburan bajariladi; ularni trap qilib bo'lmaydi.
+Q: `kill -0 4321` buyrug'i nima qiladi?
+O: Jarayonni darhol o'ldiradi
+O: Signal yubormay, jarayon mavjudligi va huquqni tekshiradi
+O: Jarayonni to'xtatib qo'yadi
+O: Jarayonning exit kodini chop etadi
+A: 1
+E: 0-signal hech qanday ta'sir qilmaydi; buyruq muvaffaqiyatli bo'lsa, jarayon mavjud va unga signal yuborish huquqi bor.
+Q: Terminal oynasi yopilganda odatda qaysi signal yuboriladi?
+O: SIGUSR1
+O: SIGHUP
+O: SIGSTOP
+O: SIGCHLD
+A: 1
+E: SIGHUP hangup signali terminal uzilganda yuboriladi; nohup yoki disown uning ta'sirini cheklaydi.
+ENDQUIZ
+### LESSON 55
+TITLE: trap bilan resurslarni tozalash va EXIT tuzog'i
+MIN: 17
+DESC: EXIT, ERR va INT signallarida ishlaydigan tozalash funksiyalarini yozamiz va exit kodini yo'qotmaslikni o'rganamiz.
+P: <b>trap</b> shellga signal yoki maxsus hodisa kelganda buyruq bajarishni buyuradi. Eng ko'p ishlatiladigan tuzoqlar: <code>EXIT</code> — shell tugayotganda, <code>ERR</code> — buyruq xato qaytarganda, <code>INT</code>/<code>TERM</code> — foydalanuvchi yoki tizim to'xtatganda. Tozalash kodi vaqtinchalik papka, lock va ulanishlarni yopish uchun kerak.
+H: EXIT tuzog'i bilan vaqtinchalik papkani tozalash
+CODE: cleanup.sh
+#!/usr/bin/env bash
+set -euo pipefail
+tmp=$(mktemp -d)
+cleanup() {
+  rm -rf "$tmp"
+  printf 'tozalandi\n'
+}
+trap cleanup EXIT
+printf 'ish papkasi tayyor\n'
+OUT:
+ish papkasi tayyor
+tozalandi
+ENDCODE
+P: EXIT tuzog'i oddiy tugashda ham, <code>exit N</code> da ham, <code>set -e</code> sabab xato tugashda ham ishlaydi. Ichkarida <code>$?</code> oldingi exit kodini saqlaydi. Agar tozalash funksiyasi o'zi <code>exit</code> chaqirsa, kodni ataylab o'zgartirishi mumkin; shuning uchun kodni saqlab, keyin qaytarish odatiy usul.
+CODE: exit-code.sh
+#!/usr/bin/env bash
+cleanup() {
+  printf 'cleanup, kod=%s\n' "$?"
+}
+trap cleanup EXIT
+printf 'ish boshlandi\n'
+exit 7
+OUT:
+ish boshlandi
+cleanup, kod=7
+ENDCODE
+P: Ba'zi tozalashlar faqat bir marta bajarilishi kerak. Funksiya ichida bayroq yoki <code>trap - EXIT</code> bilan tuzoqni o'chirish mumkin. <code>trap -p</code> o'rnatilgan tuzoqlarni ko'rsatadi. <code>ERR</code> tuzog'i uchun <code>set -E</code> kerak bo'lishi mumkin, chunki u funksiyalar va subshelllarga meros bo'lib o'tadi.
+NOTE: tip | Tozalashni idempotent qiling
+Tozalash funksiyasi ikki marta chaqirilsa ham xato bermasin: <code>rm -f</code>, <code>mkdir -p</code>, mavjudligini tekshirish va <code>|| true</code> dan foydalaning. Bu signal va EXIT bir vaqtda kelganda himoya beradi.
+ENDNOTE
+QUIZ
+Q: EXIT tuzog'i qaysi holatda ishlamaydi?
+O: `exit 0` bilan tugaganda
+O: `set -e` sabab xato bo'lganda
+O: Jarayon SIGKILL bilan o'ldirilganda
+O: Skript oxiriga yetganda
+A: 2
+E: SIGKILL jarayonni darhol yo'q qiladi, shuning uchun EXIT trap ham bajarilmaydi. Boshqa sanab o'tilgan holatlarda odatda ishlaydi.
+Q: EXIT tuzog'i ichidagi `$?` nimani ko'rsatadi?
+O: Har doim 0 ni
+O: Shell tugayotgan paytdagi oldingi exit kodini
+O: Joriy PID'ni
+O: Signal raqamini
+A: 1
+E: Trap ichida `$?` tugashdan oldingi holatni saqlaydi; shu sababli kodni saqlab qolish va keyin qaytarish mumkin.
+Q: `set -E` nima uchun kerak bo'lishi mumkin?
+O: ERR tuzog'ini funksiyalar va subshelllarga meros qilib o'tkazish uchun
+O: Barcha xatolarni o'chirish uchun
+O: Faqat EXIT tuzog'ini yoqish uchun
+O: Skriptni interaktiv qilish uchun
+A: 0
+E: errtrace (-E) ERR trapni funksiya, buyruq almashtirish va subshell ichida ham meros qilib o'tkazadi.
+ENDQUIZ
+### LESSON 56
+TITLE: Timeout, qayta urinish va nazokatli to'xtatish
+MIN: 16
+DESC: Uzoq ishlaydigan buyruqlarni vaqt bilan cheklaymiz, xatolardan keyin xavfsiz qayta urinish va TERM/KILL bosqichlarini o'rganamiz.
+P: Tarmoq yoki tashqi xizmat ba'zan javob bermaydi. <b>timeout</b> buyrug'i jarayonni belgilangan vaqtdan keyin to'xtatadi va odatda 124 kodini qaytaradi. Qayta urinish (retry) esa vaqtinchalik xatolarni yengishga yordam beradi, lekin faqat <b>idempotent</b> amallar uchun xavfsiz.
+H: Vaqt cheklovi va exit kodi
+CODE: timeout.sh
+if timeout 2 bash -c 'sleep 5'; then
+  printf 'tugadi\n'
+else
+  printf 'timeout kodi: %s\n' "$?"
+fi
+OUT:
+timeout kodi: 124
+ENDCODE
+P: <code>timeout -s TERM -k 5 30 buyruq</code> avval SIGTERM yuboradi, 5 soniyadan keyin hali ishlayotgan bo'lsa SIGKILL yuboradi. <code>--preserve-status</code> bolaning haqiqiy exit kodini saqlaydi. <code>--foreground</code> esa timeout'ning o'zini terminal guruhidan ajratmaydi, interaktiv dasturlar uchun muhim.
+CODE: retry.sh
+urinish=1
+while (( urinish <= 3 )); do
+  if (( urinish == 3 )); then
+    printf 'muvaffaqiyat: %s-urinish\n' "$urinish"
+    break
+  fi
+  printf 'xato: %s-urinish, qayta urinaman\n' "$urinish"
+  sleep 0.1
+  ((urinish++))
+done
+OUT:
+xato: 1-urinish, qayta urinaman
+xato: 2-urinish, qayta urinaman
+muvaffaqiyat: 3-urinish
+ENDCODE
+P: Haqiqiy retry'da kutish vaqtini eksponensial oshiring va tasodifiy jitter qo'shing, aks holda bir nechta mijoz bir vaqtda bir xil xizmatni urib yuboradi. Har bir urinishni jurnalga yozing, maksimal urinishlar sonini cheklang va qaysi xatolar qayta urinishga arziydi (masalan, 429 yoki 503) shuni ajrating.
+NOTE: warning | Har qanday amalni qayta urinish mumkin emas
+Pul o'tkazmasi, buyurtma yaratish yoki faylni ikki marta yuborish kabi amallar idempotent bo'lmasligi mumkin. Bunday joylarda idempotency key, holat tekshiruvi yoki tranzaksiya ishlating. Retry faqat tarmoq uzilishi kabi vaqtinchalik xatolar uchun.
+ENDNOTE
+QUIZ
+Q: GNU `timeout` vaqt tugaganda odatda qaysi exit kodini qaytaradi?
+O: 124
+O: 130
+O: 143
+O: 1
+A: 0
+E: timeoutning standart xatti-harakati 124; agar --preserve-status berilsa, bola kod i qaytariladi.
+Q: `timeout -k 5 30 cmd` dagi `-k 5` nimani bildiradi?
+O: 5 soniyadan keyin darhol SIGKILL yuborishni
+O: SIGTERM dan keyin 5 soniya kutib, hali ishlayotgan bo'lsa SIGKILL yuborishni
+O: Buyruqni 5 marta qayta urinishni
+O: Chiqishni 5 qatorga cheklashni
+A: 1
+E: -k (--kill-after) TERM yuborilgandan keyingi qo'shimcha kutish vaqtini belgilaydi, shundan keyin KILL ishlatiladi.
+Q: Qaysi holatda avtomatik retry xavfli?
+O: GET so'rovida vaqtinchalik 503 bo'lganda
+O: Idempotent bo'lmagan to'lov amalida
+O: Faylni o'qishda tarmoq uzilganda
+O: DNS vaqtincha ishlamaganda
+A: 1
+E: To'lov kabi amallar ikki marta bajarilsa ikki marta natija berishi mumkin; retry oldidan idempotentlik kafolati kerak.
+ENDQUIZ

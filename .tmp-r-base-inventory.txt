@@ -1,0 +1,62 @@
+1 | R nima, RStudio va vektorlarga asoslangan yondashuv | R tilining asosiy ma'lumot birligi nima? || Qiymatni o'zgaruvchiga berishning R'da eng ko'p ishlatiladigan usuli qaysi? || mean(c(10, 20, 30)) natijasi qanday bo'ladi?
+2 | Vektorlar, ma'lumot turlari va indekslash | Vektor yaratish uchun qaysi funksiya ishlatiladi? || R vektoridagi birinchi element qaysi indeksda turadi? || class(TRUE) natijasi nima?
+3 | Faktorlar, matnlar va ro'yxatlar | Faktor asosan nimani saqlash uchun ishlatiladi? || Matn boshidagi va oxiridagi bo'sh joylarni olib tashlash uchun qaysi funksiya ishlatiladi? || List elementiga nomi bo'yicha murojaat qilish uchun nima ishlatiladi?
+4 | Data frame: jadval ko'rinishidagi ma'lumot | Data frame nima? || Data frame'dagi qatorlar sonini qaysi funksiya qaytaradi? || talabalar$ball ifodasi nimani beradi?
+5 | CSV import va eksport: read.csv, write.csv | CSV faylni o'qish uchun odatda qaysi funksiya ishlatiladi? || write.csv() da row.names = FALSE nimani beradi? || read.csv() da text parametri nima uchun ishlatiladi?
+6 | Filtrlash, ustun tanlash va tartiblash | Base R'da ball ustuni 80 dan katta qatorlarni tanlash qaysi yozuv bilan boshlanadi? || dplyr'da qatorlarni shart bo'yicha tanlash uchun qaysi funksiya ishlatiladi? || Natijani kamayish tartibida saralash uchun dplyr'da nima yoziladi?
+7 | Guruh bo'yicha jamlanmalar: aggregate va dplyr | aggregate(ball ~ kurs, data = talabalar, FUN = mean) nima qiladi? || dplyr'da guruhdagi qatorlar sonini qaysi funksiya beradi? || O'rtacha hisoblashda NA qiymatlarni tashlab yuborish uchun nima qo'shiladi?
+8 | Funksiyalar, scope va apply oilasi | R'da funksiya yaratish uchun qaysi kalit so'z ishlatiladi? || Funksiya ichida yaratilgan o'zgaruvchi qanday nomlanadi? || apply(ballar, 1, sum) nimani hisoblaydi?
+9 | Vizualizatsiya: base plot va ggplot2 | Base R'da ustunli diagramma chizish uchun qaysi funksiya ishlatiladi? || ggplot2'da aes() nima uchun kerak? || ggplot2 grafigini faylga saqlash uchun qaysi funksiya ishlatiladi?
+10 | Statistika asoslari: o'rtacha, korrelyatsiya, lm | median(c(65, 70, 78, 88, 92)) natijasi nima? || cor(soat, ball) qanday qiymat qaytaradi? || lm(ball ~ soat) modelida soat koeffitsiyenti 7 bo'lsa, bu nimani bildiradi?
+11 | Loyihalar, paketlar va takrorlanuvchanlik | Paketni sessiyaga yuklash uchun qaysi funksiya ishlatiladi? || Loyihada fayl yo'llari qanday bo'lgani ma'qul? || R va paket versiyalarini tekshirish uchun qaysi funksiya ishlatiladi?
+12 | Mini loyiha: talabalar ballarini tahlil qilish | Loyihada guruh bo'yicha o'rtacha ballni qaysi vosita bilan hisobladik? || Ball 85 dan yuqori talabalarni ajratish uchun qaysi yozuv ishlatiladi? || Natijani CSV faylga yozish uchun qaysi funksiya ishlatiladi?
+13 | Ma'lumotni birinchi qarashda tekshirish | data.frame uchun dim() qaytaradigan qiymatlar qanday tartibda bo'ladi? || Talabalar jadvalidagi ball ustunining turini qaysi yozuv aniqlaydi? || summary() sonli vektor haqida qaysi ko'rsatkichni bermaydi?
+14 | NA: bo'sh qiymatlarni to'g'ri boshqarish | mean(c(4, NA, 8)) ifodasining natijasi nima? || sum(is.na(c(1, NA, NA))) natijasi nechchi? || complete.cases(df) qanday natija qaytaradi?
+15 | Shartli hisob-kitoblar: ifelse va case_when | ifelse(c(TRUE, FALSE), "ha", "yo'q") qanday natija beradi? || case_when() da «qolgan barcha holatlar» uchun qaysi yozuv ishlatiladi? || ifelse(FALSE, 1) natijasi nima?
+16 | Matritsalar va ko'p o'lchovli massivlar | matrix(1:6, nrow = 2) standart holatda qanday to'ldiriladi? || m[2, ] yozuvi matritsadan nimani oladi? || dim(matrix(1:12, nrow = 3)) natijasi qanday bo'ladi?
+17 | Ro'yxatlar: turli xil ma'lumotni bir joyda saqlash | talaba["ism"] va talaba[["ism"]] orasidagi asosiy farq nima? || List qanday ma'lumotlarni saqlashi mumkin? || lapply() qanday natija qaytaradi?
+18 | apply oilasi: apply, tapply, mapply, vapply | tapply(ball, guruh, mean) ifodasi nimani hisoblaydi? || vapply() dagi FUN.VALUE argumenti nima uchun kerak? || apply(m, 2, sum) nimani hisoblaydi?
+19 | Funksiyalar: standart qiymatlar, ... va xatolarni boshqarish | stopifnot() qanday vazifani bajaradi? || Funksiya argumentidagi ... nimani bildiradi? || Funksiya ichida missing(y) qanday ma'lumot beradi?
+20 | stringr: matnlarni tozalash va qayta ishlash | str_detect() qanday natija qaytaradi? || str_sub("Samarqand", 1, 5) natijasi nima? || str_pad() standart holatda qaysi tomondan to'ldiradi?
+21 | Regex asoslari: naqshlar bilan matn qidirish | Regexdagi ^ belgisi nimani bildiradi? || R satrida raqamni bildiruvchi regex qanday yoziladi? || str_extract_all() qanday natija qaytaradi?
+22 | Faktorlar va forcats bilan tartibni boshqarish | factor() levels berilmasa, darajalarni qanday tartibda joylaydi? || fct_relevel(f, "yuqori") nima qiladi? || ordered = TRUE bo'lgan faktorda holat[2] > holat[1] qanday aniqlanadi?
+23 | tidyr: pivot_longer va pivot_wider | pivot_longer() dan keyin qatorlar soni odatda qanday o'zgaradi? || Qaysi funksiya uzun formatni keng formatga o'tkazadi? || pivot_longer() dagi values_to argumenti nimani belgilaydi?
+24 | tidyr: separate, unite, fill va drop_na | separate() dagi into argumenti nimani belgilaydi? || unite() qanday amal bajaradi? || fill() standart holatda qaysi yo'nalishda to'ldiradi?
+25 | dplyr: mutate bilan yangi ustunlar yaratish | mutate() qanday ishlaydi? || transmute() ning mutate() dan asosiy farqi nima? || if_else() da shart NA bo'lsa, natija qanday bo'ladi?
+26 | Guruhlab jamlash: group_by, summarise va across | group_by() va summarise() birgalikda qanday natija beradi? || dplyr ichida n() funksiyasi nimani qaytaradi? || across() ning vazifasi nima?
+27 | Joinlar: ikki jadvalni kalit bo'yicha birlashtirish | left_join(x, y) qaysi qatorlarni saqlaydi? || anti_join(mijoz, buyurtma, by = "id") nimani qaytaradi? || O'ng jadvalda kalit takrorlansa, join natijasiga nima bo'ladi?
+28 | Oynali funksiyalar: lag, cumsum va reyting | Tartiblangan jadvalda birinchi qator uchun lag(tushum) qanday qiymat beradi? || cumsum(c(10, 20, 30)) natijasi nima? || Reytingda bir xil qiymatlarga bir xil o'rin berish uchun qaysi funksiya mos?
+29 | readr: CSV fayllarni tez va aniq o'qish | read_csv() matn ustunlarini standart holatda faktorga aylantiradimi? || Excel .xlsx faylini o'qish uchun qaysi paket odatda ishlatiladi? || show_col_types = FALSE nimani o'chiradi?
+30 | lubridate: sanalarni o'qish va qismlarga ajratish | ymd("2024-03-15") qaysi tartibda o'qiydi? || month(ymd("2024-07-09")) qanday qiymat qaytaradi? || leap_year(2024) natijasi nima?
+31 | lubridate: oraliqlar, davrlar va guruhlash | a %--% b yozuvi nimani yaratadi? || floor_date(sana, "month") nima qiladi? || difftime() dagi units argumenti nima uchun kerak?
+32 | ggplot2: nuqtali grafik va estetikalar | ggplot2'da nuqtali (scatter) grafik uchun qaysi geom ishlatiladi? || aes(x = narx, y = soni) nimani bildiradi? || geom_smooth(se = FALSE) dagi se = FALSE nima qiladi?
+33 | ggplot2: histogram, zichlik va quti grafik | geom_histogram() standart holatda y o'qida nimani ko'rsatadi? || binwidth argumenti nimani boshqaradi? || Quti grafikdagi markaziy chiziq nimani bildiradi?
+34 | ggplot2: facet, scale va koordinatalar | facet_wrap(~ shahar) nimani yaratadi? || scales = "free_y" nimani beradi? || coord_flip() nima qiladi?
+35 | ggplot2: mavzular, sarlavhalar va grafikni saqlash | ggsave() da plot argumenti berilmasa, u qaysi grafikni saqlaydi? || dpi parametri nimani bildiradi? || theme_minimal() qanday o'zgarish qiladi?
+36 | Tavsifiy statistika: tarqoqlik va nisbatlar | IQR() nimani o'lchaydi? || Median qaysi kvantilga mos keladi? || sd() qanday birlikda o'lchanadi?
+37 | Ehtimollik va taqsimotlar: r, d, p, q | dbinom(2, size = 5, prob = 0.5) nimani qaytaradi? || pbinom(1, size = 5, prob = 0.5) nimani hisoblaydi? || qnorm(0.975) natijasi taxminan qanday?
+38 | Ishonch oralig'i va t-test | 95% ishonch oralig'i nimani anglatadi? || Ikki guruh o'rtachasi uchun p = 0.0002 bo'lsa, qanday xulosa mos? || t.test(x, mu = 70) qanday nol gipotezani tekshiradi?
+39 | Korrelyatsiya va xi-kvadrat testi | Korrelyatsiya koeffitsiyenti qaysi oraliqda bo'ladi? || Xi-kvadrat testining nol gipotezasi nima? || p = 0.0026 bo'lsa, mustaqillik haqidagi nol gipoteza...
+40 | Chiziqli regressiya: lm va bashorat | lm(ball ~ soat) formulasida qaysi o'zgaruvchi bog'liq (natija) hisoblanadi? || R² = 0.86 nimani bildiradi? || predict() da newdata nima uchun kerak?
+41 | Ko'p o'zgaruvchili regressiya va diagnostika | Ballni soat va davomat bilan modellashtirishning to'g'ri yozuvi qaysi? || Adjusted R² oddiy R² dan qanday farq qiladi? || Izohlovchilar orasidagi korrelyatsiya -0.74 bo'lsa, bu nimaga ishora?
+42 | R Markdown: tahlildan tayyor hisobotgacha | R Markdown faylidagi YAML sarlavhasi qanday belgilar orasida joylashadi? || R kod chunk qanday boshlanadi? || «Knit» tugmasi nima qiladi?
+43 | Shiny: birinchi interaktiv ilova | Shiny ilovasida fluidPage() qaysi qismga tegishli? || reactive() ning asosiy foydasi nima? || Serverda matnli natijani ekranga chiqarish uchun qaysi funksiya ishlatiladi?
+44 | Loyiha ish oqimi: papkalar, renv va versiyalar | .Rproj faylining vazifasi nima? || renv::snapshot() nima qiladi? || Loyihada nisbiy yo'l ishlatishning asosiy sababi nima?
+45 | Loyiha I: savdo ma'lumotini yuklash va tozalash | parse_number("1 200 000") qanday natija beradi? || distinct(id, .keep_all = TRUE) nima qiladi? || Tozalashdan keyin nrow() 10 bo'lishi nimani tasdiqlaydi?
+46 | Loyiha II: shahar va kategoriya bo'yicha tahlil | group_by(shahar) dan keyin summarise() nechta qator qaytaradi? || n() bu loyihada nimani sanaydi? || arrange(desc(tushum_mln)) qanday tartib beradi?
+47 | Loyiha III: savdo dinamikasi va grafiklar | reorder(shahar, -jami) nima qiladi? || geom_col() va geom_bar() orasidagi farq nima? || Oylik tushumni guruhlashdan oldin sana bilan nima qilish kerak?
+48 | Loyiha IV: narx va talab bog'lanishini tekshirish | p = 0.0011 va korrelyatsiya -0.869 bo'lsa, qanday xulosa asosli? || Nishab -4.01 bo'lsa, narx 1 mln so'mga oshganda model nimani bashorat qiladi? || R² = 0.756 nimani anglatadi?
+49 | Loyiha V: hisobot, xulosa va taqdimot | Hisobotning «Xulosa» qismida birinchi navbatda nima bo'lishi kerak? || write.csv(..., row.names = FALSE) nimani oldini oladi? || Tahlilning takrorlanuvchanligini tekshirishning eng ishonchli usuli qaysi?
+===EXAM===
+c(4, 8, 12) vektorining uzunligini qaysi funksiya to'g'ri qaytaradi?
+which(is.na(c(5, NA, 9, NA))) qanday natija beradi?
+Faktor darajalarini qo'lda boshqa tartibga surish uchun qaysi forcats funksiyasi ishlatiladi?
+str_detect("Noldan", "^N") natijasi nima?
+pivot_longer() dan keyin jadval odatda qanday o'zgaradi?
+left_join(a, b) da b jadvalda mos kalit topilmasa, yangi ustunlarda nima bo'ladi?
+mutate() va summarise() orasidagi asosiy farq nima?
+month(ymd("2024-12-31")) qanday qiymat qaytaradi?
+ggsave() ning vazifasi nima?
+t-testda p = 0.03 bo'lsa, 0.05 ahamiyatlilik darajasida qanday xulosa qilinadi?
+lm(soni ~ narx) modelida narx koeffitsiyenti -4 bo'lsa, bu nimani bildiradi?
+R Markdown'dagi YAML sarlavhasi nimani belgilaydi?

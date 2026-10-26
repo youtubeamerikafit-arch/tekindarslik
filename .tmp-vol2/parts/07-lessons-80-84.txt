@@ -1,0 +1,750 @@
+      {
+        id: 80,
+        title: "CSV tahlili: qo'shtirnoq va vergul",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "CSV oddiy ko'rinadi, lekin vergul maydon ichida ham uchrashi mumkin. RFC 4180 bo'yicha bunday maydon qo'shtirnoq ichiga olinadi: <code>\"Ali, Vali\",25</code>. Ichidagi qo'shtirnoq esa ikkilanadi: <code>\"Zo\"\"r\"</code> — bu <code>Zo\"r</code> degan matn. To'g'ri parser qo'shtirnoq holatini kuzatadigan kichik holat mashinasi bo'lishi kerak, oddiy <code>strtok</code> yetarli emas.",
+          },
+          {
+            type: "code",
+            title: "csv_maydon.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+
+int ajrat(const char *satr, char maydon[][32], int maks) {
+    const char *p = satr;
+    int soni = 0;
+
+    while (*p != '\0' && soni < maks) {
+        int k = 0;
+        if (*p == '"') {
+            p++;
+            while (*p != '\0') {
+                if (*p == '"') {
+                    if (p[1] == '"') {
+                        if (k < 31) maydon[soni][k++] = '"';
+                        p += 2;
+                    } else {
+                        p++;
+                        break;
+                    }
+                } else {
+                    if (k < 31) maydon[soni][k++] = *p;
+                    p++;
+                }
+            }
+        } else {
+            while (*p != '\0' && *p != ',') {
+                if (k < 31) maydon[soni][k++] = *p;
+                p++;
+            }
+        }
+        maydon[soni][k] = '\0';
+        soni++;
+        if (*p == ',') p++;
+    }
+    return soni;
+}
+
+int main(void) {
+    char maydon[8][32];
+    int n = ajrat("\"Ali, Vali\",25,\"Toshkent\"", maydon, 8);
+
+    printf("maydonlar=%d\n", n);
+    for (int i = 0; i < n; i++) {
+        printf("%d: %s\n", i, maydon[i]);
+    }
+    return 0;
+}`,
+            output: "maydonlar=3\n0: Ali, Vali\n1: 25\n2: Toshkent",
+          },
+          {
+            type: "p",
+            html: "Ikki qo'shtirnoq <code>\"\"</code> bitta qo'shtirnoqqa aylanadi. Qo'shtirnoq yopilgandan keyin vergul yoki satr oxiri kelishi kerak; boshqa belgi kelsa, CSV noto'g'ri. Maydon ichida yangi qator bo'lishi ham mumkin — bunday faylni qatorlarga bo'lishda oddiy <code>fgets</code> yetarli emas, holat mashinasi butun fayl bo'ylab yurishi kerak. Katta fayllar uchun oqimli parser xotirani tejaydi.",
+          },
+          {
+            type: "code",
+            title: "csv_qatorlar.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+
+int maydonlar(const char *satr, char out[][32], int maks) {
+    const char *p = satr;
+    int n = 0;
+    while (*p && n < maks) {
+        int k = 0;
+        if (*p == '"') {
+            p++;
+            while (*p) {
+                if (*p == '"' && p[1] == '"') {
+                    out[n][k++] = '"';
+                    p += 2;
+                } else if (*p == '"') {
+                    p++;
+                    break;
+                } else {
+                    out[n][k++] = *p++;
+                }
+            }
+        } else {
+            while (*p && *p != ',') out[n][k++] = *p++;
+        }
+        out[n][k] = '\0';
+        n++;
+        if (*p == ',') p++;
+    }
+    return n;
+}
+
+int main(void) {
+    char csv[] = "ism,yosh\nKarim,30\n\"Zo\"\"r\",25\n";
+    char *qator = strtok(csv, "\n");
+    int q = 0;
+    char maydon[4][32];
+
+    while (qator) {
+        int n = maydonlar(qator, maydon, 4);
+        printf("qator %d: maydon=%d birinchi=%s\n", q, n, maydon[0]);
+        q++;
+        qator = strtok(NULL, "\n");
+    }
+    printf("jami=%d\n", q);
+    return 0;
+}`,
+            output: "qator 0: maydon=2 birinchi=ism\nqator 1: maydon=2 birinchi=Karim\nqator 2: maydon=2 birinchi=Zo\"r\njami=3",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Chegaralar va embedding",
+            html: "Har bir maydon uchun bufer chegarasini tekshiring; yuqoridagi misolda ortiqcha belgilar jimgina kesiladi, ishlab chiqarish kodida esa xato qaytarish kerak. <code>strtok</code> qo'shtirnoq ichidagi yangi qatorni noto'g'ri bo'ladi — haqiqiy CSV parseri faylni belgi-belgi o'qiydi. UTF-8 BOM ni birinchi maydondan olib tashlashni unutmang. CSV in'ektsiyasi (formula bilan boshlanuvchi maydon) xavfsizlik masalasidir.",
+          },
+        ],
+        quiz: [
+          {
+            q: "CSV da maydon ichida vergul bo'lsa nima qilish kerak?",
+            options: [
+              "Vergulni o'chirish",
+              "Maydonni qo'shtirnoq ichiga olish",
+              "Vergulni ikkilash",
+              "Yangi qator qo'shish",
+            ],
+            answer: 1,
+            explain: "RFC 4180 bo'yicha vergul, qo'shtirnoq yoki yangi qator bo'lgan maydon qo'shtirnoq ichida beriladi.",
+          },
+          {
+            q: "CSV da ikki qo'shtirnoq (\"\") nimani bildiradi?",
+            options: [
+              "Bo'sh maydon",
+              "Bitta qo'shtirnoq belgisini",
+              "Maydon tugashini",
+              "Yangi qatorni",
+            ],
+            answer: 1,
+            explain: "Qo'shtirnoq ichida ikkilangan qo'shtirnoq bitta literal qo'shtirnoq sifatida o'qiladi.",
+          },
+          {
+            q: "Nega oddiy strtok bilan to'liq CSV parser yozib bo'lmaydi?",
+            options: [
+              "strtok faqat sonlar bilan ishlaydi",
+              "Qo'shtirnoq ichidagi vergul va yangi qatorni hisobga olmaydi",
+              "strtok juda sekin",
+              "CSV faqat binar fayl",
+            ],
+            answer: 1,
+            explain: "strtok har qanday ajratgichni ko'r-ko'rona bo'ladi; CSV kontekstini bilmaydi, shuning uchun holat mashinasi kerak.",
+          },
+        ],
+      },
+      {
+        id: 81,
+        title: "JSON parser: rekursiv tushish",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "JSON — matnga asoslangan ma'lumot formati. Uni tahlil qilish uchun <b>rekursiv tushish</b> (recursive descent) qulay: har bir grammatik qoida uchun funksiya yoziladi, obyekt va massivlar bir-birini rekursiv chaqiradi. Kichik parser uchun tashqi kutubxona shart emas. Muhim jihatlar: bo'sh joyni o'tkazish, qo'shtirnoq ichidagi escape lar va chuqurlik chegarasi.",
+          },
+          {
+            type: "code",
+            title: "json_obyekt.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+typedef struct {
+    const char *p;
+} Parser;
+
+void ws(Parser *ps) {
+    while (isspace((unsigned char)*ps->p)) ps->p++;
+}
+
+int satr(Parser *ps, char *out, int cap) {
+    if (*ps->p != '"') return 0;
+    ps->p++;
+    int k = 0;
+    while (*ps->p && *ps->p != '"') {
+        char c = *ps->p++;
+        if (c == '\\') {
+            char e = *ps->p++;
+            if (e == 'n') c = '\n';
+            else if (e == 't') c = '\t';
+            else if (e == '"') c = '"';
+            else if (e == '\\') c = '\\';
+            else return 0;
+        }
+        if (k + 1 < cap) out[k++] = c;
+    }
+    if (*ps->p != '"') return 0;
+    ps->p++;
+    out[k] = '\0';
+    return 1;
+}
+
+int butun(Parser *ps, int *x) {
+    int belgi = 1;
+    if (*ps->p == '-') {
+        belgi = -1;
+        ps->p++;
+    }
+    if (!isdigit((unsigned char)*ps->p)) return 0;
+    int v = 0;
+    while (isdigit((unsigned char)*ps->p)) {
+        v = v * 10 + (*ps->p - '0');
+        ps->p++;
+    }
+    *x = belgi * v;
+    return 1;
+}
+
+int main(void) {
+    const char *json = "{\"ism\":\"Ali\",\"yosh\":25,\"faol\":true}";
+    Parser ps = {json};
+    char ism[32] = "";
+    int yosh = 0;
+
+    ws(&ps);
+    if (*ps.p != '{') return 1;
+    ps.p++;
+    ws(&ps);
+
+    while (*ps.p != '}') {
+        char kalit[32];
+        if (!satr(&ps, kalit, sizeof kalit)) return 1;
+        ws(&ps);
+        if (*ps.p != ':') return 1;
+        ps.p++;
+        ws(&ps);
+
+        if (strcmp(kalit, "ism") == 0) {
+            if (!satr(&ps, ism, sizeof ism)) return 1;
+        } else if (strcmp(kalit, "yosh") == 0) {
+            if (!butun(&ps, &yosh)) return 1;
+        } else {
+            while (*ps.p && *ps.p != ',' && *ps.p != '}') ps.p++;
+        }
+        ws(&ps);
+        if (*ps.p == ',') {
+            ps.p++;
+            ws(&ps);
+        }
+    }
+
+    printf("ism=%s\n", ism);
+    printf("yosh=%d\n", yosh);
+    return 0;
+}`,
+            output: "ism=Ali\nyosh=25",
+          },
+          {
+            type: "p",
+            html: "Massivlarni tahlil qilish uchun <code>[</code> va <code>]</code> orasida qiymatlarni vergul bilan ajratib o'qish kerak. Quyidagi misolda faqat butun sonlardan iborat massiv yig'indisi hisoblanadi. Haqiqiy JSON parserida qiymat turi aniqlanadi: satr, son, <code>true</code>/<code>false</code>/<code>null</code>, massiv yoki obyekt. Har bir rekursiv chaqiruvda chuqurlik sanagichi kamaytirilib, stack overflow dan himoya qilinadi.",
+          },
+          {
+            type: "code",
+            title: "json_massiv.c",
+            code: String.raw`#include <stdio.h>
+#include <ctype.h>
+
+typedef struct {
+    const char *p;
+} Parser;
+
+void ws(Parser *ps) {
+    while (isspace((unsigned char)*ps->p)) ps->p++;
+}
+
+int son(Parser *ps, int *x) {
+    int belgi = 1;
+    if (*ps->p == '-') {
+        belgi = -1;
+        ps->p++;
+    }
+    if (!isdigit((unsigned char)*ps->p)) return 0;
+    int v = 0;
+    while (isdigit((unsigned char)*ps->p)) {
+        v = v * 10 + (*ps->p - '0');
+        ps->p++;
+    }
+    *x = belgi * v;
+    return 1;
+}
+
+int massiv(Parser *ps, int *jami) {
+    if (*ps->p != '[') return 0;
+    ps->p++;
+    ws(ps);
+    if (*ps->p == ']') {
+        ps->p++;
+        return 1;
+    }
+    for (;;) {
+        int x = 0;
+        ws(ps);
+        if (!son(ps, &x)) return 0;
+        *jami += x;
+        ws(ps);
+        if (*ps->p == ',') {
+            ps->p++;
+            continue;
+        }
+        if (*ps->p == ']') {
+            ps->p++;
+            return 1;
+        }
+        return 0;
+    }
+}
+
+int main(void) {
+    const char *json = "[10, 20, 30, -5, 45]";
+    Parser ps = {json};
+    int jami = 0;
+
+    if (!massiv(&ps, &jami)) {
+        printf("json xato\n");
+        return 1;
+    }
+    ws(&ps);
+    printf("yig'indi=%d\n", jami);
+    printf("tugadi=%d\n", *ps.p == '\0');
+    return 0;
+}`,
+            output: "yig'indi=100\ntugadi=1",
+          },
+          {
+            type: "table",
+            head: ["Qism", "Vazifa", "Xavf"],
+            rows: [
+              ["<code>ws</code>", "bo'sh joyni o'tkazish", "cheksiz siljish"],
+              ["<code>satr</code>", "escape va qo'shtirnoq", "bufer chegarasi"],
+              ["<code>son</code>", "butun/ kasr son", "overflow"],
+              ["<code>massiv/obyekt</code>", "rekursiv tuzilma", "chuqurlik portlashi"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Chuqurlik va xotira chegarasi",
+            html: "JSON ichida <code>[[[[...]]]]</code> kabi juda chuqur tuzilma bo'lsa, rekursiv parser stekni toshiradi. Chuqurlikni parametr sifatida uzatib, maksimal darajadan oshsa xato qaytaring. Satrlar uchun bufer yetarliligini tekshiring yoki dinamik ajrating. Ishonchsiz manbadan kelgan JSON hajmini ham cheklang: parse qilishdan oldin umumiy uzunlikni tekshirish DoS hujumlarining oldini oladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Rekursiv tushish parserida har bir grammatik qoida uchun nima yoziladi?",
+            options: [
+              "Alohida fayl",
+              "Odatda alohida funksiya",
+              "Yangi oqim",
+              "Global o'zgaruvchi",
+            ],
+            answer: 1,
+            explain: "Har bir qoida (obyekt, massiv, satr, son) o'z funksiyasiga ega bo'lib, ular bir-birini chaqiradi.",
+          },
+          {
+            q: "JSON satrida \\n escape nimani bildiradi?",
+            options: [
+              "Qo'shtirnoq",
+              "Yangi qator belgisini",
+              "Teskari chiziqni",
+              "Bo'sh joyni",
+            ],
+            answer: 1,
+            explain: "JSON escape lar ichida \\n yangi qator (LF) belgisini ifodalaydi.",
+          },
+          {
+            q: "Nega JSON parserida chuqurlik chegarasi kerak?",
+            options: [
+              "Fayl hajmini oshirish uchun",
+              "Rekursiya stekni toshirib yuborishining oldini olish uchun",
+              "Satrlarni tezroq o'qish uchun",
+              "Raqamlarni yaxlitlash uchun",
+            ],
+            answer: 1,
+            explain: "Juda chuqur ichki tuzilma har bir daraja uchun stek sarflaydi; limit stek overflow dan himoya qiladi.",
+          },
+        ],
+      },
+      {
+        id: 82,
+        title: "Ikkilik formatlar: endianness va varint",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Fayl yoki tarmoq orqali sonlarni uzatishda baytlar tartibi muhim. <b>Big-endian</b> da eng katta bayt birinchi, <b>little-endian</b> da eng kichigi birinchi yoziladi. x86 little-endian, tarmoq protokollari esa odatda big-endian (network byte order). Ko'chma format yozish uchun baytlarni qo'lda ajratib, aniq tartibda saqlash yoki <code>htonl</code>/<code>ntohl</code> ishlatiladi.",
+          },
+          {
+            type: "code",
+            title: "big_endian.c",
+            code: String.raw`#include <stdio.h>
+#include <stdint.h>
+
+void yoz_be(uint8_t b[4], uint32_t x) {
+    b[0] = (uint8_t)(x >> 24);
+    b[1] = (uint8_t)(x >> 16);
+    b[2] = (uint8_t)(x >> 8);
+    b[3] = (uint8_t)x;
+}
+
+uint32_t oqi_be(const uint8_t b[4]) {
+    return ((uint32_t)b[0] << 24) |
+           ((uint32_t)b[1] << 16) |
+           ((uint32_t)b[2] << 8) |
+           (uint32_t)b[3];
+}
+
+int main(void) {
+    uint32_t x = 0x12345678u;
+    uint8_t bayt[4];
+    yoz_be(bayt, x);
+
+    printf("baytlar: %02X %02X %02X %02X\n",
+           bayt[0], bayt[1], bayt[2], bayt[3]);
+    printf("qaytdi: %08X\n", oqi_be(bayt));
+    return 0;
+}`,
+            output: "baytlar: 12 34 56 78\nqaytdi: 12345678",
+          },
+          {
+            type: "p",
+            html: "Har doim 4 bayt sarflash kichik sonlar uchun isrofgarchilik. <b>Varint</b> har bir baytning yuqori bitini davom belgisi sifatida ishlatadi: 1 bo'lsa keyingi bayt ham shu songa tegishli, 0 bo'lsa tugadi. 300 = 0b100101100 ikki guruhga bo'linadi: <code>0101100</code> va <code>10</code>; natijada <code>AC 02</code> baytlari hosil bo'ladi. Protobuf va boshqa formatlar shu usuldan foydalanadi.",
+          },
+          {
+            type: "code",
+            title: "varint.c",
+            code: String.raw`#include <stdio.h>
+#include <stdint.h>
+
+int varint_yoz(uint32_t x, uint8_t *out) {
+    int n = 0;
+    while (x >= 0x80u) {
+        out[n++] = (uint8_t)((x & 0x7Fu) | 0x80u);
+        x >>= 7;
+    }
+    out[n++] = (uint8_t)x;
+    return n;
+}
+
+int varint_oqi(const uint8_t *in, int n, uint32_t *x) {
+    uint32_t natija = 0;
+    int siljish = 0;
+    for (int i = 0; i < n; i++) {
+        natija |= (uint32_t)(in[i] & 0x7Fu) << siljish;
+        if ((in[i] & 0x80u) == 0) {
+            *x = natija;
+            return i + 1;
+        }
+        siljish += 7;
+        if (siljish >= 32) return 0;
+    }
+    return 0;
+}
+
+int main(void) {
+    uint32_t x = 300;
+    uint8_t bayt[8];
+    int n = varint_yoz(x, bayt);
+
+    printf("300 ->");
+    for (int i = 0; i < n; i++) {
+        printf(" %02X", bayt[i]);
+    }
+    printf("\n");
+
+    uint32_t qaytdi = 0;
+    int ishlatilgan = varint_oqi(bayt, n, &qaytdi);
+    printf("qaytdi=%u bayt=%d\n", qaytdi, ishlatilgan);
+    return 0;
+}`,
+            output: "300 -> AC 02\nqaytdi=300 bayt=2",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Strukturalarni xom yozmang",
+            html: "<code>fwrite(&amp;s, sizeof s, 1, f)</code> bilan struktura yozish padding, endianness va turlar o'lchamiga bog'liq — boshqa platformada o'qib bo'lmaydi. Maydonlarni birma-bir, aniq tartibda va aniq kenglikda yozing. Tarmoqda <code>htons</code>/<code>htonl</code> dan foydalaning. Varintda noto'g'ri yoki juda uzun ketma-ketlikni tekshiring; <code>siljish &gt;= 32</code> bo'lsa, son 32 bitga sig'maydi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Big-endian formatda 0x12345678 qanday baytlar tartibida saqlanadi?",
+            options: [
+              "78 56 34 12",
+              "12 34 56 78",
+              "34 12 78 56",
+              "56 78 12 34",
+            ],
+            answer: 1,
+            explain: "Big-endian eng katta baytni birinchi yozadi: 12, 34, 56, 78.",
+          },
+          {
+            q: "Varintda 0x80 baytining yuqori biti nimani bildiradi?",
+            options: [
+              "Son manfiy",
+              "Keyingi bayt ham shu songa tegishli",
+              "Son tugadi",
+              "Bu xato",
+            ],
+            answer: 1,
+            explain: "Yuqori bit davom etish belgisi; 1 bo'lsa keyingi bayt o'qiladi.",
+          },
+          {
+            q: "Nega strukturalarni faylga xom yozish ko'chma emas?",
+            options: [
+              "Fayl ochilmaydi",
+              "Padding, endianness va tur o'lchamlari platformaga bog'liq",
+              "fwrite faqat matn yozadi",
+              "Struktura juda kichik",
+            ],
+            answer: 1,
+            explain: "Turli platformalarda tuzilish va bayt tartibi farq qiladi; maydonlarni aniq formatda yozish kerak.",
+          },
+        ],
+      },
+      {
+        id: 83,
+        title: "Alignment, padding va offsetof",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "Protsessor ma'lumotni tabiiy chegarada o'qishni yaxshi ko'radi: <code>int</code> odatda 4 ga, <code>double</code> 8 ga karrali manzilda turishi kerak. Kompilyator struktura maydonlari orasiga <b>padding</b> qo'shadi. Natijada <code>struct { char; int; char; }</code> 6 emas, 12 bayt bo'lishi mumkin. Bu ABI, fayl formati va tarmoq protokollarida jiddiy oqibatlarga olib keladi.",
+          },
+          {
+            type: "code",
+            title: "padding.c",
+            code: String.raw`#include <stdio.h>
+#include <stddef.h>
+
+struct A {
+    char a;
+    int b;
+    char c;
+};
+
+int main(void) {
+    printf("size=%zu\n", sizeof(struct A));
+    printf("a=%zu b=%zu c=%zu\n",
+           offsetof(struct A, a),
+           offsetof(struct A, b),
+           offsetof(struct A, c));
+    return 0;
+}`,
+            output: "size=12\na=0 b=4 c=8",
+          },
+          {
+            type: "p",
+            html: "Maydonlarni kattadan kichikka yoki bir xil tekislashdagilarni yonma-yon qo'yish padding ni kamaytiradi. <code>char, char, int</code> tartibida 8 bayt yetadi: ikkita char, 2 bayt padding, keyin int. <code>offsetof</code> makrosi maydonning struktura boshidan siljishini beradi va binar formatni tekshirishda foydali. C11 da <code>_Alignas</code> bilan tekislashni oshirish, <code>_Alignof</code> bilan o'lchash mumkin.",
+          },
+          {
+            type: "code",
+            title: "qayta_tartiblash.c",
+            code: String.raw`#include <stdio.h>
+#include <stddef.h>
+
+struct B {
+    char a;
+    char c;
+    int b;
+};
+
+struct C {
+    int b;
+    char a;
+    char c;
+};
+
+int main(void) {
+    printf("B=%zu C=%zu\n", sizeof(struct B), sizeof(struct C));
+    printf("B_b=%zu C_b=%zu\n",
+           offsetof(struct B, b),
+           offsetof(struct C, b));
+    printf("element=%zu\n", sizeof(struct B[10]));
+    return 0;
+}`,
+            output: "B=8 C=8\nB_b=4 C_b=0\nelement=80",
+          },
+          {
+            type: "table",
+            head: ["Tartib", "Struktura hajmi", "Izoh"],
+            rows: [
+              ["char, int, char", "12", "2 bayt oldinda, 3 bayt oxirida padding"],
+              ["char, char, int", "8", "2 bayt padding"],
+              ["int, char, char", "8", "2 bayt oxirida padding"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Kesh va ABI",
+            html: "Struktura hajmini kichraytirish faqat xotirani tejash emas: ko'p strukturalar massivida kesh satrlariga sig'adigan elementlar soni ortadi. Lekin maydon tartibini o'zgartirish binar interfeysni buzadi — fayl yoki tarmoq formati uchun struktura emas, aniq bayt tartibi ishlatiladi. <code>#pragma pack</code> ko'chma emas va noto'g'ri tekislangan murojaatga olib kelishi mumkin.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Nega kompilyator struktura maydonlari orasiga padding qo'shadi?",
+            options: [
+              "Kod chiroyli ko'rinishi uchun",
+              "Har bir maydon tabiiy tekislash chegarasida turishi uchun",
+              "Xotirani ko'paytirish uchun",
+              "Fayl hajmini oshirish uchun",
+            ],
+            answer: 1,
+            explain: "Protsessor va ABI talab qiladigan tekislashni ta'minlash uchun bo'sh baytlar qo'shiladi.",
+          },
+          {
+            q: "offsetof(struct A, b) nimani qaytaradi?",
+            options: [
+              "b maydonining qiymatini",
+              "b ning struktura boshidan baytlardagi siljishini",
+              "Struktura hajmini",
+              "b ning turini",
+            ],
+            answer: 1,
+            explain: "offsetof maydonning struktura boshiga nisbatan bayt siljishini beradi.",
+          },
+          {
+            q: "Qaysi tartib odatda eng kam xotira oladi?",
+            options: [
+              "char, int, char",
+              "int, char, char",
+              "char, char, int",
+              "Tartib muhim emas",
+            ],
+            answer: 2,
+            explain: "Kichik maydonlarni yonma-yon qo'yib, keyin int qo'yilsa, faqat 2 bayt padding qoladi (jami 8).",
+          },
+        ],
+      },
+      {
+        id: 84,
+        title: "Variadic funksiyalar va xavfsiz logging",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Variadic funksiya argumentlar soni oldindan noma'lum bo'lganda ishlatiladi: <code>printf</code> shu turdagi funksiyadir. <code>&lt;stdarg.h&gt;</code> to'plami <code>va_list</code>, <code>va_start</code>, <code>va_arg</code> va <code>va_end</code> ni beradi. Funksiya kamida bitta aniq parametrga ega bo'lishi va oxirgi aniq parametr orqali <code>va_start</code> chaqirilishi kerak. Argumentlar soni va turlarini o'zingiz kuzatishingiz shart.",
+          },
+          {
+            type: "code",
+            title: "variadic_sum.c",
+            code: String.raw`#include <stdio.h>
+#include <stdarg.h>
+
+int yigindi(int soni, ...) {
+    va_list ap;
+    va_start(ap, soni);
+    int jami = 0;
+    for (int i = 0; i < soni; i++) {
+        jami += va_arg(ap, int);
+    }
+    va_end(ap);
+    return jami;
+}
+
+int main(void) {
+    printf("jami=%d\n", yigindi(4, 10, 20, 30, 40));
+    printf("jami=%d\n", yigindi(2, 7, 8));
+    return 0;
+}`,
+            output: "jami=100\njami=15",
+          },
+          {
+            type: "p",
+            html: "Log funksiyasida format satri va argumentlarni <code>vprintf</code> yoki <code>vsnprintf</code> ga uzatish qulay. <code>vprintf</code> bir marta ishlatiladi; agar formatni ikki marta qo'llash kerak bo'lsa, <code>va_copy</code> bilan nusxa olish shart, chunki <code>va_list</code> iste'mol qilinadi. <code>snprintf</code> bilan buferga yozib, keyin uni log oqimiga chiqarish mumkin.",
+          },
+          {
+            type: "code",
+            title: "mini_log.c",
+            code: String.raw`#include <stdio.h>
+#include <stdarg.h>
+
+void logf(const char *daraja, const char *format, ...) {
+    va_list ap;
+    va_start(ap, format);
+    printf("[%s] ", daraja);
+    vprintf(format, ap);
+    printf("\n");
+    va_end(ap);
+}
+
+int main(void) {
+    logf("INFO", "foydalanuvchi=%s yosh=%d", "Ali", 25);
+    logf("WARN", "ball=%d", 90);
+    logf("DEBUG", "x=%.1f", 3.5);
+    return 0;
+}`,
+            output: "[INFO] foydalanuvchi=Ali yosh=25\n[WARN] ball=90\n[DEBUG] x=3.5",
+          },
+          {
+            type: "table",
+            head: ["Makro", "Vazifa", "Eslatma"],
+            rows: [
+              ["<code>va_start</code>", "ro'yxatni boshlash", "oxirgi aniq parametr beriladi"],
+              ["<code>va_arg</code>", "keyingi argumentni olish", "tur standart promotlarga mos bo'lishi kerak"],
+              ["<code>va_copy</code>", "ro'yxat nusxasi", "ikki marta ishlatishdan oldin"],
+              ["<code>va_end</code>", "tozalash", "har bir va_start uchun"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Tur promotlari va format xatolari",
+            html: "<code>char</code> va <code>short</code> variadic argument sifatida <code>int</code> ga, <code>float</code> esa <code>double</code> ga ko'tariladi. Shuning uchun <code>va_arg(ap, float)</code> noto'g'ri — <code>double</code> kerak. Format satri bilan argument turlari mos kelmasa, natija undefined behavior. GCC/Clang da <code>__attribute__((format(printf, 2, 3)))</code> kompilyatorga tekshirish imkonini beradi. Foydalanuvchi kiritgan satrni hech qachon format sifatida ishlatmang.",
+          },
+        ],
+        quiz: [
+          {
+            q: "va_start ikkinchi argumenti sifatida nima beriladi?",
+            options: [
+              "Birinchi variadic argument",
+              "Funksiyaning oxirgi aniq parametri",
+              "va_list hajmi",
+              "Format satri uzunligi",
+            ],
+            answer: 1,
+            explain: "va_start oxirgi nomlangan parametrdan keyingi argumentlardan boshlash uchun shu parametrni oladi.",
+          },
+          {
+            q: "Variadic funksiyaga float uzatilganda u qanday turga ko'tariladi?",
+            options: ["float", "int", "double", "long double"],
+            answer: 2,
+            explain: "Standart promotlar bo'yicha float double ga aylanadi; va_arg da double ko'rsatiladi.",
+          },
+          {
+            q: "va_list ni ikki marta ishlatish kerak bo'lsa nima qilish kerak?",
+            options: [
+              "va_end ni chaqirmaslik",
+              "va_copy bilan nusxa olish",
+              "Uni global qilish",
+              "Yangi funksiya yozish",
+            ],
+            answer: 1,
+            explain: "va_arg ro'yxatni iste'mol qiladi; ikkinchi marta ishlatishdan oldin va_copy bilan nusxa olinadi.",
+          },
+        ],
+      },

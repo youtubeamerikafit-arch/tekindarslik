@@ -1,0 +1,1102 @@
+{
+  "modules": [
+    {
+      "title": "Asoslar va boshqaruv",
+      "lessons": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "title": "Funksiyalar va matnlar",
+      "lessons": [
+        5,
+        6
+      ]
+    },
+    {
+      "title": "Ko'rsatkichlar va xotira",
+      "lessons": [
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "title": "Fayllar va preprocessor",
+      "lessons": [
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "title": "Ko'rsatkichlar chuqur",
+      "lessons": [
+        13,
+        14,
+        15,
+        16
+      ]
+    },
+    {
+      "title": "Matnlar va ma'lumot turlari",
+      "lessons": [
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "title": "Bitlar, funksiyalar va algoritmlar",
+      "lessons": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ]
+    },
+    {
+      "title": "Dinamik tuzilmalar",
+      "lessons": [
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ]
+    },
+    {
+      "title": "Daraxtlar, hash va fayllar",
+      "lessons": [
+        34,
+        35,
+        36,
+        37,
+        38
+      ]
+    },
+    {
+      "title": "Ishonchli va professional kod",
+      "lessons": [
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46
+      ]
+    },
+    {
+      "title": "Yakuniy loyiha",
+      "lessons": [
+        47,
+        48,
+        49
+      ]
+    },
+    {
+      "title": "Yakuniy imtihon",
+      "lessons": [
+        50
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": 1,
+      "title": "C nima, kompilyatsiya va birinchi dastur",
+      "isExam": false,
+      "quiz": [
+        "printf funksiyasidan foydalanish uchun qaysi sarlavha fayli ulanadi?",
+        "C dasturining kirish nuqtasi qaysi funksiya?",
+        "gcc salom.c -o salom buyrug'i nima qiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "note",
+        "code",
+        "table"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "O'zgaruvchilar, turlar va printf formatlari",
+      "isExam": false,
+      "quiz": [
+        "int qiymatini printf bilan chiqarish uchun qaysi format belgisi ishlatiladi?",
+        "long turidagi qiymat uchun qaysi format belgisi to'g'ri?",
+        "printf(\"%05d\", 42) natijasi qanday ko'rinishda chiqadi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Operatorlar, shartlar va switch",
+      "isExam": false,
+      "quiz": [
+        "int turida 17 / 5 ifodasining natijasi nima?",
+        "switch ichida break yozilmasa nima bo'ladi?",
+        "a > b && b > 0 ifodasi rost bo'lganda C qanday qiymat qaytaradi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Tsikllar: for, while va do-while",
+      "isExam": false,
+      "quiz": [
+        "for (int i = 1; i <= 5; i++) tsikli tanasi necha marta bajariladi?",
+        "do-while tsiklining o'ziga xosligi nima?",
+        "continue operatori nima qiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Funksiyalar, prototiplar va parametrlar",
+      "isExam": false,
+      "quiz": [
+        "Qiymat qaytarmaydigan funksiyaning qaytish turi qanday bo'ladi?",
+        "Funksiya prototipi nima uchun kerak?",
+        "C'da funksiyaga oddiy o'zgaruvchi uzatilganda nima bo'ladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Massivlar va matnlar (stringlar)",
+      "isExam": false,
+      "quiz": [
+        "strlen(\"Aziza\") qanday qiymat qaytaradi?",
+        "Massivning birinchi elementi qaysi indeksda?",
+        "Matn oxirida qanday belgi turishi kerak?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "code",
+        "note"
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Ko'rsatkichlar va manzillar",
+      "isExam": false,
+      "quiz": [
+        "& operatori nima qaytaradi?",
+        "*p ifodasi nima qiladi?",
+        "almashtir funksiyasi nima uchun int * qabul qiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Strukturalar (struct)",
+      "isExam": false,
+      "quiz": [
+        "Struktura nima uchun ishlatiladi?",
+        "Struktura ko'rsatkichi orqali maydonga qanday murojaat qilinadi?",
+        "typedef struct { ... } Talaba; da typedef nima qiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Dinamik xotira: malloc va free",
+      "isExam": false,
+      "quiz": [
+        "calloc malloc'dan qanday farq qiladi?",
+        "free funksiyasi nima qiladi?",
+        "Memory leak qachon yuzaga keladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Fayllar bilan ishlash",
+      "isExam": false,
+      "quiz": [
+        "fopen faylni ocha olmasa nima qaytaradi?",
+        "\"w\" rejimida fayl ochilsa, mavjud ma'lumotga nima bo'ladi?",
+        "Yozish tugagach faylni yopish uchun qaysi funksiya ishlatiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 11,
+      "title": "Preprocessor, sarlavhalar va Makefile asoslari",
+      "isExam": false,
+      "quiz": [
+        "#include <stdio.h> qanday ishlaydi?",
+        "#define MAX_BALL 100 nima qiladi?",
+        "Sarlavha himoyasi (#ifndef ... #endif) nima uchun kerak?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "code",
+        "note"
+      ]
+    },
+    {
+      "id": 12,
+      "title": "Mini loyiha: xarajatlar statistikasi",
+      "isExam": false,
+      "quiz": [
+        "Loyihada xarajatlar qaysi turda saqlanadi?",
+        "xarajat2.c da ichki va tashqi tsikllar nima qiladi?",
+        "umumiy / n ifodasi 305000 va n = 4 bo'lganda qanday natija beradi?"
+      ],
+      "blocks": [
+        "p",
+        "ul",
+        "code",
+        "note",
+        "code",
+        "note"
+      ]
+    },
+    {
+      "id": 13,
+      "title": "Ko'rsatkichlar arifmetikasi",
+      "isExam": false,
+      "quiz": [
+        "int *p ko'rsatkichiga 1 qo'shilganda manzil qanchaga siljiydi?",
+        "Bir massivdagi ikki ko'rsatkich ayirmasi (p - a) qaysi turda va nimani bildiradi?",
+        "Massivning oxirgi elementidan keyingi manzil (one-past) bilan nima qilish mumkin?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Ko'rsatkich va massiv: o'xshashlik va farq",
+      "isExam": false,
+      "quiz": [
+        "Funksiya parametri int a[] ko'rinishida yozilganda u aslida nimaga aylanadi?",
+        "a[2] ifodasiga to'liq teng yozuv qaysi?",
+        "Funksiya ichida int a[] parametriga sizeof(a) qo'llansa nima qaytadi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 15,
+      "title": "const va ko'rsatkichlar",
+      "isExam": false,
+      "quiz": [
+        "const int *p e'lonida nimani o'zgartirish mumkin?",
+        "int *const p e'loni qanday majburiyat yuklaydi?",
+        "Funksiya satrni o'zgartirmasdan o'qishi uchun qaysi parametr turi eng to'g'ri?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Funksiyaga massiv uzatish va natijani ko'rsatkich orqali qaytarish",
+      "isExam": false,
+      "quiz": [
+        "Massiv funksiyaga uzatilganda uning uzunligi avtomatik uzatiladimi?",
+        "void minmax(const int *a, int n, int *min, int *max) funksiyasida oxirgi ikki parametr nima vazifani bajaradi?",
+        "teskari funksiyasi massivni qanday o'zgartiradi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 17,
+      "title": "Matnlar chuqur: strlen, strcmp, strchr va strstr",
+      "isExam": false,
+      "quiz": [
+        "strlen(\"Karimova\") qanday qiymat qaytaradi?",
+        "strcmp(a, b) qachon 0 qaytaradi?",
+        "snprintf qaytaradigan qiymat nimani bildiradi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 18,
+      "title": "Matnni tahlil qilish: sscanf, strtok va xavfsiz o'girish",
+      "isExam": false,
+      "quiz": [
+        "sscanf da %19s kabi kenglik nima uchun yoziladi?",
+        "strtok satr bilan ishlaganda nima qiladi?",
+        "strtol funksiyasidagi endptr ko'rsatkichi nima uchun kerak?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 19,
+      "title": "Ko'p o'lchamli massivlar",
+      "isExam": false,
+      "quiz": [
+        "int m[2][3] massivida nechta int elementi bor?",
+        "m[1][2] qaysi elementga murojaat qiladi?",
+        "void chiqar(int a[][3], int qatorlar) parametridagi a aslida nimaga ishora qiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 20,
+      "title": "typedef, enum va union",
+      "isExam": false,
+      "quiz": [
+        "typedef kalit so'zi nima qiladi?",
+        "enum { PAST, ORTA, YUQORI } da PAST va ORTA qanday qiymatlarga ega?",
+        "union haqidagi to'g'ri gap qaysi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 21,
+      "title": "Bitwise operatorlar",
+      "isExam": false,
+      "quiz": [
+        "12 & 10 ifodasining natijasi nechaga teng?",
+        "x << 1 amali, agar toshib ketish bo'lmasa, nimaga teng?",
+        "Manfiy ishorali sonni o'ngga siljitish haqidagi to'g'ri gap qaysi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 22,
+      "title": "Bit maskalari va bayroqlar",
+      "isExam": false,
+      "quiz": [
+        "Uchta alohida bayroq uchun qaysi qiymatlar to'plami to'g'ri?",
+        "bayroq &= ~QIZIL amali nima qiladi?",
+        "(x & MASK) != 0 ifodasi nimani aniqlaydi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 23,
+      "title": "Funksiya ko'rsatkichlari",
+      "isExam": false,
+      "quiz": [
+        "int (*f)(int, int) e'loni nimani bildiradi?",
+        "Callback funksiya ko'rsatkichi nima uchun ishlatiladi?",
+        "int *f(int, int) e'loni nimani bildiradi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 24,
+      "title": "qsort va bsearch",
+      "isExam": false,
+      "quiz": [
+        "Taqqoslash funksiyasi manfiy qiymat qaytarsa, qsort qanday tartiblaydi?",
+        "bsearch to'g'ri ishlashi uchun massiv qanday bo'lishi shart?",
+        "(x > y) - (x < y) ifodasi nima uchun x - y o'rniga ishlatiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 25,
+      "title": "Rekursiya",
+      "isExam": false,
+      "quiz": [
+        "Rekursiv funksiyada baza holat bo'lmasa nima bo'ladi?",
+        "faktorial(4) rekursiv hisoblanganda qanday natija qaytaradi?",
+        "Har bir rekursiv chaqiruv haqidagi to'g'ri gap qaysi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 26,
+      "title": "Qidiruv algoritmlari va murakkablik",
+      "isExam": false,
+      "quiz": [
+        "Ikkilik qidiruv qanday massivda to'g'ri ishlaydi?",
+        "1024 elementli saralangan massivda ikkilik qidiruv eng ko'pi bilan taxminan necha qadam oladi?",
+        "Chiziqli qidiruvning eng yomon holat murakkabligi qanday?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 27,
+      "title": "Saralash algoritmlari",
+      "isExam": false,
+      "quiz": [
+        "Bubble sort ning eng yomon holat murakkabligi qanday?",
+        "Qaysi algoritm barqaror (stable) hisoblanadi?",
+        "Selection sort da taqqoslashlar soni massiv tartibiga bog'liqmi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 28,
+      "title": "Dinamik massiv (o'suvchi vektor)",
+      "isExam": false,
+      "quiz": [
+        "Dinamik massivda size va cap o'rtasidagi farq nima?",
+        "realloc natijasini nega vaqtinchalik ko'rsatkichga olish tavsiya etiladi?",
+        "Dinamik massiv o'rtasidan element o'chirish qanday murakkablikda bo'ladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 29,
+      "title": "Dinamik matnlar va buferlar",
+      "isExam": false,
+      "quiz": [
+        "Uzunligi len bo'lgan satr uchun malloc orqali nechta bayt ajratiladi?",
+        "snprintf(NULL, 0, ...) chaqiruvining maqsadi nima?",
+        "Funksiya malloc bilan yaratilgan satrni qaytarsa, uni kim bo'shatishi kerak?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 30,
+      "title": "Bog'langan ro'yxat (linked list)",
+      "isExam": false,
+      "quiz": [
+        "Bog'langan ro'yxat tuguni odatda nimalardan iborat?",
+        "Tail ko'rsatkichi bo'lmasa, ro'yxat oxiriga qo'shish murakkabligi qanday?",
+        "Ro'yxatni bo'shatishda qaysi tartib xavfsiz?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 31,
+      "title": "Ro'yxatda o'chirish va teskari aylantirish",
+      "isExam": false,
+      "quiz": [
+        "Bog'langan ro'yxatning bosh tugunini o'chirishda nima o'zgaradi?",
+        "Ro'yxatni iterativ teskari aylantirishda nechta ko'rsatkich ishlatiladi?",
+        "Singly linked list da o'rta tugunni o'chirish uchun nima kerak?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 32,
+      "title": "Stack (stek)",
+      "isExam": false,
+      "quiz": [
+        "LIFO tamoyili nimani bildiradi?",
+        "Bo'sh stekdan pop qilishdan oldin nima qilish kerak?",
+        "Qavslar muvozanatini tekshirishda stek nima uchun qulay?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 33,
+      "title": "Queue (navbat)",
+      "isExam": false,
+      "quiz": [
+        "FIFO tamoyiliga muvofiq elementlar qanday tartibda olinadi?",
+        "Halqali navbatda oxir indeksi qanday yangilanadi?",
+        "Nega navbatda elementlar soni alohida saqlanadi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 34,
+      "title": "Ikkilik qidiruv daraxti",
+      "isExam": false,
+      "quiz": [
+        "BST ni inorder tartibida aylanib chiqilsa, kalitlar qanday tartibda chiqadi?",
+        "Muvozanatlashgan BST da qidiruvning o'rtacha murakkabligi qanday?",
+        "Daraxtga allaqachon mavjud kalitni yana qo'shsangiz nima bo'ladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 35,
+      "title": "Daraxtni aylanib chiqish",
+      "isExam": false,
+      "quiz": [
+        "BST uchun inorder traversal qanday natija beradi?",
+        "Preorder traversal qaysi tartibda yuradi?",
+        "Level order traversal qaysi tuzilmadan foydalanadi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 36,
+      "title": "Hash jadval",
+      "isExam": false,
+      "quiz": [
+        "Hash jadvalda kolliziya nima?",
+        "Chiziqli prob (linear probing) qanday ishlaydi?",
+        "Load factor juda yuqori bo'lsa nima yuz beradi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 37,
+      "title": "Ikkilik fayllar",
+      "isExam": false,
+      "quiz": [
+        "fwrite funksiyasining to'g'ri parametr tartibi qanday?",
+        "\"rb\" rejimi nimani bildiradi?",
+        "Ikkilik faylga struktura yozishda qaysi muammo ko'chmalikka ta'sir qiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 38,
+      "title": "Fayl pozitsiyasi: fseek va ftell",
+      "isExam": false,
+      "quiz": [
+        "SEEK_END nimaga nisbatan pozitsiya hisoblaydi?",
+        "ftell funksiyasi nimani qaytaradi?",
+        "fseek muvaffaqiyatli bajarilganda qanday qiymat qaytaradi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 39,
+      "title": "errno va xatolarni boshqarish",
+      "isExam": false,
+      "quiz": [
+        "errno qiymatini qachon tekshirish ma'noga ega?",
+        "strtol sonni o'girishda diapazon chegarasidan chiqsa qaysi errno qiymati qo'yiladi?",
+        "perror funksiyasi nima qiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 40,
+      "title": "assert va static_assert",
+      "isExam": false,
+      "quiz": [
+        "assert sharti yolg'on bo'lsa nima sodir bo'ladi?",
+        "NDEBUG makrosi aniqlangan bo'lsa assert ga nima bo'ladi?",
+        "static_assert qachon tekshiriladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 41,
+      "title": "gdb bilan debugging",
+      "isExam": false,
+      "quiz": [
+        "Kodni gdb bilan debug qilish uchun qaysi kompilyator bayrog'i kerak?",
+        "gdb da break main buyrug'i nima qiladi?",
+        "print jami buyrug'i nima qiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 42,
+      "title": "valgrind va sanitizerlar",
+      "isExam": false,
+      "quiz": [
+        "valgrind memcheck asosan nimani aniqlaydi?",
+        "Use-after-free xatosi nima?",
+        "AddressSanitizer ni yoqish uchun qaysi bayroq ishlatiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 43,
+      "title": "Make bilan ko'p faylli loyiha",
+      "isExam": false,
+      "quiz": [
+        "Makefile retsept satrlari qanday belgi bilan boshlanishi kerak?",
+        "make buyrug'i asosan nima qiladi?",
+        ".PHONY: clean yozuvining maqsadi nima?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "code",
+        "code",
+        "table",
+        "note"
+      ]
+    },
+    {
+      "id": 44,
+      "title": "CMake asoslari",
+      "isExam": false,
+      "quiz": [
+        "CMakeLists.txt faylining vazifasi nima?",
+        "Manbadan tashqari (out-of-source) build qanday amalga oshiriladi?",
+        "add_executable buyrug'i nima qiladi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "code",
+        "code",
+        "table",
+        "note"
+      ]
+    },
+    {
+      "id": 45,
+      "title": "Testlash: mini test freymvork",
+      "isExam": false,
+      "quiz": [
+        "Unit test ning asosiy maqsadi nima?",
+        "Kod o'zgarganidan keyin eski testlar qayta ishga tushirilsa, bu qanday tekshiruv?",
+        "faktorial(0) ni tekshirish qaysi turdagi testga misol?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 46,
+      "title": "Xotira xavfsizligi va undefined behavior",
+      "isExam": false,
+      "quiz": [
+        "Undefined behavior nima?",
+        "Ishorali int sonlar yig'indisi INT_MAX dan oshsa nima bo'ladi?",
+        "Bo'shatilgandan keyin ko'rsatkich bilan nima qilish xavfsiz?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 47,
+      "title": "Loyiha: kontaktlar menejeri — 1-qism",
+      "isExam": false,
+      "quiz": [
+        "Kontakt ma'lumotlarini nega struct ichida saqlash qulay?",
+        "qosh funksiyasi 0 qaytarganda bu nimani bildiradi?",
+        "Ism bo'yicha chiziqli qidiruvning murakkabligi qanday?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 48,
+      "title": "Loyiha: kontaktlar menejeri — 2-qism",
+      "isExam": false,
+      "quiz": [
+        "Dinamik massiv sig'imi tugaganda odatda qanday o'stiriladi?",
+        "fgets o'qigan qatorda qanday qo'shimcha belgi bo'lishi mumkin?",
+        "Nega loyihada matn fayl formati tanlandi?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 49,
+      "title": "Loyiha: kontaktlar menejeri — 3-qism",
+      "isExam": false,
+      "quiz": [
+        "Kontaktlarni ism bo'yicha saralashda qsort taqqoslash funksiyasi nimani qaytarishi kerak?",
+        "Dinamik massivdan o'rta elementni o'chirishda nima qilinadi?",
+        "Loyihada funksiyalarni alohida ajratishning asosiy foydasi nima?"
+      ],
+      "blocks": [
+        "p",
+        "code",
+        "table",
+        "note",
+        "code"
+      ]
+    },
+    {
+      "id": 50,
+      "title": "Yakuniy imtihon",
+      "isExam": true,
+      "quiz": [],
+      "blocks": [
+        "p",
+        "ul",
+        "table",
+        "note"
+      ]
+    }
+  ],
+  "exam": {
+    "passScore": 9,
+    "total": 12,
+    "questions": [
+      {
+        "q": "C dasturida main funksiyasi 0 qaytarganda bu odatda nimani bildiradi?",
+        "options": [
+          "Xotira tugaganini",
+          "Fayl topilmaganini",
+          "Dastur muvaffaqiyatli tugaganini",
+          "Kompilyatsiya xatosi borligini"
+        ],
+        "answer": 2,
+        "explain": "0 qaytarish muvaffaqiyatli yakunni bildiradi; noldan farqli kod odatda xatoni ko'rsatadi."
+      },
+      {
+        "q": "char ism[] = \"Bek\"; e'lonida massiv nechta bayt egallaydi?",
+        "options": [
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "answer": 2,
+        "explain": "Bek — 3 ta harf, oxirida '\\0' uchun yana 1 bayt: jami 4 bayt."
+      },
+      {
+        "q": "Funksiya chaqiruvchining o'zgaruvchisini o'zgartirishi uchun parametr qanday uzatiladi?",
+        "options": [
+          "Qiymat bo'yicha",
+          "O'zgaruvchining ko'rsatkichi orqali",
+          "Faqat const bilan",
+          "Massiv nusxasi orqali"
+        ],
+        "answer": 1,
+        "explain": "C argumentlarni qiymat bo'yicha uzatadi; asl obyektni o'zgartirish uchun uning manzili beriladi."
+      },
+      {
+        "q": "malloc xotira ajrata olmasa qanday qiymat qaytaradi?",
+        "options": [
+          "0",
+          "-1",
+          "NULL",
+          "EOF"
+        ],
+        "answer": 2,
+        "explain": "malloc muvaffaqiyatsiz bo'lsa NULL qaytaradi; natijani har doim tekshirish kerak."
+      },
+      {
+        "q": "Bo'shatilgan blok manzilini saqlab qolgan ko'rsatkich qanday ataladi?",
+        "options": [
+          "Dangling pointer",
+          "Null pointer",
+          "Function pointer",
+          "Void pointer"
+        ],
+        "answer": 0,
+        "explain": "free dan keyin manzil yaroqsiz bo'ladi; uni saqlagan ko'rsatkich dangling pointer deyiladi."
+      },
+      {
+        "q": "Singly linked list ning oxirgi tugunida keyingi tugun ko'rsatkichi nimaga teng bo'ladi?",
+        "options": [
+          "O'ziga",
+          "Bosh tugunga",
+          "NULL ga",
+          "Manzilga ega emas"
+        ],
+        "answer": 2,
+        "explain": "Oxirgi tugunning next ko'rsatkichi NULL bo'ladi — shu belgi ro'yxat tugaganini bildiradi."
+      },
+      {
+        "q": "Strukturalar massivini qsort bilan saralashda element hajmi qanday beriladi?",
+        "options": [
+          "sizeof(int)",
+          "sizeof(massiv[0])",
+          "Massiv uzunligi",
+          "1"
+        ],
+        "answer": 1,
+        "explain": "qsort ga bitta elementning hajmi kerak; uni sizeof(massiv[0]) bilan ishonchli olish mumkin."
+      },
+      {
+        "q": "Oddiy BST ga tartiblangan kalitlarni ketma-ket qo'shsak, qidiruvning eng yomon murakkabligi qanday bo'ladi?",
+        "options": [
+          "O(1)",
+          "O(log n)",
+          "O(n log n)",
+          "O(n)"
+        ],
+        "answer": 3,
+        "explain": "Bunday qo'shish daraxtni bir tomonga cho'zib, ro'yxatga aylantiradi; qidiruv O(n) bo'ladi."
+      },
+      {
+        "q": "Bayroqni yoqish va o'chirishni almashtirish (toggle) uchun qaysi amal ishlatiladi?",
+        "options": [
+          "x |= maska",
+          "x &= ~maska",
+          "x ^= maska",
+          "x = 0"
+        ],
+        "answer": 2,
+        "explain": "XOR maska bilan bajarilganda mos bit teskarilanadi: 0 dan 1, 1 dan 0."
+      },
+      {
+        "q": "Release buildda assert tekshiruvlarini o'chirish uchun qaysi makro aniqlanadi?",
+        "options": [
+          "DEBUG",
+          "NDEBUG",
+          "ASSERT_OFF",
+          "RELEASE"
+        ],
+        "answer": 1,
+        "explain": "NDEBUG aniqlanganda assert makrosi bo'sh ifodaga aylanadi va tekshiruvlar kompilyatsiyada olib tashlanadi."
+      },
+      {
+        "q": "fseek(f, 0, SEEK_END) dan keyin ftell(f) odatda nimani qaytaradi?",
+        "options": [
+          "Fayl hajmini baytlarda",
+          "Fayldagi qatorlar sonini",
+          "Birinchi belgini",
+          "Fayl oxirgi belgisining kodini"
+        ],
+        "answer": 0,
+        "explain": "SEEK_END fayl oxiriga o'tadi; ftell joriy pozitsiyani, ya'ni fayl hajmini baytlarda qaytaradi."
+      },
+      {
+        "q": "gcc -fsanitize=address bayrog'i nima uchun ishlatiladi?",
+        "options": [
+          "Kodni optimallashtirish",
+          "Xotira xatolarini aniqlash",
+          "Faylni statik ulash",
+          "Debug ma'lumotini o'chirish"
+        ],
+        "answer": 1,
+        "explain": "AddressSanitizer bufer chegarasi, use-after-free kabi xotira xatolarini ish vaqtida aniqlaydi."
+      }
+    ]
+  }
+}

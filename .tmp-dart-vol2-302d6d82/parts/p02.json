@@ -1,0 +1,512 @@
+[
+  {
+    "id": 55,
+    "title": "Stream transformatsiyalari: asyncMap va expand",
+    "minutes": 17,
+    "desc": "Stream oqimini asyncMap, expand va where bilan qayta ishlash, asinxron elementlarni tartib bilan aylantirishni o'rganing.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "Stream — vaqt bo'yicha keladigan qiymatlar ketma-ketligi. Uning kuchli tomoni shundaki, har bir elementni o'zgartirish, filtrlash va boshqa oqimga yoyish mumkin. <code>map</code> sinxron o'zgartirish beradi, <code>asyncMap</code> esa har bir element uchun asinxron ish bajaradi va natijalarni kelish tartibida saqlaydi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "async_map.dart",
+        "code": "import 'dart:async';\n\nStream<int> sonlar() async* {\n  for (var i = 1; i <= 5; i++) {\n    await Future<void>.delayed(const Duration(milliseconds: 10));\n    yield i;\n  }\n}\n\nFuture<void> main() async {\n  final natija = await sonlar()\n      .asyncMap((x) async => x * 2)\n      .where((x) => x % 4 == 0)\n      .toList();\n  print(natija);\n}",
+        "output": "[4, 8]"
+      },
+      {
+        "type": "p",
+        "html": "<code>asyncMap</code> keyingi elementga o'tishdan oldin oldingi Future tugashini kutadi. Shu sababli natijalar tartibi kafolatlanadi, lekin parallel ishlash yo'q: beshta sekin so'rov ketma-ket bajariladi. Parallel asinxron ish kerak bo'lsa, avval Future'larni yig'ib, keyin <code>Future.wait</code> bilan kuting."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "expand_harflar.dart",
+        "code": "import 'dart:async';\n\nStream<String> sozlar() async* {\n  yield 'dart';\n  yield 'flutter';\n}\n\nFuture<void> main() async {\n  final harflar = await sozlar()\n      .expand((soz) => soz.split(''))\n      .toSet();\n  print(harflar.length);\n  print(harflar.take(5).join('-'));\n}",
+        "output": "8\nd-a-r-t-f"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Operator",
+          "Natija",
+          "Qachon ishlatiladi"
+        ],
+        "rows": [
+          [
+            "<code>map</code>",
+            "Har elementni sinxron o'zgartiradi",
+            "Oddiy hisob va formatlash"
+          ],
+          [
+            "<code>asyncMap</code>",
+            "Har element uchun Future qaytaradi",
+            "Sekin API yoki fayl o'qish"
+          ],
+          [
+            "<code>where</code>",
+            "Shartga mos elementlarni o'tkazadi",
+            "Filtrlash"
+          ],
+          [
+            "<code>expand</code>",
+            "Bitta elementdan bir nechta element yasaydi",
+            "Ro'yxatni yoyish, qidiruv natijalari"
+          ],
+          [
+            "<code>toSet</code>",
+            "Takrorlarni olib tashlaydi",
+            "Unikal qiymatlar"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "tip",
+        "title": "Stream'ni ikki marta iste'mol qilmang",
+        "html": "Oddiy (single-subscription) Stream faqat bir marta tinglanadi. <code>toList()</code> yoki <code>await for</code> dan keyin o'sha oqimni qayta tinglash xatolik beradi. Bir nechta iste'molchi kerak bo'lsa, <code>asBroadcastStream()</code> dan foydalaning yoki ma'lumotni bir marta yig'ib, ro'yxat bilan ishlang."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "asyncMap va map o'rtasidagi asosiy farq nima?",
+        "options": [
+          "map faqat sonlar bilan ishlaydi",
+          "asyncMap har bir element uchun Future qaytaradi va tartibni saqlaydi",
+          "asyncMap elementlarni tashlab yuboradi",
+          "map faqat StreamController bilan ishlaydi"
+        ],
+        "answer": 1,
+        "explain": "asyncMap transformatsiya funksiyasi Future qaytarishini kutadi; elementlar kelish tartibida qayta ishlanadi."
+      },
+      {
+        "q": "expand() operatori nima qiladi?",
+        "options": [
+          "Bitta elementdan bir nechta element hosil qiladi",
+          "Stream'ni butunlay yopadi",
+          "Faqat xatolarni ushlaydi",
+          "Elementlarni kamaytirib, bitta qiymat qaytaradi"
+        ],
+        "answer": 0,
+        "explain": "expand har bir element uchun iterable qaytarib, ularning barcha elementlarini bitta oqimga yoyadi."
+      },
+      {
+        "q": "where() dan keyin toList() chaqirilsa nima bo'ladi?",
+        "options": [
+          "Stream darhol yopiladi va xato beradi",
+          "Faqat birinchi element olinadi",
+          "Shartga mos barcha elementlar ro'yxatga yig'iladi",
+          "Elementlar avtomatik saralanadi"
+        ],
+        "answer": 2,
+        "explain": "toList() oqim tugaguncha barcha mos elementlarni yig'ib, List qaytaradi; tartib saqlanadi."
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "title": "Backpressure: pause, resume va bufer",
+    "minutes": 17,
+    "desc": "Sekin iste'molchi bilan tez ishlab chiqaruvchini muvozanatlash, pause/resume va buferlash xatti-harakatini tushuning.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "Agar ishlab chiqaruvchi iste'molchidan tezroq ishlasa, hodisalar navbatda to'planadi. Bu holat <b>backpressure</b> deb ataladi. Dart Stream'ida <code>pause()</code> tinglovchini vaqtincha to'xtatadi, <code>resume()</code> esa to'plangan hodisalarni davom ettiradi. <code>async*</code> generatori esa <code>yield</code> dan keyin iste'molchi tayyor bo'lguncha o'zi to'xtab turadi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "pause_resume.dart",
+        "code": "import 'dart:async';\n\nFuture<void> main() async {\n  final controller = StreamController<int>();\n  final subscription = controller.stream.listen(\n    (x) => print('event: $x'),\n    onDone: () => print('yopildi'),\n  );\n  controller.add(1);\n  subscription.pause();\n  controller.add(2);\n  print('pauza holati: ${subscription.isPaused}');\n  subscription.resume();\n  await Future<void>.delayed(const Duration(milliseconds: 10));\n  controller.add(3);\n  await controller.close();\n  await Future<void>.delayed(const Duration(milliseconds: 10));\n  print('yakun');\n}",
+        "output": "pauza holati: true\nevent: 1\nevent: 2\nevent: 3\nyopildi\nyakun"
+      },
+      {
+        "type": "p",
+        "html": "Pauza paytida kelgan hodisalar yo'qolmaydi: ular buferda saqlanadi va <code>resume()</code> dan keyin tartib bilan beriladi. Lekin bufer cheksiz o'sishi mumkin. Agar ishlab chiqaruvchi juda tez bo'lsa, xotira sarfi ortadi. Bunday holatda oqimni bo'laklarga ajrating, <code>pause</code> ni ishlab chiqaruvchi tomonda hisobga oling yoki sekinroq manba tanlang."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "generator_pauza.dart",
+        "code": "import 'dart:async';\n\nStream<int> ishlabChiqar() async* {\n  for (var i = 1; i <= 3; i++) {\n    print('tayyor: $i');\n    yield i;\n  }\n}\n\nFuture<void> main() async {\n  await for (final x in ishlabChiqar()) {\n    print('qayta ishlanmoqda: $x');\n    await Future<void>.delayed(const Duration(milliseconds: 10));\n    print('tugadi: $x');\n  }\n}",
+        "output": "tayyor: 1\nqayta ishlanmoqda: 1\ntugadi: 1\ntayyor: 2\nqayta ishlanmoqda: 2\ntugadi: 2\ntayyor: 3\nqayta ishlanmoqda: 3\ntugadi: 3"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Holat",
+          "Nima bo'ladi",
+          "Eslatma"
+        ],
+        "rows": [
+          [
+            "<code>pause()</code>",
+            "Hodisalar buferga yig'iladi",
+            "<code>isPaused</code> true bo'ladi"
+          ],
+          [
+            "<code>resume()</code>",
+            "Buferdagi hodisalar tartib bilan beriladi",
+            "Manba qayta ishga tushadi"
+          ],
+          [
+            "<code>await for</code>",
+            "Har iteratsiya tugaguncha keyingi so'ralmaydi",
+            "Tabiiy backpressure"
+          ],
+          [
+            "<code>cancel()</code>",
+            "Obuna to'xtaydi, manba yopilmasligi mumkin",
+            "Resurslarni alohida yoping"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "warning",
+        "title": "Bufer cheksiz emas",
+        "html": "Uzoq pauza paytida juda ko'p hodisa to'plansa, xotira o'sadi. Katta fayl yoki video oqimida <code>pause</code> ni uzoq ushlab turmang. Stream'ni bo'laklarga bo'ling, kerak bo'lsa <code>StreamController</code> ga sig'im chegarasini qo'ying yoki ishlab chiqaruvchini ham to'xtatadigan maxsus protokol quring."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Stream obunasi pause() qilinganda kelgan hodisalar qanday bo'ladi?",
+        "options": [
+          "Darhol yo'qoladi",
+          "Xato sifatida qaytadi",
+          "Manbaga qaytariladi",
+          "Buferda saqlanadi va resume() dan keyin beriladi"
+        ],
+        "answer": 3,
+        "explain": "Pauza paytida eventlar yo'qolmaydi; ular buferga yig'iladi va obuna davom etganda tartib bilan uzatiladi."
+      },
+      {
+        "q": "async* generatorida yield qanday backpressure beradi?",
+        "options": [
+          "Generator iste'molchi keyingi elementni so'raguncha to'xtab turadi",
+          "Barcha elementlarni darhol xotiraga yozadi",
+          "Har bir yield yangi isolate ochadi",
+          "Generator avtomatik yopiladi"
+        ],
+        "answer": 0,
+        "explain": "async* oqimi tinglovchi tayyor bo'lmaguncha yield joyida to'xtaydi; shu bilan tez ishlab chiqarishning oldi olinadi."
+      },
+      {
+        "q": "subscription.isPaused qachon true bo'ladi?",
+        "options": [
+          "Faqat Stream yopilganda",
+          "pause() chaqirilganda va resume() qilinmaguncha",
+          "Har bir event kelganda",
+          "Faqat xato yuz berganda"
+        ],
+        "answer": 1,
+        "explain": "isPaused obuna pauza holatida ekanini bildiradi; resume() dan keyin yana false bo'ladi."
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "title": "Stream kombinatsiyalari: merge, zip, combineLatest",
+    "minutes": 18,
+    "desc": "RxDart yordamida bir nechta oqimni birlashtirish, juftlik hosil qilish va eng so'nggi qiymatlarni kombinatsiyalashni o'rganing.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "Real ilovada ma'lumot bir nechta manbadan keladi: qidiruv matni, filtr, sahifa raqami. <b>RxDart</b> oqimlarni birlashtirish uchun tayyor operatorlar beradi. <code>merge</code> oqimlarni aralashtiradi, <code>zip</code> juftliklarni kutadi, <code>combineLatest</code> esa har bir manbaning eng so'nggi qiymatini birlashtiradi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "combine_latest.dart",
+        "code": "import 'dart:async';\nimport 'package:rxdart/rxdart.dart';\n\nFuture<void> main() async {\n  final a = StreamController<int>();\n  final b = StreamController<int>();\n  final qoshilgan = Rx.combineLatest2<int, int, String>(\n    a.stream,\n    b.stream,\n    (x, y) => '$x$y',\n  );\n  final kuzatuv = qoshilgan.listen(print);\n  a.add(1);\n  b.add(2);\n  a.add(3);\n  b.add(4);\n  await a.close();\n  await b.close();\n  await kuzatuv.cancel();\n}",
+        "output": "12\n32\n34"
+      },
+      {
+        "type": "p",
+        "html": "<code>combineLatest</code> ikkala oqimda kamida bitta qiymat bo'lgach chiqarishni boshlaydi. Keyin har qanday yangi qiymat eng so'nggi qiymatlar bilan yangi kombinatsiya hosil qiladi. Bu filtr va qidiruv maydoni kabi bir vaqtda o'zgaradigan holatlar uchun juda qulay."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "zip_concat.dart",
+        "code": "import 'dart:async';\nimport 'package:rxdart/rxdart.dart';\n\nFuture<void> main() async {\n  final juftlik = Rx.zip2(\n    Stream.fromIterable(['a', 'b', 'c']),\n    Stream.fromIterable([1, 2]),\n    (String harf, int son) => '$harf$son',\n  );\n  print(await juftlik.toList());\n\n  final ketmaKet = Rx.concat([\n    Stream.fromIterable([1, 2]),\n    Stream.fromIterable([3, 4]),\n  ]);\n  print(await ketmaKet.toList());\n}",
+        "output": "[a1, b2]\n[1, 2, 3, 4]"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Operator",
+          "Chiqish qoidasi",
+          "Misol"
+        ],
+        "rows": [
+          [
+            "<code>merge</code>",
+            "Barcha oqimlar aralash keladi",
+            "Ikki qurilma hodisasi"
+          ],
+          [
+            "<code>concat</code>",
+            "Birinchi oqim tugagach keyingisi boshlanadi",
+            "Ketma-ket yuklash"
+          ],
+          [
+            "<code>zip</code>",
+            "Har oqimdan bittadan juftlik kutadi",
+            "Nom va narx ro'yxati"
+          ],
+          [
+            "<code>combineLatest</code>",
+            "Eng so'nggi qiymatlarni birlashtiradi",
+            "Filtr va qidiruv"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "warning",
+        "title": "Obunalarni yoping",
+        "html": "Kombinatsiya operatori ichki obunalarni o'zi ochadi, lekin tashqi <code>StreamSubscription</code> va <code>StreamController</code> larni yopish sizning vazifangiz. Widget <code>dispose()</code> bo'lganda ularni bekor qiling. <code>combineLatest</code> bitta manba xato bersa, umumiy oqim ham xato bilan yakunlanadi; xatoni <code>onError</code> yoki <code>catchError</code> bilan boshqaring."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "combineLatest qachon birinchi kombinatsiyani chiqaradi?",
+        "options": [
+          "Birinchi oqimning birinchi qiymatida",
+          "Har bir oqimda kamida bitta qiymat bo'lganda",
+          "Faqat barcha oqimlar yopilganda",
+          "Har safar yangi obuna yaratilganda"
+        ],
+        "answer": 1,
+        "explain": "combineLatest barcha manbalarda kamida bitta qiymat bo'lishini kutadi, so'ngra har yangi qiymatda kombinatsiyani qayta chiqaradi."
+      },
+      {
+        "q": "zip operatori oqimlardan biri tugasa nima qiladi?",
+        "options": [
+          "Qolgan oqimni cheksiz kutadi",
+          "Xato tashlaydi",
+          "Qolgan juftliklarni chiqarmay, oqimni yakunlaydi",
+          "Boshqa oqimni qayta ishga tushiradi"
+        ],
+        "answer": 2,
+        "explain": "zip har bir manbadan bittadan qiymat kutadi; eng qisqa oqim tugagach, yangi juftlik hosil bo'lmaydi va oqim yakunlanadi."
+      },
+      {
+        "q": "merge operatori natijasi qanday tartibda bo'ladi?",
+        "options": [
+          "Har doim birinchi oqim tugagach ikkinchisi",
+          "Faqat alifbo tartibida",
+          "Faqat eng katta qiymatlar",
+          "Oqimlardan kelgan hodisalar aralash tartibda"
+        ],
+        "answer": 3,
+        "explain": "merge barcha manbalarni bir vaqtda tinglaydi va hodisalarni kelgan paytda uzatadi; qat'iy ketma-ketlik kafolatlanmaydi."
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "title": "StreamBuilder bilan reaktiv UI",
+    "minutes": 17,
+    "desc": "StreamBuilder yordamida oqim holatini ekranga bog'lash, yuklanish, ma'lumot va xato holatlarini ko'rsatishni o'rganing.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "<code>StreamBuilder</code> widget'i Stream'ga obuna bo'ladi va har bir yangi qiymatda <code>builder</code> ni qayta chaqiradi. U <code>AsyncSnapshot</code> beradi: unda ma'lumot, xato va ulanish holati bo'ladi. Shu tufayli qo'lda <code>setState</code> yozmasdan reaktiv ekran qurish mumkin."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "stream_builder.dart",
+        "code": "import 'dart:async';\nimport 'package:flutter/material.dart';\n\nvoid main() => runApp(const MaterialApp(home: Qiymatlar()));\n\nclass Qiymatlar extends StatefulWidget {\n  const Qiymatlar({super.key});\n  @override\n  State<Qiymatlar> createState() => _QiymatlarState();\n}\n\nclass _QiymatlarState extends State<Qiymatlar> {\n  final Stream<int> _oqim = Stream<int>.delayed(\n    const Duration(milliseconds: 100),\n    () => 42,\n  );\n  bool _loglandi = false;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: Center(\n        child: StreamBuilder<int>(\n          stream: _oqim,\n          builder: (context, snapshot) {\n            if (!snapshot.hasData) {\n              return const Text('Yuklanmoqda...');\n            }\n            if (!_loglandi) {\n              _loglandi = true;\n              debugPrint('birinchi qiymat: ${snapshot.data}');\n            }\n            return Text('Qiymat: ${snapshot.data}');\n          },\n        ),\n      ),\n    );\n  }\n}",
+        "output": "flutter: birinchi qiymat: 42"
+      },
+      {
+        "type": "p",
+        "html": "Snapshot holatini tekshirish tartibi muhim: avval <code>hasError</code>, keyin <code>hasData</code>, aks holda yuklanish va xato holatlarini aralashtirib yuborish mumkin. <code>connectionState</code> esa <code>waiting</code>, <code>active</code> yoki <code>done</code> bo'ladi. Tugallangan oqimda oxirgi ma'lumot saqlanib qoladi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "stream_builder_xato.dart",
+        "code": "import 'dart:async';\nimport 'package:flutter/material.dart';\n\nvoid main() => runApp(const MaterialApp(home: Xatoli()));\n\nclass Xatoli extends StatefulWidget {\n  const Xatoli({super.key});\n  @override\n  State<Xatoli> createState() => _XatoliState();\n}\n\nclass _XatoliState extends State<Xatoli> {\n  final Stream<int> _oqim = Stream<int>.error(\n    StateError('server javob bermadi'),\n  );\n  bool _xatoLoglandi = false;\n\n  @override\n  Widget build(BuildContext context) {\n    return Scaffold(\n      body: Center(\n        child: StreamBuilder<int>(\n          stream: _oqim,\n          builder: (context, snapshot) {\n            if (snapshot.hasError) {\n              if (!_xatoLoglandi) {\n                _xatoLoglandi = true;\n                debugPrint('xato: ${snapshot.error}');\n              }\n              return Text('Xato: ${snapshot.error}');\n            }\n            return const Text('Yuklanmoqda...');\n          },\n        ),\n      ),\n    );\n  }\n}",
+        "output": "flutter: xato: Bad state: server javob bermadi"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Snapshot maydoni",
+          "Ma'nosi",
+          "UI javobi"
+        ],
+        "rows": [
+          [
+            "<code>hasData</code>",
+            "Kamida bitta qiymat keldi",
+            "Ma'lumotni ko'rsatish"
+          ],
+          [
+            "<code>hasError</code>",
+            "Oqim xato bilan yakunlandi",
+            "Xabar va qayta urinish"
+          ],
+          [
+            "<code>connectionState</code>",
+            "waiting, active yoki done",
+            "Spinner yoki yakuniy holat"
+          ],
+          [
+            "<code>initialData</code>",
+            "Birinchi build uchun qiymat",
+            "Spinner o'rniga skelet"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "tip",
+        "title": "Stream'ni build ichida yaratmang",
+        "html": "Har build'da <code>Stream.periodic(...)</code> kabi yangi oqim yaratsangiz, widget har safar qayta obuna bo'ladi va eski obunalar sizib chiqadi. Oqimni <code>State</code> maydonida yoki provider ichida bir marta yarating. <code>StreamBuilder</code> obunani o'zi boshqaradi, lekin siz yaratgan controller'ni <code>dispose()</code> da yopishingiz kerak."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "StreamBuilder builder'i qachon qayta chaqiriladi?",
+        "options": [
+          "Faqat ilova ishga tushganda",
+          "Faqat foydalanuvchi tugmani bosganda",
+          "Oqimdan yangi qiymat yoki xato kelganda",
+          "Har soniyada, oqimdan qat'i nazar"
+        ],
+        "answer": 2,
+        "explain": "StreamBuilder oqimga obuna bo'ladi va har bir yangi event yoki xatoda setState qilib, builder'ni qayta chaqiradi."
+      },
+      {
+        "q": "Snapshot.hasError true bo'lsa, xato sababini qayerdan olish mumkin?",
+        "options": [
+          "snapshot.error maydonidan",
+          "snapshot.data maydonidan",
+          "connectionState dan",
+          "faqat debugPrint orqali"
+        ],
+        "answer": 0,
+        "explain": "hasError true bo'lganda snapshot.error xato obyektini, snapshot.stackTrace esa stack trace'ni beradi."
+      },
+      {
+        "q": "initialData parametri nima uchun ishlatiladi?",
+        "options": [
+          "Oqimni avtomatik yopish uchun",
+          "Xatoni yashirish uchun",
+          "Yangi Stream yaratish uchun",
+          "Birinchi build paytida ko'rsatiladigan boshlang'ich qiymat uchun"
+        ],
+        "answer": 3,
+        "explain": "initialData birinchi snapshot'da ma'lumot bo'lishini ta'minlaydi, shuning uchun yuklanish holatini skelet bilan ko'rsatish mumkin."
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "title": "Broadcast oqimlar va obuna xotirasi",
+    "minutes": 16,
+    "desc": "Broadcast Stream'ning bir nechta tinglovchisi, obunalarni bekor qilish va xotira oqimlarining oldini olishni o'rganing.",
+    "blocks": [
+      {
+        "type": "p",
+        "html": "Oddiy Stream bitta tinglovchiga mo'ljallangan. <code>broadcast</code> oqimi esa bir vaqtda bir nechta tinglovchini qabul qiladi: har bir event barcha faol obunalarga yuboriladi. Bu hodisalar avtobuslari, umumiy holat va UI'dagi bir nechta widget uchun qulay, lekin obunalarni boshqarishni talab qiladi."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "broadcast.dart",
+        "code": "import 'dart:async';\n\nFuture<void> main() async {\n  final controller = StreamController<int>.broadcast();\n  final a = controller.stream.listen((x) => print('A: $x'));\n  final b = controller.stream.listen((x) => print('B: $x'));\n  controller.add(1);\n  await Future<void>.delayed(const Duration(milliseconds: 10));\n  await a.cancel();\n  controller.add(2);\n  await Future<void>.delayed(const Duration(milliseconds: 10));\n  await b.cancel();\n  await controller.close();\n  print('yakun');\n}",
+        "output": "A: 1\nB: 1\nB: 2\nyakun"
+      },
+      {
+        "type": "p",
+        "html": "Broadcast oqimida event faqat o'sha paytda faol obunalarga boradi: yangi tinglovchi oldingi eventlarni olmaydi. Bu holat store yoki global hodisa uchun muhim. Agar yangi tinglovchiga oxirgi qiymat kerak bo'lsa, uni alohida saqlang yoki <code>BehaviorSubject</code> kabi maxsus yechimdan foydalaning."
+      },
+      {
+        "type": "code",
+        "lang": "dart",
+        "title": "single_obuna.dart",
+        "code": "import 'dart:async';\n\nFuture<void> main() async {\n  final controller = StreamController<int>();\n  controller.stream.listen(print);\n  try {\n    controller.stream.listen(print);\n  } on StateError {\n    print('ikkinchi tinglash rad etildi');\n  }\n  controller.add(7);\n  await controller.close();\n}",
+        "output": "ikkinchi tinglash rad etildi\n7"
+      },
+      {
+        "type": "table",
+        "head": [
+          "Oqim turi",
+          "Tinglovchilar",
+          "Yangi tinglovchi"
+        ],
+        "rows": [
+          [
+            "Single-subscription",
+            "Bitta",
+            "Ikkinchi listen xato beradi"
+          ],
+          [
+            "Broadcast",
+            "Ko'p",
+            "Faqat keyingi eventlarni oladi"
+          ],
+          [
+            "Broadcast + BehaviorSubject",
+            "Ko'p",
+            "Oxirgi qiymatni darhol oladi"
+          ],
+          [
+            "<code>asBroadcastStream()</code>",
+            "Ko'p",
+            "Manba obunasi alohida boshqariladi"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "variant": "warning",
+        "title": "Obunalarni yopmaslik xotira oqimiga olib keladi",
+        "html": "Har bir <code>listen</code> obuna obyektini ushlab turadi. Widget <code>dispose()</code> bo'lganda <code>cancel()</code> chaqirmasangiz, callback o'chirilgan widget'ga murojaat qilib xato berishi yoki butun ekran daraxtini xotirada ushlab turishi mumkin. <code>StreamBuilder</code> obunani o'zi yopadi, qo'lda <code>listen</code> qilgan bo'lsangiz esa javobgarlik sizda."
+      }
+    ],
+    "quiz": [
+      {
+        "q": "Broadcast Stream'ning asosiy xususiyati nima?",
+        "options": [
+          "Bir vaqtda bir nechta tinglovchini qabul qiladi",
+          "Faqat bitta event chiqaradi",
+          "Faqat sinxron kod bilan ishlaydi",
+          "Har doim oxirgi qiymatni saqlaydi"
+        ],
+        "answer": 0,
+        "explain": "Broadcast oqimi bir nechta obunaga ega bo'lishi mumkin; har bir event barcha faol tinglovchilarga yuboriladi."
+      },
+      {
+        "q": "Single-subscription Stream'ni ikkinchi marta listen qilsa nima bo'ladi?",
+        "options": [
+          "Ikkala tinglovchi ham event oladi",
+          "StateError yuz beradi",
+          "Oqim avtomatik broadcast bo'ladi",
+          "Birinchi obuna bekor qilinadi"
+        ],
+        "answer": 1,
+        "explain": "Single-subscription oqim faqat bir marta tinglanadi; ikkinchi listen StateError bilan yakunlanadi."
+      },
+      {
+        "q": "StreamSubscription.cancel() nimani to'xtatadi?",
+        "options": [
+          "Manba Stream'ni butunlay yopadi",
+          "Barcha boshqa tinglovchilarni ham to'xtatadi",
+          "Shu obunaga event yetib borishini to'xtatadi",
+          "Faqat xatolarni o'chiradi"
+        ],
+        "answer": 2,
+        "explain": "cancel faqat o'sha obunani bekor qiladi; manba va boshqa obunalar o'z holicha qoladi."
+      }
+    ]
+  }
+]

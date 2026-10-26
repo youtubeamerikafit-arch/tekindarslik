@@ -1,0 +1,452 @@
+@@lesson 60
+@@title Reflection: KClass, KFunction va metadata
+@@minutes 17
+@@p
+Kotlin reflection <code>kotlin-reflect</code> kutubxonasi orqali klasslar, xossalar, funksiyalar va konstruktorlar haqidagi ma'lumotni ish vaqtida o'qish imkonini beradi. <code>KClass</code> Java <code>Class</code> dan ko'ra boyroq API beradi: nullable tiplar, default parametrlar va declaration-site ma'lumotlari mavjud. Reflection kuchli, lekin sekin vosita — uni issiq yo'lda ishlatmang.
+@@code korinish.kt
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.primaryConstructor
+
+data class Foydalanuvchi(val id: Int, val ism: String, var faol: Boolean)
+
+fun main() {
+    val k = Foydalanuvchi::class
+    println(k.simpleName)
+    println(k.primaryConstructor?.parameters?.joinToString { it.name ?: "?" })
+
+    val user = Foydalanuvchi(1, "Aziza", true)
+    k.memberProperties.sortedBy { it.name }.forEach {
+        println("${it.name} = ${it.get(user)}")
+    }
+
+    val ctor = k.primaryConstructor!!
+    val nusxa = ctor.callBy(
+        mapOf(
+            ctor.parameters[0] to 2,
+            ctor.parameters[1] to "Bek",
+            ctor.parameters[2] to false
+        )
+    )
+    println(nusxa)
+}
+@@out
+Foydalanuvchi
+id, ism, faol
+faol = true
+id = 1
+ism = Aziza
+Foydalanuvchi(id=2, ism=Bek, faol=false)
+@@p
+Funksiyalarni ham xuddi shunday tekshirish va chaqirish mumkin: <code>KClass.functions</code> ro'yxatidan nom bo'yicha topib, <code>call()</code> bilan bajariladi. Bu mexanizm DI konteynerlari, routerlar va test framework'lari asosida yotadi. Har bir chaqiruv argumentlarni tekshiradi va qutilar yaratadi, shuning uchun oddiy virtual chaqiruvdan ancha qimmat.
+@@code funksiya.kt
+import kotlin.reflect.full.functions
+
+class Kalkulyator {
+    fun qosh(a: Int, b: Int) = a + b
+    fun kopayt(a: Int, b: Int) = a * b
+}
+
+fun main() {
+    val k = Kalkulyator::class
+    val qosh = k.functions.first { it.name == "qosh" }
+    println(qosh.call(Kalkulyator(), 2, 5))
+    println(k.functions.filter { it.name.startsWith("ko") }.map { it.name })
+    println(qosh.parameters.map { it.name })
+}
+@@out
+7
+[kopayt]
+[a, b]
+@@note warning | Reflection narxi
+<code>KClass</code> obyektini olish va a'zolarni izlash keshlanishi mumkin, lekin <code>call</code>/<code>get</code> har safar tekshiruv bilan ishlaydi. Android'da reflection ilova hajmini oshiradi va R8 optimizatsiyasini qiyinlashtiradi. Serializatsiya, DI yoki validatsiya uchun KSP kabi compile-time yechim afzal.
+@@quiz
+Kotlin reflection'da klass metama'lumotini qaysi obyekt ifodalaydi?
+- <code>Class&lt;*&gt;</code>
+- <code>KClass&lt;*&gt;</code>
+- <code>KType</code>
+- <code>KFunction</code>
+= 1
+! <code>KClass</code> Kotlin'ga xos metama'lumot beradi; Java <code>Class</code> bilan <code>.java</code> orqali bog'lanadi.
+@@quiz
+<code>KClass.memberProperties</code> qaysi xossalarni qaytaradi?
+- Faqat private xossalarni
+- Faqat konstruktordagi parametrlarni
+- Klassning o'zida va merosda mavjud a'zo xossalarni
+- Faqat companion object xossalarini
+= 2
+! memberProperties klass ierarxiyasidagi a'zo xossalarni beradi; faqat e'lon qilinganlarini olish uchun declaredMemberProperties ishlatiladi.
+@@quiz
+Nega reflection'ni tez-tez chaqiriladigan kodda ishlatish tavsiya etilmaydi?
+- U har doim istisno tashlaydi
+- U faqat JVM'da ishlamaydi
+- Har bir chaqiruv qo'shimcha tekshiruv va allokatsiya qiladi
+- U generic tiplarni o'chirib yuboradi
+= 2
+! Reflection dinamik tekshiruvlar bajaradi, bu oddiy statik chaqiruvdan sezilarli sekinroq.
+@@lesson 61
+@@title Annotatsiyalar va runtime reflection amaliyoti
+@@minutes 16
+@@p
+Annotatsiya — kodga biriktiriladigan metama'lumot. Uning qayerda ishlatilishini <code>@Target</code>, qancha saqlanishini <code>@Retention</code> belgilaydi. <code>AnnotationRetention.RUNTIME</code> bo'lsa, reflection orqali o'qish mumkin; <code>CLASS</code> (sukut) faqat kompilyatorga ko'rinadi; <code>SOURCE</code> esa kompilyatsiyadan keyin yo'qoladi. Validatsiya va ORM'lar aynan runtime annotatsiyalariga tayanadi.
+@@code ustun.kt
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Ustun(val nom: String, val uzunlik: Int = 255)
+
+data class Mahsulot(
+    @Ustun("mahsulot_nomi", 120) val nom: String,
+    @Ustun("narx") val narx: Int
+)
+
+fun main() {
+    Mahsulot::class.memberProperties.sortedBy { it.name }.forEach { xossa ->
+        val ustun = xossa.annotations.filterIsInstance<Ustun>().firstOrNull()
+        println("${xossa.name} -> ${ustun?.nom ?: xossa.name} (${ustun?.uzunlik ?: "-"})")
+    }
+}
+@@out
+narx -> narx (-)
+nom -> mahsulot_nomi (120)
+@@p
+Annotatsiya argumentlari cheklangan: primitivlar, <code>String</code>, enum, <code>KClass</code>, boshqa annotatsiya va ularning massivlari. Murakkab obyekt yoki lambda uzatib bo'lmaydi. Quyidagi misolda ruxsat rollari massiv sifatida berilgan va reflection orqali o'qilgan — bu yondashuv ruxsatlar matritsasini deklarativ qiladi.
+@@code ruxsat.kt
+enum class Rol { ADMIN, USER }
+
+@Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Ruxsat(val rollar: Array<Rol>)
+
+@Ruxsat([Rol.ADMIN, Rol.USER])
+class Hisobot
+
+@Ruxsat([Rol.ADMIN])
+class Sozlama
+
+fun main() {
+    listOf(Hisobot::class, Sozlama::class).forEach { klass ->
+        val ruxsat = klass.annotations.filterIsInstance<Ruxsat>().first()
+        println("${klass.simpleName}: ${ruxsat.rollar.joinToString { it.name }}")
+    }
+}
+@@out
+Hisobot: ADMIN, USER
+Sozlama: ADMIN
+@@note tip | Retention tanlovi
+Agar annotatsiya faqat IDE yoki lint uchun bo'lsa, <code>SOURCE</code> yetarli. Agar reflection o'qiydigan bo'lsa, <code>RUNTIME</code> majburiy. <code>@Repeatable</code> bilan bir elementga bir nechta annotatsiya qo'llanadi. Runtime annotatsiyalarini o'qish uchun <code>kotlin-reflect</code> kerak; KSP bilan bir xil ma'lumotni kompilyatsiya vaqtida olish mumkin.
+@@quiz
+Annotatsiya e'lonida <code>@Retention</code> ko'rsatilmasa, sukut bo'yicha qaysi rejim ishlaydi?
+- SOURCE
+- BINARY
+- CLASS
+- RUNTIME
+= 2
+! Kotlin'da sukut retention CLASS: annotatsiya bayt-kodda qoladi, lekin reflection orqali ko'rinmaydi.
+@@quiz
+Bitta annotatsiyani faqat xossalarga qo'llash uchun nima qilish kerak?
+- <code>@Target(AnnotationTarget.PROPERTY)</code> yozish
+- <code>@Retention(SOURCE)</code> yozish
+- Annotatsiyani data class ichida e'lon qilish
+- <code>@Repeatable</code> qo'shish
+= 0
+! Target annotatsiyaning qo'llanish joylarini cheklaydi; PROPERTY faqat xossalarga ruxsat beradi.
+@@quiz
+Annotatsiya argumenti sifatida qaysi qiymatni uzatib bo'lmaydi?
+- Enum konstantasi
+- <code>String</code>
+- Ixtiyoriy klass obyekti
+- <code>KClass&lt;*&gt;</code>
+= 2
+! Annotatsiya argumentlari kompilyatsiya vaqtida ma'lum bo'lgan cheklangan turlar bo'ladi; ixtiyoriy obyekt yoki lambda mumkin emas.
+@@lesson 62
+@@title Type-safe DSL: lambda receiver va @DslMarker
+@@minutes 16
+@@p
+DSL (domain-specific language) Kotlin'da lambda receiver yordamida quriladi. <code>Royxat.() -> Unit</code> tipidagi parametr lambda ichida <code>this</code> ni <code>Royxat</code> qilib beradi, shuning uchun metodlar nuqtasiz chaqiriladi. Builder funksiyasi obyektni yaratadi, lambdani bajaradi va tayyor natijani qaytaradi. Bu yondashuv Gradle, Compose va Ktor konfiguratsiyalarida keng ishlatiladi.
+@@code royxat.kt
+class Royxat {
+    private val elementlar = mutableListOf<String>()
+
+    fun element(qiymat: String) {
+        elementlar.add(qiymat)
+    }
+
+    fun natija(): List<String> = elementlar.toList()
+}
+
+fun royxat(blok: Royxat.() -> Unit): List<String> {
+    val r = Royxat()
+    r.blok()
+    return r.natija()
+}
+
+fun main() {
+    val mevalar = royxat {
+        element("olma")
+        element("anor")
+        element("uzum")
+    }
+    println(mevalar)
+    println(mevalar.size)
+}
+@@out
+[olma, anor, uzum]
+3
+@@p
+Ichma-ich DSL'larda tashqi receiver'ga beixtiyor murojaat qilish xatolarga olib keladi. <code>@DslMarker</code> annotatsiyasi bilan belgilangan receiverlar uchun kompilyator eng yaqin (ichki) receiverni tanlaydi va tashqi receiverga yashirin murojaatni taqiqlaydi. Bu ayniqsa HTML yoki UI daraxti quruvchilarida muhim.
+@@code marker.kt
+@DslMarker
+annotation class HtmlDsl
+
+@HtmlDsl
+class Html {
+    private val bolalar = mutableListOf<String>()
+
+    fun p(matn: String) {
+        bolalar.add("<p>$matn</p>")
+    }
+
+    fun div(blok: Html.() -> Unit) {
+        val ichki = Html()
+        ichki.blok()
+        bolalar.add("<div>${ichki.render()}</div>")
+    }
+
+    fun render(): String = bolalar.joinToString("")
+}
+
+fun html(blok: Html.() -> Unit): String {
+    val h = Html()
+    h.blok()
+    return h.render()
+}
+
+fun main() {
+    val sahifa = html {
+        p("Salom")
+        div {
+            p("Kotlin")
+            // p("tashqi") bu yerda tashqi Html'ga murojaat qilolmaydi
+        }
+    }
+    println(sahifa)
+}
+@@out
+<p>Salom</p><div><p>Kotlin</p></div>
+@@note tip | DSL dizayni
+Builder'da noto'g'ri holatni oldini olish uchun <code>require</code> yoki majburiy parametrlarni konstruktorda tekshiring. DSL'ni kutubxona API'si sifatida bersangiz, funksiya nomlari va default qiymatlarni barqaror saqlang. Lambda receiver DSL'ni qisqa qiladi, lekin juda chuqur ierarxiya kodni o'qishni qiyinlashtirishi mumkin.
+@@quiz
+<code>Royxat.() -> Unit</code> tipidagi lambda ichida <code>this</code> nimani bildiradi?
+- Tashqi funksiya obyektini
+- <code>Royxat</code> nusxasini (receiver)
+- Unit qiymatini
+- Lambdaning parametrini
+= 1
+! Receiver lambda ichida <code>this</code> receiver obyektiga ishora qiladi, shuning uchun uning metodlari nuqtasiz chaqiriladi.
+@@quiz
+<code>@DslMarker</code> qo'llanilganda ichki lambda tashqi receiver metodini chaqirsa nima bo'ladi?
+- Metod ikkala receiverda ham bajariladi
+- Kompilyator xato beradi, chunki tashqi receiver yashirin
+- Runtime'da istisno tashlanadi
+- Metod avtomatik ichki receiverdan qidiriladi
+= 1
+! DslMarker eng yaqin receiverni ko'rinadigan qiladi; tashqi receiver'ga yashirin murojaat kompilyatsiya vaqtida taqiqlanadi.
+@@quiz
+Type-safe DSL'ning oddiy string birlashtirishdan asosiy afzalligi nima?
+- U har doim tezroq ishlaydi
+- Noto'g'ri tuzilma va tip xatolari kompilyatsiyada ushlanadi
+- U reflection'ni avtomatik yoqadi
+- U faqat Android'da ishlaydi
+= 1
+! DSL metodlari va tiplar bilan chegaralangan, shuning uchun xato tuzilma kompilyator tomonidan aniqlanadi.
+@@lesson 63
+@@title DSL amaliyoti: HTML va SQL quruvchilari
+@@minutes 17
+@@p
+Type-safe builderni amalda HTML generatorida sinab ko'ramiz. Har bir teg o'z atributlari va bolalarini yig'adi; <code>render()</code> natijani satrga aylantiradi. Bu yerda muhim jihat — foydalanuvchi noto'g'ri yopilish tartibini yozolmaydi, chunki daraxtni builder boshqaradi. Xuddi shu usul bilan SQL, JSON yoki konfiguratsiya fayllarini qurish mumkin.
+@@code html.kt
+class Teg(val nom: String) {
+    private val atributlar = mutableMapOf<String, String>()
+    private val bolalar = mutableListOf<String>()
+
+    fun attr(kalit: String, qiymat: String) {
+        atributlar[kalit] = qiymat
+    }
+
+    fun matn(qiymat: String) {
+        bolalar.add(qiymat)
+    }
+
+    fun teg(nom: String, blok: Teg.() -> Unit = {}) {
+        val ichki = Teg(nom)
+        ichki.blok()
+        bolalar.add(ichki.render())
+    }
+
+    fun render(): String {
+        val attrlar = if (atributlar.isEmpty()) "" else
+            atributlar.entries.joinToString(" ", prefix = " ") { "${it.key}=\"${it.value}\"" }
+        return "<$nom$attrlar>${bolalar.joinToString("")}</$nom>"
+    }
+}
+
+fun html(blok: Teg.() -> Unit): String {
+    val h = Teg("html")
+    h.blok()
+    return h.render()
+}
+
+fun main() {
+    val sahifa = html {
+        teg("body") {
+            attr("class", "asosiy")
+            teg("h1") { matn("Noldan") }
+            teg("p") { matn("Kotlin DSL") }
+        }
+    }
+    println(sahifa)
+}
+@@out
+<html><body class="asosiy"><h1>Noldan</h1><p>Kotlin DSL</p></body></html>
+@@p
+SQL quruvchisida shartlarni ro'yxat sifatida yig'ish, keyin <code>AND</code> bilan birlashtirish qulay. <code>buildString</code> va <code>apply</code> kabi stdlib funksiyalari DSL kodini yanada qisqartiradi. Muhim qoida: foydalanuvchi kiritgan qiymatlarni to'g'ridan-to'g'ri SQL'ga qo'shmang — parametrlangan so'rovlar ishlating.
+@@code sql.kt
+class Sorov {
+    private var jadval = ""
+    private val shartlar = mutableListOf<String>()
+
+    fun from(nom: String) {
+        jadval = nom
+    }
+
+    fun where(shart: String) {
+        shartlar.add(shart)
+    }
+
+    fun build(): String = buildString {
+        append("SELECT * FROM ").append(jadval)
+        if (shartlar.isNotEmpty()) {
+            append(" WHERE ").append(shartlar.joinToString(" AND "))
+        }
+    }
+}
+
+fun sorov(blok: Sorov.() -> Unit): String = Sorov().apply(blok).build()
+
+fun main() {
+    val sql = sorov {
+        from("tasks")
+        where("done = false")
+        where("user_id = 7")
+    }
+    println(sql)
+    println(sql.contains("LIMIT"))
+}
+@@out
+SELECT * FROM tasks WHERE done = false AND user_id = 7
+false
+@@note warning | SQL injection
+Yuqoridagi builder faqat struktura uchun. Qiymatlarni <code>where("nom = '$kiritilgan'")</code> ko'rinishida qo'shish SQL injection xavfini tug'diradi. Haqiqiy loyihada Exposed yoki parametrlangan <code>PreparedStatement</code> ishlating. DSL faqat so'rov shaklini xavfsiz qurishga yordam beradi, ma'lumotni emas.
+@@quiz
+HTML builder'da teg yopilish tartibini kim boshqaradi?
+- Foydalanuvchi qo'lda yozadi
+- Builder daraxtni qurib, <code>render()</code> da yopadi
+- Brauzer avtomatik tuzatadi
+- Reflection
+= 1
+! Builder har bir tegni obyekt sifatida yig'adi va render paytida to'g'ri ochish/yopish tartibini o'zi yaratadi.
+@@quiz
+SQL builder'da qiymatlarni to'g'ridan-to'g'ri satrga qo'shishning asosiy xavfi nima?
+- Kod sekinlashadi
+- SQL injection va noto'g'ri escaping
+- Builder umuman ishlamaydi
+- Ma'lumotlar bazasi ulanmaydi
+= 1
+! Foydalanuvchi kiritgan matn SQL sintaksisiga aralashishi mumkin; parametrlangan so'rovlar bu xavfni yo'q qiladi.
+@@quiz
+<code>Sorov().apply(blok).build()</code> da <code>apply</code> nima qaytaradi?
+- <code>String</code> natijani
+- <code>Unit</code>
+- Qabul qiluvchi <code>Sorov</code> obyektini
+- Lambdaning natijasini
+= 2
+! apply lambdani receiver bilan bajaradi va o'sha receiver'ni qaytaradi, shuning uchun zanjirda build() chaqiriladi.
+@@lesson 64
+@@title KSP va kod generatsiyasi: metaprogramma chegaralari
+@@minutes 17
+@@p
+KSP (Kotlin Symbol Processing) annotatsiyalar asosida kompilyatsiya vaqtida kod generatsiya qiladi. U KAPT'ga qaraganda tezroq: Java stub'lar yaratmaydi va Kotlin API'si bilan bevosita ishlaydi. Room, Moshi, Hilt va boshqa kutubxonalar KSP orqali kod yaratadi. Natijada runtime reflection kamayadi va ilova tezroq ishga tushadi.
+@@code build.gradle.kts
+plugins {
+    kotlin("jvm") version "2.1.0"
+    id("com.google.devtools.ksp") version "2.1.0-1.0.29"
+}
+
+dependencies {
+    implementation("com.google.devtools.ksp:symbol-processing-api:2.1.0-1.0.29")
+    ksp(project(":processor"))
+}
+
+ksp {
+    arg("noldan.package", "noldan.generated")
+}
+@@out
+> Task :app:kspKotlin
+[ksp] generated: build/generated/ksp/main/kotlin/noldan/generated/UserFactory.kt
+BUILD SUCCESSFUL in 3s
+@@p
+Processor <code>SymbolProcessor</code> interfeysini amalga oshiradi. <code>Resolver</code> orqali annotatsiya qo'llanilgan elementlar topiladi, <code>CodeGenerator</code> esa yangi fayl yaratadi. Quyidagi soddalashtirilgan processor har bir <code>@Factory</code> klass uchun <code>createX()</code> funksiyasini generatsiya qiladi. Haqiqiy loyihada xatolarni <code>logger.error</code> bilan xabar qilish va incremental processing'ni hisobga olish kerak.
+@@code processor.kt
+class FactoryProcessor(
+    private val codeGenerator: CodeGenerator,
+    private val logger: KSPLogger
+) : SymbolProcessor {
+
+    override fun process(resolver: Resolver): List<KSAnnotated> {
+        resolver.getSymbolsWithAnnotation("noldan.Factory")
+            .filterIsInstance<KSClassDeclaration>()
+            .forEach { decl ->
+                val nom = decl.simpleName.asString()
+                val fayl = codeGenerator.createNewFile(
+                    dependencies = Dependencies(true, decl.containingFile!!),
+                    packageName = "noldan.generated",
+                    fileName = "${nom}Factory"
+                )
+                fayl.writer().use {
+                    it.write("package noldan.generated\n")
+                    it.write("fun create$nom() = $nom()\n")
+                }
+                logger.info("generated: ${nom}Factory")
+            }
+        return emptyList()
+    }
+}
+@@out
+[ksp] generated: UserFactory
+[ksp] generated: OrderFactory
+[ksp] generated: TaskFactory
+@@note warning | Metaprogramma chegaralari
+KSP kodni o'zgartirmaydi, faqat yangi kod qo'shadi; mavjud funksiyani “sehrli” almashtirish uchun compiler plugin kerak. Generatsiya qilingan kod build papkasida bo'ladi va qo'lda tahrirlanmaydi. Processor'da og'ir ish qilsangiz build sekinlashadi; keshlash va incremental API'dan foydalaning.
+@@quiz
+KSP qaysi bosqichda ishlaydi?
+- Dastur ishga tushganda
+- Kompilyatsiya vaqtida
+- Faqat testlarda
+- Faqat Android runtime'da
+= 1
+! KSP kompilyator bilan birga ishlaydi va generatsiya qilingan kod keyin oddiy kompilyatsiyaga qo'shiladi.
+@@quiz
+KSP'ning KAPT'ga nisbatan asosiy afzalligi nima?
+- Java stub'lar yaratmasdan tezroq ishlaydi
+- U faqat runtime reflection beradi
+- U barcha annotatsiyalarni o'chiradi
+- U faqat Kotlin Multiplatform'da ishlaydi
+= 0
+! KSP Kotlin symbol API'sidan foydalanadi va oraliq Java stub generatsiyasini talab qilmaydi.
+@@quiz
+Generatsiya qilingan KSP kodi odatda qayerda joylashadi?
+- <code>src/main/kotlin</code> ichida
+- <code>build/generated/ksp</code> ostida
+- Faqat <code>res/values</code> ichida
+- <code>gradle.properties</code> ichida
+= 1
+! KSP natijalari build katalogida generatsiya qilinadi va manba kod sifatida kompilyatsiyaga qo'shiladi.

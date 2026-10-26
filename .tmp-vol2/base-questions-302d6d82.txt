@@ -1,0 +1,159 @@
+1.1 | SQL nimaning qisqartmasi?
+1.2 | Jadvaldagi bitta yozuv nima deyiladi?
+1.3 | SELECT so'rovi nima qiladi?
+2.1 | Barcha ustunlarni tanlash uchun nima yoziladi?
+2.2 | FROM kalit so'zi nimani bildiradi?
+2.3 | SELECT ball + 5 AS bonus nima qiladi?
+3.1 | Yangi jadval yaratish buyrug'i qaysi?
+3.2 | Har bir qatorni noyob aniqlovchi kalit qanday ataladi?
+3.3 | ustun TEXT NOT NULL nimani bildiradi?
+4.1 | Jadvalga yangi qator qo'shish uchun qaysi buyruq ishlatiladi?
+4.2 | Matn qiymatlari qanday yoziladi?
+4.3 | VALUES (ism, ball) yozuvida nimaga e'tibor berish kerak?
+5.1 | Qatorlarni shart bo'yicha filtrlash uchun qaysi kalit so'z ishlatiladi?
+5.2 | ball <> 80 sharti nimani bildiradi?
+5.3 | ball > 70 AND kurs_id = 1 sharti qachon rost bo'ladi?
+6.1 | Natijani kamayish tartibida saralash uchun nima qo'shiladi?
+6.2 | LIMIT 3 nima qiladi?
+6.3 | DISTINCT qanday ishlaydi?
+7.1 | Bo'sh qiymatni tekshirish uchun nima ishlatiladi?
+7.2 | ball BETWEEN 70 AND 90 nimani tanlaydi?
+7.3 | ism LIKE 'A%' sharti nimani bildiradi?
+8.1 | Qatorlar sonini hisoblash uchun qaysi funksiya ishlatiladi?
+8.2 | AVG(ball) nima qaytaradi?
+8.3 | COUNT(*) va COUNT(kurs_id) qanday farqlanadi?
+9.1 | Qatorlarni guruhlash uchun qaysi kalit so'z ishlatiladi?
+9.2 | Guruhlarni filtrlash uchun nima ishlatiladi?
+9.3 | WHERE va HAVING farqi nima?
+10.1 | INNER JOIN qanday qatorlarni qaytaradi?
+10.2 | JOIN'dagi ON qismi nimani bildiradi?
+10.3 | LEFT JOIN'da o'ng jadvalda moslik topilmasa nima bo'ladi?
+11.1 | Mavjud qatorlarni o'zgartirish uchun qaysi buyruq ishlatiladi?
+11.2 | DELETE FROM talabalar; buyrug'i nima qiladi?
+11.3 | Tranzaksiyadagi o'zgarishlarni bekor qilish uchun nima ishlatiladi?
+12.1 | Subquery nima?
+12.2 | CASE ifodasi nima qiladi?
+12.3 | Indeks nima uchun yaratiladi?
+13.1 | SELECT ichida SUBSTRING(ism FROM 1 FOR 3) qanday natija beradi?
+13.2 | Matnning ikki tomonidagi ortiqcha bo'sh joylarni qaysi funksiya olib tashlaydi?
+13.3 | O'zbekcha harflar bilan ishlaganda belgilar sonini olish uchun qaysi funksiya ishonchli?
+14.1 | EXTRACT(MONTH FROM DATE '2026-10-23') qanday qiymat qaytaradi?
+14.2 | Bir oylik yozuvlarni indeksdan foydalanib tanlash uchun qaysi shart shakli yaxshi?
+14.3 | MySQL'da ikki sana orasidagi kunlar sonini qaysi funksiya qaytaradi?
+15.1 | WHERE shartida NULL = NULL natijasi qanday bo'ladi?
+15.2 | COUNT(kurs_id) qanday qatorlarni sanaydi?
+15.3 | COALESCE(kurs_id, 0) qachon 0 qaytaradi?
+16.1 | CASE ifodasida birinchi TRUE shart bajarilgandan keyin nima bo'ladi?
+16.2 | CASE'da ELSE yozilmagan va hech bir shart bajarilmagan bo'lsa, natija nega bo'ladi?
+16.3 | Shartli agregatsiyada COUNT(CASE WHEN ... THEN 1 END) nega ishlaydi?
+17.1 | UNION va UNION ALL orasidagi asosiy farq nima?
+17.2 | INTERSECT qanday qatorlarni qaytaradi?
+17.3 | Birinchi so'rovda bor, ikkinchisida yo'q qatorlarni qaysi amal beradi?
+18.1 | Skalar subquery ko'pi bilan nechta qiymat qaytarishi kerak?
+18.2 | Skalar subquery hech qanday qator topmasa, ifoda qiymati nega teng bo'ladi?
+18.3 | WHERE ball > (SELECT AVG(ball) FROM talabalar) so'rovida ichki so'rov odatda necha marta bajariladi?
+19.1 | Korrelyatsion subqueryni qanday aniqlash mumkin?
+19.2 | Korrelyatsion subquery odatda qanday bajariladi?
+19.3 | Har bir talabani o'z kursining o'rtachasi bilan taqqoslash uchun qaysi yondashuv eng tabiiy?
+20.1 | EXISTS ichidagi so'rovda SELECT 1 yozishning ma'nosi nima?
+20.2 | Qaysi holatda NOT EXISTS NOT IN'ga qaraganda xavfsizroq?
+20.3 | Talabasi yo'q kurslarni topish uchun qaysi so'rov mos?
+21.1 | FROM ichidagi derived table'ga nima berish majburiy?
+21.2 | Derived table natijasi qanday ko'rinishda bo'ladi?
+21.3 | Agregat natijasini filtrlamoqchi bo'lsangiz, qaysi joyda shart yozish mumkin?
+22.1 | CTE qaysi kalit so'z bilan boshlanadi?
+22.2 | Bitta so'rovda bir nechta CTE e'lon qilinsa, keyingi CTE nimaga murojaat qilishi mumkin?
+22.3 | CTE natijasi qancha vaqt saqlanadi?
+23.1 | Rekursiv CTE'ning anchor qismi nima qiladi?
+23.2 | Rekursiv CTE qanday to'xtaydi?
+23.3 | Sonlar ketma-ketligini yasashda qaysi to'xtash sharti to'g'ri?
+24.1 | Oynali funksiya GROUP BY'dan qanday farq qiladi?
+24.2 | PARTITION BY kurs_id nimani anglatadi?
+24.3 | Oynali funksiya natijasini WHERE bilan filtrlash uchun nima qilish kerak?
+25.1 | Teng balli qatorlarga har xil, ketma-ket raqam beradigan funksiya qaysi?
+25.2 | Ballar 90, 90, 85 bo'lsa, RANK qanday o'rinlar beradi?
+25.3 | Har bir kursdan eng yaxshi 2 talabani tanlash uchun qaysi yondashuv mos?
+26.1 | LAG funksiyasi qaysi qator qiymatini qaytaradi?
+26.2 | Birinchi qatorda LAG natijasi nima bo'ladi?
+26.3 | Kurs chegarasida LAG noto'g'ri ishlamasligi uchun nima qo'shish kerak?
+27.1 | Running total hisoblashda qaysi frame eng mos?
+27.2 | ROWS BETWEEN 1 PRECEDING AND CURRENT ROW nimani hisoblaydi?
+27.3 | Nega ORDER BY sana, id kabi noyob tartib ishlatiladi?
+28.1 | NTILE(4) qatorlarni nima qiladi?
+28.2 | PERCENT_RANK qiymati qaysi oraliqda bo'ladi?
+28.3 | CUME_DIST nimani ko'rsatadi?
+29.1 | View ma'lumotni qanday saqlaydi?
+29.2 | View'ni yaratish uchun qaysi buyruq ishlatiladi?
+29.3 | Asosiy jadvaldagi ma'lumot o'zgarsa, view'da nima ko'rinadi?
+30.1 | Materialized view oddiy view'dan nimasi bilan farq qiladi?
+30.2 | Materialized view natijasini yangilash uchun qaysi buyruq ishlatiladi?
+30.3 | Materialized view'ning asosiy kamchiligi nima?
+31.1 | Kompozit indeks (kurs_id, ball) qaysi so'rovga eng yaxshi yordam beradi?
+31.2 | Indeksning yozish amallariga ta'siri qanday?
+31.3 | EXPLAIN natijasida Index Scan ko'rinsa, bu nimani bildiradi?
+32.1 | EXPLAIN va EXPLAIN ANALYZE orasidagi farq nima?
+32.2 | Seq Scan qachon odatiy va normal bo'lishi mumkin?
+32.3 | Rejada Rows Removed by Filter katta bo'lsa, bu nimaga ishora?
+33.1 | 1NF talabiga ko'ra katakda nima saqlanishi kerak?
+33.2 | 2NF qanday bog'liqlikni yo'q qiladi?
+33.3 | 3NF qanday bog'liqlikni bartaraf etadi?
+34.1 | CHECK cheklovi nimani tekshiradi?
+34.2 | ON DELETE CASCADE qanday ishlaydi?
+34.3 | UNIQUE (talaba_id, kurs_id) qanday takrorlanishni taqiqlaydi?
+35.1 | TRUNCATE TABLE DELETE'dan nimasi bilan farq qiladi?
+35.2 | Yangi ustun qo'shish uchun qaysi buyruq ishlatiladi?
+35.3 | Vaqtinchalik jadval qancha vaqt mavjud bo'ladi?
+36.1 | Bir jadvaldagi qatorlarni boshqasiga ko'chirish uchun qaysi shakl ishlatiladi?
+36.2 | PostgreSQL'da ON CONFLICT (id) DO UPDATE nima qiladi?
+36.3 | RETURNING qismi nima uchun ishlatiladi?
+37.1 | Tranzaksiyadagi o'zgarishlarni doimiy saqlash uchun qaysi buyruq ishlatiladi?
+37.2 | ACID'ning Atomicity xususiyati nimani anglatadi?
+37.3 | SAVEPOINT nimaga yordam beradi?
+38.1 | Dirty read nima?
+38.2 | Qaysi izolyatsiya darajasi barcha uch anomaliyani ham bartaraf etadi?
+38.3 | SELECT ... FOR UPDATE nima qiladi?
+39.1 | Funksiya va protsedura orasidagi asosiy farq nima?
+39.2 | Protsedurani chaqirish uchun qaysi buyruq ishlatiladi?
+39.3 | IMMUTABLE belgisi nimani bildiradi?
+40.1 | Trigger qachon ishga tushadi?
+40.2 | PostgreSQL trigger funksiyasida NEW nimani bildiradi?
+40.3 | Triggerning asosiy xavflaridan biri nima?
+41.1 | JSONB'dagi qiymatni oddiy matn sifatida olish uchun qaysi operator ishlatiladi?
+41.2 | @> operatori nimani tekshiradi?
+41.3 | JSONB ustunidagi murakkab qidiruvni tezlashtirish uchun qaysi indeks mos?
+42.1 | PostgreSQL'da to'liq matnli qidiruvda qaysi operator moslikni tekshiradi?
+42.2 | To'liq matnli qidiruv indeksi uchun qaysi tur odatiy?
+42.3 | LIKE '%so'z%' nima uchun katta jadvalda sekin?
+43.1 | Migratsiya faylini qo'llangandan keyin o'zgartirish nega tavsiya etilmaydi?
+43.2 | Down migratsiyaning vazifasi nima?
+43.3 | Expand-contract usulida birinchi qadam nima?
+44.1 | Foydalanuvchiga faqat o'qish huquqini berish uchun qaysi buyruq ishlatiladi?
+44.2 | Eng kam huquq tamoyili nimani talab qiladi?
+44.3 | SQL injection'ning eng ishonchli oldini qanday olinadi?
+45.1 | RPO nimani bildiradi?
+45.2 | Point-in-time recovery qaysi mexanizmga tayanadi?
+45.3 | Zaxira strategiyasida eng muhim amaliy tekshiruv nima?
+46.1 | PostgreSQL'da INSERT natijasini darhol qaytarish uchun nima ishlatiladi?
+46.2 | MySQL'da avtomatik o'suvchi kalit uchun qaysi atribut ishlatiladi?
+46.3 | Qaysi tur PostgreSQL'da ikkilik formatda saqlanadi va GIN indekslanadi?
+47.1 | Loyihada faol qarzlarni holat va sana bo'yicha tez olish uchun qaysi indeks mos?
+47.2 | Nega kichik jadvalda EXPLAIN Seq Scan ko'rsatishi mumkin?
+47.3 | PostgreSQL'da FOREIGN KEY ustuni avtomatik indekslanadimi?
+48.1 | PostgreSQL'da faqat faol qatorlarni sanash uchun qaysi shakl qulay?
+48.2 | Muddati o'tgan qarzlarni aniqlashda qaysi shart majburiy?
+48.3 | Bir nechta o'quvchi bir xil qarz soniga ega bo'lsa, RANK ularga qanday munosabatda bo'ladi?
+49.1 | Keyset pagination qaysi qiymatga tayanadi?
+49.2 | Nega chuqur OFFSET sekinlashishi mumkin?
+49.3 | Ishga tushirish ro'yxatida qaysi band majburiy?
+EX1 | UNION ALL UNION'dan qanday farq qiladi?
+EX2 | GROUP BY natijasidagi guruhlarni filtrlamoqchi bo'lsangiz, qaysi banddan foydalanasiz?
+EX3 | WHERE kurs_id = NULL sharti nega hech qanday qator tanlamaydi?
+EX4 | LEFT JOIN natijasida o'ng jadvalda moslik topilmagan qator uchun COUNT(t.id) odatda nimaga teng?
+EX5 | Kursda kamida bitta talaba bor-yo'qligini tekshirish uchun qaysi konstruksiya tabiiy mos?
+EX6 | Rekursiv CTE'dagi anchor qismning vazifasi nima?
+EX7 | ROW_NUMBER() OVER (PARTITION BY kurs_id ORDER BY ball DESC) har bir kursda qanday raqam beradi?
+EX8 | Materialized view oddiy view'dan nimasi bilan ajralib turadi?
+EX9 | Kompozit indeks (holat, sana) qaysi so'rovga ko'proq yordam beradi?
+EX10 | EXPLAIN ANALYZE ishlatilganda nima sodir bo'ladi?
+EX11 | REPEATABLE READ darajasidagi tranzaksiyada bir xil SELECT ikki marta bajarilsa, odatda qanday natija kutiladi?
+EX12 | Ishlab chiqarish bazasida xavfsizlik va zaxira bo'yicha qaysi amaliyot to'g'ri?

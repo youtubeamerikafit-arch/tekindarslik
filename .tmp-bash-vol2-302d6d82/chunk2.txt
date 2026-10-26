@@ -1,0 +1,463 @@
+### LESSON 57
+TITLE: Indeks va ofset: substring va manfiy kesish
+MIN: 14
+DESC: `${var:ofset:uzunlik}` bilan matn va massiv bo'laklarini olish, manfiy ofset va Unicode tuzoqlarini o'rganamiz.
+P: Bash parametr kengaytmalari matnni tashqi buyruqlarsiz kesish imkonini beradi. Umumiy shakl <code>${var:ofset:uzunlik}</code>: ofset 0 dan boshlanadi, uzunlik ixtiyoriy. Manfiy ofset oxiridan sanaydi, lekin bash uni standart qiymat deb o'ylamasligi uchun oldiga bo'sh joy qo'yish kerak.
+H: Matndan bo'lak olish
+CODE: substring.sh
+matn="Noldan Bash"
+printf '%s\n' "${matn:0:6}"
+printf '%s\n' "${matn:7}"
+printf '%s\n' "${matn: -4}"
+printf '%s\n' "${matn:7:2}"
+OUT:
+Noldan
+Bash
+Bash
+Ba
+ENDCODE
+P: <code>${matn:7}</code> 7-indeksdan oxirigacha oladi, <code>${matn: -4}</code> oxirgi to'rt belgini beradi. <code>${matn:-4}</code> esa butunlay boshqa narsa: agar o'zgaruvchi bo'sh bo'lsa, <code>4</code> qiymatini qaytaradi. Shu sababli manfiy ofset oldidagi bo'sh joy majburiy.
+CODE: array-slice.sh
+royxat=(alfa beta gamma delta)
+printf 'soni=%s\n' "${#royxat[@]}"
+printf '%s\n' "${royxat[@]:1:2}"
+printf '%s\n' "${royxat[@]: -2}"
+OUT:
+soni=4
+beta
+gamma
+gamma
+delta
+ENDCODE
+P: Massivda ofset element indeksini, uzunlik esa nechta element olinishini bildiradi. <code>${arr[@]:1:2}</code> ikkinchi elementdan boshlab ikkitasini beradi. Manfiy indekslar Bash 4.3 va undan yangiroq versiyalarda ishlaydi; portativlik kerak bo'lsa <code>${#arr[@]}</code> bilan hisoblang.
+NOTE: warning | Unicode va baytlar
+Bash uzunlikni joriy locale asosida hisoblaydi; ko'p baytli belgilar bilan natija locale'ga bog'liq bo'lishi mumkin. Aniq bayt kesimi kerak bo'lsa <code>LC_ALL=C</code> yoki <code>cut -b</code> ishlating, lekin u holda so'z o'rtasidan kesilishi mumkin.
+ENDNOTE
+QUIZ
+Q: `matn="salom dunyo"` uchun `${matn: -5}` qanday natija beradi?
+O: `salom`
+O: `dunyo`
+O: `dun`
+O: Bo'sh satr
+A: 1
+E: Manfiy ofset oxiridan sanaydi: oxirgi besh belgi `dunyo`. Oldidagi bo'sh joy manfiy sonni ofset sifatida tanitadi.
+Q: `${matn:-4}` va `${matn: -4}` orasidagi farq nima?
+O: Ikkalasi bir xil ishlaydi
+O: Birinchisi standart qiymat, ikkinchisi oxirgi 4 belgini oladi
+O: Birinchisi massiv, ikkinchisi satr uchun
+O: Ikkinchisi faqat Bash 3 da ishlaydi
+A: 1
+E: `:-` standart qiymat operatori, `: -` esa substring; bo'sh joy sintaksisni ajratadi.
+Q: `${arr[@]:1:2}` nima qaytaradi?
+O: 1-elementdan boshlab 2 ta elementni
+O: 1 va 2-indeksdagi elementlarni alohida
+O: Massivning birinchi 2 elementini teskari tartibda
+O: Faqat 2-elementni
+A: 0
+E: Ofset 1 (ikkinchi element), uzunlik 2 — ya'ni ketma-ket ikkita element olinadi.
+ENDQUIZ
+### LESSON 58
+TITLE: Prefiks va suffiks patternlari: #, ##, %, %%
+MIN: 15
+DESC: Fayl yo'llari va URL'larni tashqi buyruqlarsiz ajratish uchun eng qisqa va eng uzun pattern mosligini o'rganamiz.
+P: To'rt operator bor: <code>${var#pattern}</code> eng qisqa prefiksni, <code>${var##pattern}</code> eng uzun prefiksni olib tashlaydi; <code>${var%pattern}</code> eng qisqa suffiksni, <code>${var%%pattern}</code> eng uzun suffiksni olib tashlaydi. Pattern — glob, regex emas.
+H: Fayl yo'lini bo'laklarga ajratish
+CODE: yol.sh
+fayl="/var/log/nginx/access.log.1.gz"
+printf '%s\n' "${fayl##*/}"
+printf '%s\n' "${fayl%/*}"
+printf '%s\n' "${fayl#*.}"
+printf '%s\n' "${fayl%%.*}"
+OUT:
+access.log.1.gz
+/var/log/nginx
+log.1.gz
+/var/log/nginx/access
+ENDCODE
+P: <code>${fayl##*/}</code> oxirgi slashgacha bo'lgan eng uzun qismni olib tashlab, fayl nomini beradi. <code>${fayl%/*}</code> oxirgi slashdan keyingi eng qisqa qismni olib tashlab, papka yo'lini beradi. Nuqta bilan ishlaganda <code>#</code> birinchi nuqtadan keyingi qismni, <code>%%</code> esa oxirgi nuqtagacha qolgan qismni ajratadi.
+CODE: url.sh
+url="https://example.com:8443/api/v1"
+rest="${url#*://}"
+hostport="${rest%%/*}"
+host="${hostport%%:*}"
+port="${hostport##*:}"
+printf 'host=%s port=%s\n' "$host" "$port"
+OUT:
+host=example.com port=8443
+ENDCODE
+P: Bu usul tez va qulay, lekin chegaraviy holatlarni o'ylashni talab qiladi: port ko'rsatilmagan URL'da <code>${hostport##*:}</code> butun host nomini qaytaradi. IPv6 manzillar kvadrat qavs ichida bo'ladi va oddiy ikki nuqta mantiqini buzadi. Murakkab holatlarda <code>python3 -c</code> yoki <code>urlparse</code> ishonchliroq.
+NOTE: tip | Patternni qo'shtirnoq ichida saqlang
+<code>"${fayl##*/}"</code> kabi butun kengaytmani qo'shtirnoqqa oling. Qo'shtirnoqsiz natija bo'sh bo'lsa argument yo'qoladi, bo'shliq bo'lsa so'zlarga bo'linadi. Patternning o'zi glob bo'lgani uchun fayl nomlaridagi <code>[</code>, <code>*</code> kabi belgilarni alohida tekshiring.
+ENDNOTE
+QUIZ
+Q: `${fayl##*/}` qaysi vazifani bajaradi?
+O: Fayl kengaytmasini olib tashlaydi
+O: Oxirgi slashdan keyingi fayl nomini qaytaradi
+O: Papka yo'lini qaytaradi
+O: Faylning birinchi qatorini o'qiydi
+A: 1
+E: `##*/` eng uzun `*/` prefiksini olib tashlaydi, natijada bazaviy fayl nomi qoladi.
+Q: `${fayl%%.*}` qanday ishlaydi?
+O: Eng qisqa suffiksni, ya'ni faqat oxirgi kengaytmani olib tashlaydi
+O: Eng uzun suffiksni, ya'ni birinchi nuqtadan keyingi barcha qismni olib tashlaydi
+O: Fayl nomini katta harfga o'giradi
+O: Nuqtalarni pastki chiziqqa almashtiradi
+A: 1
+E: `%%` eng uzun mos suffiksni olib tashlaydi; birinchi nuqtadan boshlab barcha kengaytmalar ketadi.
+Q: `#` va `##` orasidagi asosiy farq nima?
+O: `#` eng qisqa, `##` eng uzun prefiks mosligini oladi
+O: `#` faqat satr boshida, `##` faqat oxirida ishlaydi
+O: `##` faqat massivlar uchun
+O: Ikkalasi bir xil, faqat yozilishi boshqacha
+A: 0
+E: Bitta `#` eng qisqa prefiksni, ikkita `##` eng uzun prefiksni olib tashlaydi; `%` va `%%` suffiks uchun shunday.
+ENDQUIZ
+### LESSON 59
+TITLE: Almashtirish va holat: ${var//}, ${var^^}
+MIN: 15
+DESC: Parametr ichidagi glob almashtirishlari, bosh/oxirga bog'lash va registrni o'zgartirish operatorlarini amalda qo'llaymiz.
+P: <code>${var/pattern/replacement}</code> birinchi moslikni, <code>${var//pattern/replacement}</code> barcha mosliklarni almashtiradi. Pattern glob sifatida talqin qilinadi. <code>/#</code> faqat boshda, <code>/%</code> faqat oxirda almashtiradi. Registr operatorlari <code>^^</code>, <code>,,</code>, <code>^</code>, <code>,</code> harflarni o'zgartiradi.
+H: Almashtirish asoslari
+CODE: almashtirish.sh
+matn="bash bash BASH"
+printf '%s\n' "${matn//bash/shell}"
+printf '%s\n' "${matn/bash/shell}"
+printf '%s\n' "${matn^^}"
+printf '%s\n' "${matn,,}"
+OUT:
+shell shell BASH
+shell bash BASH
+BASH BASH BASH
+bash bash bash
+ENDCODE
+P: Almashtirish regex emas: <code>*</code>, <code>?</code>, <code>[...]</code> glob ma'nosida ishlaydi. Murakkabroq moslik uchun <code>shopt -s extglob</code> bilan kengaytirilgan globlardan foydalanish mumkin. Almashtirish natijasi yangi satr; asl o'zgaruvchi o'zgarmaydi, agar natijani qayta o'zlashtirmasangiz.
+CODE: chegaralar.sh
+yol="a/b/c"
+satr="log.log"
+printf '%s\n' "${yol//\//-}"
+printf '%s\n' "${satr/#log/audit}"
+printf '%s\n' "${satr/%log/report}"
+OUT:
+a-b-c
+audit.log
+log.report
+ENDCODE
+P: <code>${yol//\//-}</code> da slash pattern sifatida berilmoqda, shuning uchun u <code>\/</code> bilan ekranlanadi. <code>/#log/audit</code> faqat boshdagi <code>log</code> ni, <code>/%log/report</code> faqat oxirdagi <code>log</code> ni almashtiradi. Bu fayl nomlarini normallashtirishda juda foydali.
+NOTE: warning | Locale registrga ta'sir qiladi
+<code>^^</code> va <code>,,</code> joriy locale qoidalariga tayanishi mumkin. Turk tilidagi i/I kabi holatlar kutilmagan natija berishi mumkin. Mashina o'qiydigan kalitlar uchun <code>LC_ALL=C</code> qo'ying yoki ataylab ASCII bilan cheklang.
+ENDNOTE
+QUIZ
+Q: `${matn//x/y}` nechta moslikni almashtiradi?
+O: Faqat birinchisini
+O: Barcha mosliklarni
+O: Faqat oxirgisini
+O: Hech qachon, bu sintaksis xato
+A: 1
+E: Ikkita slash barcha mosliklarni almashtiradi; bitta slash faqat birinchisini almashtiradi.
+Q: `${satr/#log/audit}` nimani almashtiradi?
+O: Faqat satr boshidagi `log` ni
+O: Faqat satr oxiridagi `log` ni
+O: Barcha `log` larni
+O: `log` dan keyingi barcha matnni
+A: 0
+E: `/#` prefiksga bog'laydi, `/%` esa suffiksga; shuning uchun faqat boshdagi moslik o'zgaradi.
+Q: `${ism^^}` operatori nima qiladi?
+O: Barcha harflarni kichik qiladi
+O: Birinchi harfni katta qiladi
+O: Barcha harflarni katta qiladi
+O: Faqat bo'shliqlarni olib tashlaydi
+A: 2
+E: `^^` butun satr registrini katta qiladi; bitta `^` faqat birinchi belgini katta qiladi.
+ENDQUIZ
+### LESSON 60
+TITLE: Bilvosita murojaat, @Q/@A va nameref
+MIN: 17
+DESC: O'zgaruvchi nomini boshqa o'zgaruvchida saqlash, xavfsiz nameref va shell-quoted qiymatlarni chiqarishni o'rganamiz.
+P: Ba'zan o'zgaruvchi nomi dinamik bo'ladi: foydalanuvchi <code>ism</code> deb yozadi, siz esa shu nomdagi o'zgaruvchi qiymatini olishingiz kerak. <code>${!nom}</code> bilvosita kengaytma shu ishni qiladi. <code>${!prefix*}</code> va <code>${!prefix@}</code> berilgan prefiks bilan boshlanadigan o'zgaruvchilar ro'yxatini beradi.
+H: Bilvosita murojaat va nameref
+CODE: indirect.sh
+ism="Aziza"
+kalit="ism"
+printf 'qiymat: %s\n' "${!kalit}"
+declare -n ref=ism
+ref="Dilnoza"
+printf 'ism: %s\n' "$ism"
+printf 'quote: %s\n' "${ism@Q}"
+printf 'attr: %s\n' "${ism@A}"
+OUT:
+qiymat: Aziza
+ism: Dilnoza
+quote: 'Dilnoza'
+attr: declare -- ism="Dilnoza"
+ENDCODE
+P: <code>declare -n ref=ism</code> nameref yaratadi: <code>ref</code> ga yozish <code>ism</code> ni o'zgartiradi. Nameref <code>eval</code> dan xavfsizroq, chunki nom kod sifatida bajarilmaydi. Biroq nom foydalanuvchidan kelsa, u haqiqiy o'zgaruvchi nomi ekanini tekshirish kerak; aks holda kutilmagan global o'zgaruvchiga tegib ketish mumkin.
+CODE: swap.sh
+swap() {
+  local -n a=$1 b=$2
+  local t=$a
+  a=$b
+  b=$t
+}
+x=chap
+y=ong
+swap x y
+printf '%s %s\n' "$x" "$y"
+OUT:
+ong chap
+ENDCODE
+P: Nameref funksiya parametrlarini havola bilan uzatishda juda qulay: massiv yoki assotsiativ massivni ham <code>local -n</code> bilan qabul qilish mumkin. <code>${var@Q}</code> qiymatni shell qayta o'qiy oladigan tarzda qo'shtirnoqlaydi, <code>${var@A}</code> esa e'lon shaklini beradi. Bu debug va konfiguratsiya chiqarishda foydali.
+NOTE: warning | Foydalanuvchi kiritgan nomni tekshiring
+<code>${!foydalanuvchi_nomi}</code> ni to'g'ridan-to'g'ri ishlatmang. Avval <code>[[ $nom =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]</code> bilan tekshiring va faqat ruxsat etilgan nomlarga murojaat qiling. Ko'p holatda assotsiativ massiv xavfsizroq va tushunarliroq.
+ENDNOTE
+QUIZ
+Q: `kalit="ism"` bo'lsa, `${!kalit}` nima qaytaradi?
+O: `kalit` o'zgaruvchisining nomini
+O: `ism` o'zgaruvchisining qiymatini
+O: `kalit` so'zining uzunligini
+O: Barcha o'zgaruvchilar ro'yxatini
+A: 1
+E: `!` bilvosita kengaytma qiladi: `kalit` ichidagi nomni olib, o'sha nomdagi o'zgaruvchi qiymatini qaytaradi.
+Q: `declare -n ref=ism` nima yaratadi?
+O: `ism` ning nusxasini
+O: `ref` nomli nameref havolasini
+O: Faqat o'qiladigan massivni
+O: Yangi muhit o'zgaruvchisini
+A: 1
+E: `-n` nameref yaratadi; `ref` ga yozish `ism` ni o'zgartiradi, chunki ref boshqa o'zgaruvchiga havola qiladi.
+Q: `${ism@Q}` qanday natija beradi?
+O: Qiymatni shell qayta o'qiy oladigan qo'shtirnoqli shaklda
+O: O'zgaruvchining faqat turini
+O: Qiymatni Base64 da
+O: Barcha atributlarni o'chirilgan holda
+A: 0
+E: `@Q` shell-quoted ko'rinishni beradi, `@A` esa e'lon atributlarini ko'rsatadi.
+ENDQUIZ
+### LESSON 61
+TITLE: Assotsiativ massivlar: kalitlar, mavjudlik va tartib
+MIN: 16
+DESC: `declare -A` bilan kalit-qiymat xaritalarini yaratamiz, mavjudlikni tekshiramiz va tartib kafolatlanmasligini o'rganamiz.
+P: Oddiy massivda indekslar 0, 1, 2 bo'ladi. Assotsiativ massivda kalit ixtiyoriy satr bo'lishi mumkin: <code>declare -A port</code>. Bu xarita, lug'at yoki JSON obyektining bashdagi yaqin qarindoshi. Assotsiativ massivlar Bash 4 da paydo bo'lgan; macOS'ning eski Bash 3.2 versiyasida yo'q.
+H: Kalitlar bilan ishlash
+CODE: portlar.sh
+declare -A port=( [ssh]=22 [http]=80 [https]=443 )
+printf 'ssh=%s\n' "${port[ssh]}"
+for xizmat in "${!port[@]}"; do
+  printf '%s:%s\n' "$xizmat" "${port[$xizmat]}"
+done | sort
+OUT:
+http:80
+https:443
+ssh:22
+ENDCODE
+P: <code>${!port[@]}</code> kalitlarni beradi, <code>${port[@]}</code> qiymatlarni beradi, <code>${#port[@]}</code> esa juftliklar sonini qaytaradi. Kalitlar tartibi kafolatlanmagan; chiqishni barqaror qilish uchun <code>sort</code> yoki kalitlar ro'yxatini alohida massivda saqlang. Bo'shliqli kalitni qo'shtirnoq bilan bering.
+CODE: ombor.sh
+declare -A ombor
+ombor[olma]=12
+ombor[nok]=7
+if [[ -v ombor[olma] ]]; then
+  printf 'olma bor: %s\n' "${ombor[olma]}"
+fi
+unset 'ombor[nok]'
+printf 'kalitlar: %s\n' "${#ombor[@]}"
+printf 'yoq kalit: %s\n' "${ombor[uzum]:-0}"
+OUT:
+olma bor: 12
+kalitlar: 1
+yoq kalit: 0
+ENDCODE
+P: <code>[[ -v ombor[olma] ]]</code> kalit mavjudligini tekshiradi; bu qiymat bo'sh bo'lgan holatdan ham farqlaydi. <code>unset 'ombor[nok]'</code> da butun ifodani qo'shtirnoqqa olish kerak, aks holda glob yoki sintaksis xatosi bo'lishi mumkin. Massivni tashqi buyruqqa eksport qilib bo'lmaydi; uni JSON yoki satrga aylantirib uzating.
+NOTE: tip | Assotsiativ massivni lokal qiling
+Funksiya ichida <code>local -A xarita=()</code> ishlating, aks holda global nom bilan to'qnashuv yuz beradi. Kalitlarni oldindan tekshirish uchun <code>[[ -v xarita[$kalit] ]]</code> dan foydalaning, ammo kalit ichida bo'shliq yoki <code>]</code> bo'lsa, uni alohida o'zgaruvchiga olib, xavfsiz bering.
+ENDNOTE
+QUIZ
+Q: `declare -A` qanday massiv yaratadi?
+O: Faqat raqamli indeksli oddiy massiv
+O: Satr kalitli assotsiativ massiv
+O: Faqat o'qiladigan fayl massivi
+O: Funksiyalar ro'yxatini
+A: 1
+E: `-A` assotsiativ massivni yaratadi; kalit satr bo'ladi, `-a` esa oddiy indeksli massiv uchun.
+Q: `${!xarita[@]}` nima qaytaradi?
+O: Barcha qiymatlarni
+O: Barcha kalitlarni
+O: Faqat massiv uzunligini
+O: Birinchi qiymatni
+A: 1
+E: `!` bilan indekslar olinadi; assotsiativ massivda indekslar kalitlardir.
+Q: Assotsiativ massiv kalitlarining tartibi haqida nima deyish mumkin?
+O: Har doim qo'shilish tartibida
+O: Har doim alifbo tartibida
+O: Tartib kafolatlanmagan
+O: Faqat raqamli kalitlar tartiblanadi
+A: 2
+E: Bash kalitlar tartibini kafolatlamaydi; barqaror chiqish uchun kalitlarni saralash kerak.
+ENDQUIZ
+### LESSON 62
+TITLE: Massiv operatsiyalari: mapfile, slicing va birlashtirish
+MIN: 16
+DESC: Faylni massivga xavfsiz o'qish, massivlarni birlashtirish, kesish va bo'sh indekslar bilan ishlashni o'rganamiz.
+P: <code>mapfile -t qatorlar &lt; fayl</code> har bir qatorni alohida elementga joylaydi va oxiridagi newline'ni olib tashlaydi. <code>readarray</code> — xuddi shu buyruqning boshqa nomi. Bu usul <code>arr=($(cat fayl))</code> dan xavfsizroq, chunki bo'shliqlar va globlar elementlarni buzmaydi.
+H: Faylni massivga o'qish
+CODE: mapfile.sh
+mapfile -t qatorlar < <(printf 'bir\nikki\nuch\n')
+printf 'soni: %s\n' "${#qatorlar[@]}"
+printf 'birinchi: %s\n' "${qatorlar[0]}"
+printf 'oxirgi: %s\n' "${qatorlar[-1]}"
+printf '%s\n' "${qatorlar[@]:1}"
+OUT:
+soni: 3
+birinchi: bir
+oxirgi: uch
+ikki
+uch
+ENDCODE
+P: <code>-t</code> bo'lmasa, har bir element oxirida newline saqlaydi. <code>-n 10</code> faqat birinchi 10 qatorni, <code>-s 2</code> esa dastlabki 2 qatorni tashlab ketadi. Massivni birlashtirish uchun <code>c=("${a[@]}" "${b[@]}")</code> yoziladi; <code>c+=(yangi)</code> oxiriga qo'shadi.
+CODE: concat.sh
+a=(1 2 3)
+b=(4 5)
+c=("${a[@]}" "${b[@]}")
+c+=(6)
+printf 'len=%s\n' "${#c[@]}"
+printf '%s\n' "${c[*]}"
+unset 'c[2]'
+printf 'indekslar: %s\n' "${!c[*]}"
+OUT:
+len=6
+1 2 3 4 5 6
+indekslar: 0 1 3 4 5
+ENDCODE
+P: <code>unset 'c[2]'</code> massivni siljitmaydi: 2-indeks bo'sh qoladi, qolgan indekslar o'zgarmaydi. <code>${c[*]}</code> barcha mavjud elementlarni IFS ning birinchi belgisi bilan birlashtiradi; <code>${c[@]}</code> esa har birini alohida so'z sifatida beradi. Sikl yozganda <code>"${c[@]}"</code> dan foydalaning.
+NOTE: warning | Command substitution massivni buzadi
+<code>arr=($(komanda))</code> natijani bo'shliq bo'yicha ajratadi, globni kengaytiradi va oxirgi newline'larni yo'qotadi. <code>mapfile -t</code> yoki <code>IFS= read -r -a arr</code> ishlating. Fayl nomlari uchun <code>find -print0</code> va <code>mapfile -d ''</code> kerak bo'ladi.
+ENDNOTE
+QUIZ
+Q: `mapfile -t` dagi `-t` nima qiladi?
+O: Har bir qatordan oxirgi newline'ni olib tashlaydi
+O: Faylni teskari tartibda o'qiydi
+O: Faqat birinchi qatorni oladi
+O: Massivni assotsiativ qiladi
+A: 0
+E: `-t` har bir elementdan oxirgi newline belgisini olib tashlaydi, shuning uchun elementlar toza satr bo'ladi.
+Q: `${arr[-1]}` nimani qaytaradi?
+O: Birinchi elementni
+O: Oxirgi elementni
+O: Massiv uzunligini
+O: Barcha elementlarni
+A: 1
+E: Manfiy indeks oxiridan sanaydi, `-1` oxirgi mavjud elementga to'g'ri keladi (Bash 4.3+).
+Q: `unset 'arr[2]'` dan keyin massiv indekslari qanday bo'ladi?
+O: 2-indeks bo'sh qoladi, boshqalari o'zgarmaydi
+O: Barcha indekslar 0 dan qayta raqamlanadi
+O: Massiv butunlay bo'shaydi
+O: Faqat oxirgi element o'chadi
+A: 0
+E: unset faqat shu indeksni bo'shatadi; massivda teshik paydo bo'ladi, indekslar siljimaydi.
+ENDQUIZ
+### LESSON 63
+TITLE: Set, queue va stack: sof bash tuzilmalari
+MIN: 17
+DESC: Assotsiativ massiv bilan to'plam, massiv bilan navbat va stek yaratamiz, tanlangan amallarning narxini solishtiramiz.
+P: Katta skriptlarda takrorlarni yo'qotish, vazifalarni navbatga qo'yish yoki teskari tartibda qayta ishlash kerak bo'ladi. Bularning barchasini tashqi kutubxonasiz, massiv va assotsiativ massiv bilan qurish mumkin. Muhimi — har bir amalning vaqt murakkabligini bilish.
+H: To'plam (set) va navbat
+CODE: set.sh
+declare -A korilgan=()
+for x in a b a c b; do
+  korilgan[$x]=1
+done
+printf 'unikal: %s\n' "${#korilgan[@]}"
+printf '%s\n' "${!korilgan[@]}" | sort | paste -sd, -
+OUT:
+unikal: 3
+a,b,c
+ENDCODE
+P: To'plamda qiymat muhim emas, faqat kalit bor-yo'qligi muhim. Navbat uchun massiv va bosh indeks ishlatiladi; har safar <code>shift</code> qilish butun massivni ko'chirishi mumkin, shuning uchun bosh indeksni saqlash samaraliroq.
+CODE: stack.sh
+stack=()
+stack+=(a)
+stack+=(b)
+stack+=(c)
+while (( ${#stack[@]} > 0 )); do
+  printf 'pop: %s\n' "${stack[-1]}"
+  unset "stack[$((${#stack[@]} - 1))]"
+done
+OUT:
+pop: c
+pop: b
+pop: a
+ENDCODE
+P: Stek LIFO tartibida ishlaydi: oxirgi qo'shilgan birinchi olinadi. <code>${stack[-1]}</code> oxirgi elementni beradi, <code>unset</code> uni olib tashlaydi. Navbat esa FIFO: bosh indeksni oshirib borasiz, eski elementlarni vaqti-vaqti bilan tozalaysiz. Katta hajmlarda assotsiativ massiv yoki tashqi navbat tizimi yaxshiroq.
+NOTE: warning | Massivlar parallel yozuvga chidamli emas
+Bir nechta fon jarayoni bitta massivni yangilasa, poyga (race) yuz beradi. Bashda massivlar uchun atomar operatsiya yo'q; <code>flock</code> yoki alohida fayl/navbat ishlating. Natijani keyin birlashtirish ham xavfsiz usul.
+ENDNOTE
+QUIZ
+Q: Sof bashda to'plamni qaysi tuzilma bilan eng qulay qurish mumkin?
+O: Oddiy massiv va `sort`
+O: Assotsiativ massiv, kalit sifatida element
+O: Faqat `expr`
+O: `trap` va signal
+A: 1
+E: Assotsiativ massivda elementni kalit qilib qo'yish takrorlarni O(1) tekshirish imkonini beradi.
+Q: Navbatda `shift` o'rniga bosh indeksni saqlashning afzalligi nima?
+O: Har bir olishda butun massivni ko'chirmaydi
+O: Xotirani butunlay tejaydi
+O: Massivni assotsiativga aylantiradi
+O: FIFO tartibini buzadi
+A: 0
+E: `shift` elementlarni siljitadi va katta massivda qimmat; bosh indeks esa O(1) oldinga siljiydi.
+Q: Stek qaysi tartibda ishlaydi?
+O: FIFO — birinchi qo'shilgan birinchi chiqadi
+O: LIFO — oxirgi qo'shilgan birinchi chiqadi
+O: Tasodifiy tartibda
+O: Faqat alifbo tartibida
+A: 1
+E: Stek LIFO (last in, first out); navbat esa FIFO (first in, first out).
+ENDQUIZ
+### LESSON 64
+TITLE: Massivdan JSON va CSV ga: xavfsiz chiqarish
+MIN: 17
+DESC: jq yordamida massiv va xaritalarni JSON ga, RFC 4180 qoidalari bilan CSV ga aylantirishni o'rganamiz.
+P: JSON va CSV ni qo'lda yasash oson ko'rinadi, lekin qo'shtirnoq, vergul, yangi qator va Unicode tufayli tez buziladi. <b>jq</b> qiymatlarni to'g'ri ekranlaydi va raqamlar bilan satrlarni ajratadi. CSV uchun esa <code>@csv</code> filtri RFC 4180 uslubidagi qo'shtirnoqlashni beradi.
+H: Massivni JSON ga aylantirish
+CODE: json.sh
+narxlar=(1200 4500 800)
+printf '%s\n' "${narxlar[@]}" | jq -s '{soni: length, jami: add}'
+OUT:
+{
+  "soni": 3,
+  "jami": 6500
+}
+ENDCODE
+P: <code>jq -s</code> barcha kirish qatorlarini bitta massivga yig'adi. <code>--arg</code> satr, <code>--argjson</code> esa tayyor JSON qiymatini uzatadi. Raqamni <code>--arg</code> bilan bersangiz u satr bo'lib qoladi; hisoblash kerak bo'lsa <code>--argjson</code> yoki <code>tonumber</code> ishlating.
+CODE: csv.sh
+jq -nr '["nom","rol"], ["Karimov, Ali","backend"] | @csv'
+OUT:
+"nom","rol"
+"Karimov, Ali","backend"
+ENDCODE
+P: CSVda ichki qo'shtirnoq ikki marta yoziladi, vergul va yangi qator bo'lsa butun maydon qo'shtirnoqqa olinadi. <code>@tsv</code> esa jadval uchun ixchamroq, lekin tab va newline bo'lsa u ham muammo tug'diradi. Ichki quvurlar uchun NUL ajratgich ishlatish mumkin, lekin u fayl nomlari uchun, matn maydonlari uchun emas.
+NOTE: tip | Chiqish formatini oldindan tanlang
+Inson o'qiydigan jadval uchun <code>@tsv</code> va <code>column -t</code>, elektron jadval uchun <code>@csv</code>, API va boshqa dasturlar uchun JSON mos. Har bir formatda UTF-8, newline va qo'shtirnoq holatlarini test qiling. JSON kalitlari tartibi kafolatlanmasligini unutmang.
+ENDNOTE
+QUIZ
+Q: `jq -s` qanday ishlaydi?
+O: Har bir kirishni alohida chiqaradi
+O: Barcha kirishlarni bitta massivga yig'adi
+O: Faqat birinchi qatorni oladi
+O: JSONni CSVga aylantiradi
+A: 1
+E: `-s` (slurp) barcha kirish qiymatlarini bitta massivga joylaydi; keyin `length`, `add` kabi filtrlar qo'llanadi.
+Q: CSV maydonida qo'shtirnoq bo'lsa qanday yoziladi?
+O: Bitta qo'shtirnoq bilan
+O: Ikki marta takrorlangan qo'shtirnoq bilan
+O: Backslash bilan
+O: Unicode escape bilan
+A: 1
+E: RFC 4180 bo'yicha ichki qo'shtirnoq ikki marta yoziladi; jq `@csv` buni avtomatik bajaradi.
+Q: Nega JSONni `printf` bilan qo'lda yasash xavfli?
+O: jq o'rnatilmagan bo'lsa ishlamaydi
+O: Qo'shtirnoq, backslash va boshqaruv belgilari noto'g'ri ekranlanishi mumkin
+O: JSON faqat raqamlarni qabul qiladi
+O: U har doim sekinroq
+A: 1
+E: Qiymat ichidagi maxsus belgilar noto'g'ri ekranlansa, JSON buziladi yoki injection yuz beradi; jq buni xavfsiz bajaradi.
+ENDQUIZ

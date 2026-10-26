@@ -1,0 +1,147 @@
+1 | Ruby fayllari odatda qaysi kengaytmada saqlanadi?
+1 | puts va print orasidagi farq nima?
+1 | irb nima?
+2 | Symbol qanday yoziladi?
+2 | Qaysi matnda interpolatsiya ishlaydi?
+2 | Mahalliy o'zgaruvchi nomi uchun qaysi uslub odatiy?
+3 | unless nimani bildiradi?
+3 | Ruby'da qaysi qiymatlar false hisoblanadi?
+3 | case ifodasi natijani qaytaradimi?
+4 | 3.times blokidagi i birinchi qiymati nechaga teng?
+4 | (1..3).to_a natijasi nima?
+4 | each ichida next nima qiladi?
+5 | Ruby metodida oxirgi ifoda natijasi nima bo'ladi?
+5 | Metodga berilgan blokni chaqirish uchun nima ishlatiladi?
+5 | def qosh(a, b = 0) da qosh(5) chaqirilsa, b nechaga teng bo'ladi?
+6 | Massiv oxiriga element qo'shish uchun nima ishlatiladi?
+6 | Hash'dan :ism qiymatini qanday olamiz?
+6 | select metodi nima qaytaradi?
+7 | Instans o'zgaruvchisi qanday belgi bilan boshlanadi?
+7 | attr_accessor nima yaratadi?
+7 | initialize metodi qachon chaqiriladi?
+8 | Ruby'da meros olish uchun qaysi belgi ishlatiladi?
+8 | super nima qiladi?
+8 | include modul bilan nima qiladi?
+9 | Xatoni ushlash uchun qaysi kalit so'z ishlatiladi?
+9 | ensure bloki qachon bajariladi?
+9 | Faylni qatorma-qator o'qish uchun qaysi metod ishlatiladi?
+10 | Loyiha bog'liqliklari qaysi faylda yoziladi?
+10 | bundle exec nima uchun ishlatiladi?
+10 | JSON bilan ishlash uchun nima qilinadi?
+11 | map(&:capitalize) nima qiladi?
+11 | Guard clause nima?
+11 | assert_equal nimani tekshiradi?
+12 | Mini loyihada vazifalar qaysi formatda saqlanadi?
+12 | ARGV nima?
+12 | Storage.yukla fayl mavjud bo'lmasa nima qaytaradi?
+13 | "  ruby  ".strip natijasi nima?
+13 | gsub metodi nima qiladi?
+13 | "a-b-c".split("-") qanday natija beradi?
+14 | Massivning oxirgi elementini qaysi indeks bilan olish mumkin?
+14 | [1, 2, 2, 3].delete(2) natijasida massiv qanday bo'ladi?
+14 | Qaysi metod massivni joyida saralaydi?
+15 | h.fetch(:yoq, 0) qanday ishlaydi?
+15 | Hash'dan ichma-ich qiymatni xavfsiz olish uchun qaysi metod mos?
+15 | group_by bloki qanday qiymat qaytarishi kerak?
+16 | Metod ichida berilgan blokni ishga tushirish uchun nima ishlatiladi?
+16 | block_given? nimani tekshiradi?
+16 | &blok parametri metod ichida qanday obyekt bo'ladi?
+17 | Lambda va Proc orasidagi asosiy farqlardan biri nima?
+17 | Lambda'ni chaqirishning qaysi yozuvi to'g'ri?
+17 | Closure qanday ishlaydi?
+18 | select va map orasidagi farq nima?
+18 | [1, 2, 3].reduce(10) { |s, n| s + n } natijasi nima?
+18 | partition metodi nimani qaytaradi?
+19 | Comparable modulini qo'shish uchun qaysi metod majburiy?
+19 | a <=> b qanday qiymat qaytarsa, a va b teng hisoblanadi?
+19 | Comparable qaysi metodni avtomatik bermaydi?
+20 | Struct bilan yaratilgan obyekt atributini o'zgartirish mumkinmi?
+20 | Data obyektini o'zgartirilgan nusxasini qaysi metod beradi?
+20 | Struct.new(:x, :y).new(1, 2).members qanday natija beradi?
+21 | private metodni qanday chaqirish mumkin?
+21 | def self.yarat yozuvi qanday metod yaratadi?
+21 | puts obyekt chaqirganda qaysi metod ishlatiladi?
+22 | Argumentsiz super nimani uzatadi?
+22 | prepend qilingan modul metod qidiruvida qayerda turadi?
+22 | Mushuk.ancestors birinchi element sifatida nimani ko'rsatadi?
+23 | Matematika modulidagi PI konstantasiga qanday murojaat qilinadi?
+23 | extend modul metodlarini nimaga qo'shadi?
+23 | module_function nimani yaratadi?
+24 | send va public_send orasidagi farq nima?
+24 | respond_to?(:maxfiy, true) ikkinchi argumenti nimani bildiradi?
+24 | define_method qanday obyekt qabul qiladi?
+25 | method_missing ichida noma'lum metodni super ga uzatmasangiz nima bo'ladi?
+25 | respond_to_missing? nima uchun kerak?
+25 | Sozlamalar.const_get(:LIMIT) qanday natija beradi?
+26 | rescue ichida argumentsiz raise chaqirilsa nima bo'ladi?
+26 | Custom xato klassi odatda nimadan meros oladi?
+26 | retry kalit so'zi nima qiladi?
+27 | File.read("data.txt") nimani qaytaradi?
+27 | Blokli File.open nima uchun afzal?
+27 | File.foreach ning afzalligi nimada?
+28 | obj&.ism yozuvi qachon nil qaytaradi?
+28 | birinchi, *qolgan = [1, 2, 3] da qolgan nimaga teng?
+28 | case ifodasida pattern matching qaysi kalit so'z bilan yoziladi?
+29 | in { nomi: } pattern nimani qiladi?
+29 | [a, *qolgan] pattern qanday massivga mos keladi?
+29 | Rightward assignment moslik topilmasa nima bo'ladi?
+30 | match? metodi nimani qaytaradi?
+30 | scan metodi nima qiladi?
+30 | \A va \z qaysi chegaralarni bildiradi?
+31 | Nomlangan guruh qiymatini qanday olamiz?
+31 | Regex oxiridagi i bayrog'i nimani bildiradi?
+31 | Regexp.escape nima uchun ishlatiladi?
+32 | Date obyektlarini ayirish natijasi nimani beradi?
+32 | date >> 1 operatori nima qiladi?
+32 | Time obyektiga 90 daqiqa qo'shish uchun nima yoziladi?
+33 | JSON.parse natijasi odatda qanday Ruby obyekti bo'ladi?
+33 | symbolize_names: true nima qiladi?
+33 | JSON.pretty_generate ning vazifasi nima?
+34 | CSV.parse da headers: true nimani beradi?
+34 | converters: :numeric nima qiladi?
+34 | CSV.generate nima qaytaradi?
+35 | HTTPS ulanishi uchun Net::HTTP da nima yoqiladi?
+35 | Javobning HTTP status kodi qaysi metodda bo'ladi?
+35 | read_timeout nima uchun kerak?
+36 | "~> 4.0" cheklovi qaysi versiyalarni qabul qiladi?
+36 | Nega bundle exec ishlatiladi?
+36 | Gemfile.lock fayli nima uchun kerak?
+37 | Minitest setup metodi qachon bajariladi?
+37 | Blok xato ko'tarishini qaysi assertion tekshiradi?
+37 | Minitest hisobotida 1 failures nimani bildiradi?
+38 | RSpec let metodi qachon hisoblanadi?
+38 | RSpec da kutish qanday yoziladi?
+38 | RSpec test fayllari odatda qanday nomlanadi?
+39 | task report: :test yozuvida :test nimani bildiradi?
+39 | db namespace ichidagi tozalash vazifasi qanday chaqiriladi?
+39 | rake -T buyrug'i nima qiladi?
+40 | OptionParser#parse! ARGV bilan nima qiladi?
+40 | opts.on("-n", "--takror N", Integer) da Integer nima qiladi?
+40 | Xato bilan tugagan CLI qanday exit kod qaytarishi kerak?
+41 | Sinatra'da yo'l parametri qayerdan olinadi?
+41 | content_type :json nima qiladi?
+41 | Sinatra ilovasi sukut bo'yicha qaysi portda ishlaydi?
+42 | Yangi resurs yaratilganda qaysi HTTP status mos?
+42 | ERB da qaysi teg natijani HTML ga chiqaradi?
+42 | before filtri qachon ishlaydi?
+43 | Rails MVC da so'rovni qabul qilib javob tayyorlaydigan qism qaysi?
+43 | Route'lar qaysi faylda yoziladi?
+43 | Model nimani ifodalaydi?
+44 | Strong parameters nima uchun kerak?
+44 | before_action qachon ishlaydi?
+44 | resources :kitoblar nechta RESTful route yaratadi?
+45 | Kitob.where(...).pluck(:nom) nima qaytaradi?
+45 | has_many :kitoblar qaysi modelda yoziladi?
+45 | create! va create orasidagi farq nima?
+46 | ERB da natijani HTML ga chiqaradigan teg qaysi?
+46 | form_with nima uchun ishlatiladi?
+46 | Partial fayl nomi qanday boshlanadi?
+47 | valid? metodi validatsiya xatosida nima qaytaradi?
+47 | errors.full_messages nimani beradi?
+47 | before_save callback qachon ishlaydi?
+48 | Domen obyekti qanday mas'uliyatga ega bo'lishi kerak?
+48 | Band kitobni qayta berishga urinishda qanday xato mos?
+48 | Qarz muddatini hisoblash uchun qaysi tur mos?
+49 | Band kitobni qayta qarzga berishda qaysi status mos?
+49 | Rack::Test nima uchun ishlatiladi?
+49 | Topilmagan resurs uchun qaysi status qaytariladi?

@@ -1,0 +1,702 @@
+      {
+        id: 85,
+        title: "Signallar: SIGINT va toza to'xtash",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "Signal — jarayonga tashqaridan yuboriladigan asinxron xabar. Ctrl+C <code>SIGINT</code>, <code>kill</code> buyrug'i esa <code>SIGTERM</code> yuboradi. Signal handler faqat <b>asinxron-signal-xavfsiz</b> funksiyalarni chaqirishi mumkin: <code>printf</code>, <code>malloc</code> va boshqa ko'p funksiyalar bu ro'yxatga kirmaydi. Eng ishonchli naqsh — handler ichida <code>volatile sig_atomic_t</code> bayroqni o'rnatish, asosiy tsikl esa uni tekshirib toza chiqish.",
+          },
+          {
+            type: "code",
+            title: "sigint.c",
+            code: String.raw`#include <stdio.h>
+#include <signal.h>
+
+static volatile sig_atomic_t signal_keldi = 0;
+
+void handler(int sig) {
+    signal_keldi = sig;
+}
+
+int main(void) {
+    signal(SIGINT, handler);
+    printf("ishlayapti\n");
+    raise(SIGINT);
+
+    if (signal_keldi != 0) {
+        printf("signal %d keldi\n", (int)signal_keldi);
+    }
+    printf("to'xtatildi\n");
+    return 0;
+}`,
+            output: "ishlayapti\nsignal 2 keldi\nto'xtatildi",
+          },
+          {
+            type: "p",
+            html: "Haqiqiy dasturda asosiy tsikl <code>while (!toxta)</code> ko'rinishida ishlaydi va handler faqat bayroqni o'zgartiradi. <code>signal()</code> ning eski semantikasi platformaga qarab farq qiladi; POSIX tizimlarida <code>sigaction()</code> aniqroq va <code>SA_RESTART</code> kabi bayroqlarni boshqarish imkonini beradi. Bloklangan tizim chaqiruvi signal bilan uzilsa, <code>errno</code> <code>EINTR</code> bo'lishi mumkin — uni qayta urinish bilan boshqaring.",
+          },
+          {
+            type: "code",
+            title: "sigterm.c",
+            code: String.raw`#include <stdio.h>
+#include <signal.h>
+#include <string.h>
+
+static volatile sig_atomic_t toxta = 0;
+
+void term_handler(int sig) {
+    (void)sig;
+    toxta = 1;
+}
+
+int main(void) {
+    struct sigaction sa;
+    memset(&sa, 0, sizeof sa);
+    sa.sa_handler = term_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    if (sigaction(SIGTERM, &sa, NULL) != 0) {
+        perror("sigaction");
+        return 1;
+    }
+
+    raise(SIGTERM);
+    printf("SIGTERM ushlandi=%d\n", (int)toxta);
+    printf("toza chiqish\n");
+    return 0;
+}`,
+            output: "SIGTERM ushlandi=1\ntoza chiqish",
+          },
+          {
+            type: "table",
+            head: ["Signal", "Ma'nosi", "Odatda"],
+            rows: [
+              ["SIGINT", "Ctrl+C", "jarayonni to'xtatish"],
+              ["SIGTERM", "tizimli to'xtatish", "toza yakun"],
+              ["SIGSEGV", "xotiraga noto'g'ri murojaat", "core dump"],
+              ["SIGPIPE", "yopilgan quvurga yozish", "jarayon o'lishi"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Handler ichida nima qilish mumkin?",
+            html: "Handler ichida faqat <code>volatile sig_atomic_t</code> ga yozish va <code>write</code>, <code>_exit</code>, <code>sig_atomic_t</code> kabi cheklangan amallarni bajarish xavfsiz. <code>printf</code> yoki <code>free</code> chaqirish deadlock va ma'lumot buzilishiga olib kelishi mumkin. Bayroqni <code>volatile</code> qilib belgilang, aks holda optimizator uni tsikldan tashqariga chiqarishi mumkin. Bir nechta signal uchun <code>sigaction</code> va <code>sigprocmask</code> bilan niyatni aniq ifodalang.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Signal handler ichida bayroq qanday turda saqlanishi kerak?",
+            options: [
+              "int",
+              "volatile sig_atomic_t",
+              "double",
+              "char *",
+            ],
+            answer: 1,
+            explain: "volatile sig_atomic_t signal va asosiy kod o'rtasida xavfsiz o'qish/yozishni kafolatlaydi.",
+          },
+          {
+            q: "Nega handler ichida printf chaqirish tavsiya etilmaydi?",
+            options: [
+              "printf juda sekin",
+              "printf asinxron-signal-xavfsiz emas",
+              "printf signalni o'chiradi",
+              "printf faqat Windowsda ishlaydi",
+            ],
+            answer: 1,
+            explain: "printf ichki bufer va qulflardan foydalanadi; signal paytida chaqirilsa deadlock yoki buzilish bo'lishi mumkin.",
+          },
+          {
+            q: "SIGINT odatda qanday harakatni bildiradi?",
+            options: [
+              "Dasturni qayta ishga tushirish",
+              "Foydalanuvchi to'xtatishni so'radi (Ctrl+C)",
+              "Xotira tugadi",
+              "Fayl topilmadi",
+            ],
+            answer: 1,
+            explain: "SIGINT interaktiv to'xtatish signali; terminalda Ctrl+C bosilganda yuboriladi.",
+          },
+        ],
+      },
+      {
+        id: 86,
+        title: "pthreads: mutex va shart o'zgaruvchisi",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Oqimlar (threads) bitta jarayon xotirasini bo'lishadi, shuning uchun ular tez ishlaydi, lekin umumiy ma'lumotni himoyalash kerak. <b>Mutex</b> kritik bo'limni bir vaqtda faqat bitta oqimga ochadi. <b>Shart o'zgaruvchisi</b> (condition variable) oqimni hodisa kutishga qo'yadi va boshqa oqim uni uyg'otadi. Kutish doim <code>while</code> tsiklida, predikat bilan tekshiriladi — spuriously wakeup bo'lishi mumkin.",
+          },
+          {
+            type: "code",
+            title: "mutex_counter.c",
+            code: String.raw`#include <stdio.h>
+#include <pthread.h>
+
+#define OQIM 4
+#define TAKROR 100000
+
+static long hisob = 0;
+static pthread_mutex_t qulf = PTHREAD_MUTEX_INITIALIZER;
+
+void *ish(void *arg) {
+    (void)arg;
+    for (int i = 0; i < TAKROR; i++) {
+        pthread_mutex_lock(&qulf);
+        hisob++;
+        pthread_mutex_unlock(&qulf);
+    }
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t[OQIM];
+    for (int i = 0; i < OQIM; i++) {
+        pthread_create(&t[i], NULL, ish, NULL);
+    }
+    for (int i = 0; i < OQIM; i++) {
+        pthread_join(t[i], NULL);
+    }
+    printf("hisob=%ld\n", hisob);
+    return 0;
+}`,
+            output: "hisob=400000",
+          },
+          {
+            type: "p",
+            html: "Shart o'zgaruvchisi ishlab chiqaruvchi-iste'molchi naqshida qo'llanadi. Iste'molchi mutexni olib, predikat bajarilmaguncha <code>pthread_cond_wait</code> da kutadi; bu funksiya mutexni atomik bo'shatadi va uyg'onganda qayta oladi. Ishlab chiqaruvchi ma'lumotni yozib, mutex ostida <code>pthread_cond_signal</code> yuboradi. <code>join</code> oqim tugashini kutadi va resurslarini bo'shatadi.",
+          },
+          {
+            type: "code",
+            title: "condvar.c",
+            code: String.raw`#include <stdio.h>
+#include <pthread.h>
+
+static pthread_mutex_t qulf = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t shart = PTHREAD_COND_INITIALIZER;
+static int xabar = 0;
+static int tayyor = 0;
+
+void *iste_molchi(void *arg) {
+    (void)arg;
+    pthread_mutex_lock(&qulf);
+    while (!tayyor) {
+        pthread_cond_wait(&shart, &qulf);
+    }
+    int qiymat = xabar;
+    pthread_mutex_unlock(&qulf);
+    printf("ishchi oldi: %d\n", qiymat);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t;
+    pthread_create(&t, NULL, iste_molchi, NULL);
+
+    pthread_mutex_lock(&qulf);
+    xabar = 42;
+    tayyor = 1;
+    pthread_cond_signal(&shart);
+    pthread_mutex_unlock(&qulf);
+
+    pthread_join(t, NULL);
+    printf("tayyor\n");
+    return 0;
+}`,
+            output: "ishchi oldi: 42\ntayyor",
+          },
+          {
+            type: "table",
+            head: ["Amal", "Vazifa", "Xato"],
+            rows: [
+              ["<code>pthread_create</code>", "oqim yaratish", "resurs tugashi"],
+              ["<code>pthread_join</code>", "tugashini kutish", "join qilinmagan oqim oqadi"],
+              ["<code>pthread_mutex_lock</code>", "kritik bo'lim", "deadlock"],
+              ["<code>pthread_cond_wait</code>", "hodisa kutish", "predikatsiz kutish"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Deadlock va xato tekshiruvi",
+            html: "Ikki oqim ikki mutexni turli tartibda olsa deadlock bo'ladi; qulflarni har doim bir xil global tartibda oling. <code>pthread_mutex_lock</code> xato kodini qaytaradi, lekin ko'p dasturlar uni e'tiborsiz qoldiradi — kritik tizimlarda tekshiring. Oqimni <code>detach</code> qilsangiz, <code>join</code> qilib bo'lmaydi va resurslar avtomatik bo'shatiladi. Global ma'lumotga qulfsiz yozish — data race va undefined behavior.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Mutex ning vazifasi nima?",
+            options: [
+              "Oqimlar sonini cheklash",
+              "Kritik bo'limga bir vaqtda bitta oqim kirishini ta'minlash",
+              "Xotirani ajratish",
+              "Signal yuborish",
+            ],
+            answer: 1,
+            explain: "Mutex qulf sifatida ishlaydi: uni olgan oqim bo'shatmaguncha boshqalar kutadi.",
+          },
+          {
+            q: "Nega pthread_cond_wait ni while tsiklida chaqirish kerak?",
+            options: [
+              "Spurious wakeup va boshqa oqimlar predikatni o'zgartirishi mumkin",
+              "Chunki shart o'zgaruvchisi sekin",
+              "Chunki mutex qayta olinmaydi",
+              "Bu faqat uslub masalasi",
+            ],
+            answer: 0,
+            explain: "Uyg'onish predikat bajarilganini kafolatlamaydi; qayta tekshirish kerak.",
+          },
+          {
+            q: "pthread_join nima qiladi?",
+            options: [
+              "Yangi oqim yaratadi",
+              "Oqimni majburan to'xtatadi",
+              "Oqim tugashini kutadi va resurslarini yig'adi",
+              "Mutexni bo'shatadi",
+            ],
+            answer: 2,
+            explain: "Join oqim yakunlanishini kutadi va uning resurslarini qaytaradi.",
+          },
+        ],
+      },
+      {
+        id: 87,
+        title: "Atomiklar va xotira tartibi",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Bir nechta oqim bitta o'zgaruvchini qulfsiz o'qisa-yozsa, bu <b>data race</b> va C standartida undefined behavior. <code>&lt;stdatomic.h&gt;</code> atomik turlar va amallarni beradi: <code>atomic_int</code>, <code>atomic_fetch_add</code>, <code>atomic_load</code>, <code>atomic_store</code>. Atomiklik operatsiyaning bo'linmasligini kafolatlaydi, lekin <b>xotira tartibi</b> (memory order) boshqa o'zgaruvchilarning ko'rinishini boshqaradi.",
+          },
+          {
+            type: "code",
+            title: "atomic_counter.c",
+            code: String.raw`#include <stdio.h>
+#include <pthread.h>
+#include <stdatomic.h>
+
+#define OQIM 4
+#define TAKROR 100000
+
+static atomic_int hisob = 0;
+
+void *ish(void *arg) {
+    (void)arg;
+    for (int i = 0; i < TAKROR; i++) {
+        atomic_fetch_add_explicit(&hisob, 1, memory_order_relaxed);
+    }
+    return NULL;
+}
+
+int main(void) {
+    pthread_t t[OQIM];
+    for (int i = 0; i < OQIM; i++) {
+        pthread_create(&t[i], NULL, ish, NULL);
+    }
+    for (int i = 0; i < OQIM; i++) {
+        pthread_join(t[i], NULL);
+    }
+    printf("hisob=%d\n", atomic_load(&hisob));
+    return 0;
+}`,
+            output: "hisob=400000",
+          },
+          {
+            type: "p",
+            html: "<code>memory_order_relaxed</code> faqat atomiklikni beradi, tartibni emas. Bir oqim ma'lumot yozib, keyin bayroqni <code>release</code> bilan o'rnatsa, boshqa oqim bayroqni <code>acquire</code> bilan o'qiganda yozilgan ma'lumot ham ko'rinadi. Bu <b>happens-before</b> munosabati. <code>seq_cst</code> — eng kuchli va standart; u barcha oqimlar uchun yagona global tartib beradi, lekin qimmatroq.",
+          },
+          {
+            type: "code",
+            title: "release_acquire.c",
+            code: String.raw`#include <stdio.h>
+#include <pthread.h>
+#include <stdatomic.h>
+
+static atomic_int tayyor = 0;
+static int xabar = 0;
+
+void *yozuvchi(void *arg) {
+    (void)arg;
+    xabar = 42;
+    atomic_store_explicit(&tayyor, 1, memory_order_release);
+    return NULL;
+}
+
+void *o_quvchi(void *arg) {
+    (void)arg;
+    while (atomic_load_explicit(&tayyor, memory_order_acquire) == 0) {
+    }
+    printf("xabar=%d\n", xabar);
+    return NULL;
+}
+
+int main(void) {
+    pthread_t a, b;
+    pthread_create(&a, NULL, yozuvchi, NULL);
+    pthread_create(&b, NULL, o_quvchi, NULL);
+    pthread_join(a, NULL);
+    pthread_join(b, NULL);
+    return 0;
+}`,
+            output: "xabar=42",
+          },
+          {
+            type: "table",
+            head: ["Tartib", "Kafolat", "Qachon"],
+            rows: [
+              ["relaxed", "faqat atomiklik", "hisoblagich, statistika"],
+              ["acquire", "keyingi o'qishlar oldinga o'tmaydi", "qulfni olish, bayroqni o'qish"],
+              ["release", "oldingi yozishlar orqaga o'tmaydi", "bayroqni o'rnatish"],
+              ["seq_cst", "to'liq global tartib", "standart, ishonchli tanlov"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Atomik bo'lmagan ma'lumot",
+            html: "Bayroq atomik bo'lsa ham, u orqali himoyalangan oddiy o'zgaruvchini atomiksiz o'qish faqat happens-before mavjud bo'lsa xavfsiz. <code>memory_order_relaxed</code> ni \"hech narsa muhim emas\" deb tushunmang: u faqat boshqa o'zgaruvchilar tartibini kafolatlamaydi. <code>volatile</code> atomiklar o'rnini bosmaydi. Har bir atomik turning <code>atomic_is_lock_free</code> ekanini tekshiring; ba'zi platformalarda qulf ishlatiladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Data race qanday holatda yuzaga keladi?",
+            options: [
+              "Ikki oqim bir vaqtda bitta oddiy o'zgaruvchiga qulfsiz murojaat qilsa, kamida bittasi yozsa",
+              "Faqat o'qish bo'lsa",
+              "Oqimlar soni 2 dan ko'p bo'lsa",
+              "Mutex ishlatilsa",
+            ],
+            answer: 0,
+            explain: "Kamida bitta yozuv va sinxronizatsiyasiz parallel murojaat data race hisoblanadi.",
+          },
+          {
+            q: "release va acquire tartiblari qanday bog'lanadi?",
+            options: [
+              "Release yozuvni, acquire o'qishni tezlashtiradi",
+              "Release oldingi yozishlarni ko'rinadigan qiladi, acquire keyingi o'qishlarni ta'minlaydi",
+              "Ikkalasi bir xil",
+              "Faqat seq_cst ishlaydi",
+            ],
+            answer: 1,
+            explain: "Ular juftlikda happens-before yaratadi: release bilan yozilgan ma'lumot acquire dan keyin ko'rinadi.",
+          },
+          {
+            q: "Atomic fetch_add memory_order_relaxed bilan nima kafolatlanadi?",
+            options: [
+              "Boshqa o'zgaruvchilar tartibi",
+              "Faqat qo'shish amalining atomikligi",
+              "To'liq seq_cst tartib",
+              "Hech narsa",
+            ],
+            answer: 1,
+            explain: "Relaxed faqat shu atomik amalning bo'linmasligini beradi, boshqa xotira operatsiyalari tartibini emas.",
+          },
+        ],
+      },
+      {
+        id: 88,
+        title: "TCP soketlar: server va client",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "TCP soket dasturlash server va client o'rtasida ishonchli bayt oqimini yaratadi. Server <code>socket</code> → <code>bind</code> → <code>listen</code> → <code>accept</code> tartibida ishlaydi; <code>accept</code> yangi ulanish uchun alohida soket qaytaradi. Client <code>socket</code> → <code>connect</code> bilan ulanadi. Port va IP manzil <b>network byte order</b> da, ya'ni <code>htons</code>/<code>htonl</code> orqali beriladi.",
+          },
+          {
+            type: "code",
+            title: "server.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+int main(void) {
+    int server = socket(AF_INET, SOCK_STREAM, 0);
+    if (server < 0) {
+        perror("socket");
+        return 1;
+    }
+
+    int opt = 1;
+    setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof opt);
+
+    struct sockaddr_in manzil;
+    memset(&manzil, 0, sizeof manzil);
+    manzil.sin_family = AF_INET;
+    manzil.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    manzil.sin_port = htons(8080);
+
+    if (bind(server, (struct sockaddr *)&manzil, sizeof manzil) < 0) {
+        perror("bind");
+        return 1;
+    }
+    if (listen(server, 8) < 0) {
+        perror("listen");
+        return 1;
+    }
+    printf("server: 8080 da\n");
+
+    int client = accept(server, NULL, NULL);
+    if (client < 0) {
+        perror("accept");
+        return 1;
+    }
+
+    char bufer[64];
+    ssize_t n = read(client, bufer, sizeof bufer - 1);
+    if (n > 0) {
+        bufer[n] = '\0';
+        printf("keldi: %s\n", bufer);
+    }
+
+    const char *javob = "Salom, client!";
+    write(client, javob, strlen(javob));
+    close(client);
+    close(server);
+    return 0;
+}`,
+            output: "server: 8080 da\nkeldi: salom",
+          },
+          {
+            type: "p",
+            html: "Client serverga bog'lanib, so'rov yuboradi va javobni o'qiydi. <code>read</code> va <code>write</code> qaytargan baytlar soni so'ralganidan kam bo'lishi mumkin; to'liq oqim uchun tsikl yozing. <code>connect</code> xato bo'lsa, server ishlamayotgan yoki port band bo'lishi mumkin. Testda <code>127.0.0.1</code> (loopback) ishlatiladi; tashqi tarmoqqa chiqish uchun firewall va ruxsatlar kerak.",
+          },
+          {
+            type: "code",
+            title: "client.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+int main(void) {
+    int s = socket(AF_INET, SOCK_STREAM, 0);
+    if (s < 0) {
+        perror("socket");
+        return 1;
+    }
+
+    struct sockaddr_in server;
+    memset(&server, 0, sizeof server);
+    server.sin_family = AF_INET;
+    server.sin_port = htons(8080);
+
+    if (inet_pton(AF_INET, "127.0.0.1", &server.sin_addr) != 1) {
+        printf("manzil xato\n");
+        return 1;
+    }
+
+    if (connect(s, (struct sockaddr *)&server, sizeof server) < 0) {
+        perror("connect");
+        return 1;
+    }
+
+    const char *xabar = "salom";
+    send(s, xabar, strlen(xabar), 0);
+
+    char bufer[64];
+    ssize_t n = recv(s, bufer, sizeof bufer - 1, 0);
+    if (n > 0) {
+        bufer[n] = '\0';
+        printf("javob: %s\n", bufer);
+    }
+
+    close(s);
+    return 0;
+}`,
+            output: "javob: Salom, client!",
+          },
+          {
+            type: "table",
+            head: ["Chaqiruv", "Server", "Client"],
+            rows: [
+              ["<code>socket</code>", "endi ochiladi", "endi ochiladi"],
+              ["<code>bind</code>", "portga bog'lanadi", "odatda kerak emas"],
+              ["<code>listen</code>", "ulanishlarni kutadi", "—"],
+              ["<code>connect</code>", "—", "serverga ulanadi"],
+              ["<code>accept</code>", "yangi soket qaytaradi", "—"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Qismli o'qish va xatolar",
+            html: "TCP oqim, xabar emas: bitta <code>send</code> bir nechta <code>recv</code> da kelishi yoki aksincha bo'lishi mumkin. Protokolga uzunlik prefiksini yoki ajratgichni qo'shing. <code>SO_REUSEADDR</code> server qayta ishga tushganda portning TIME_WAIT holatida band bo'lishini yumshatadi. Har bir tizim chaqiruvi natijasini tekshiring; <code>EINTR</code> bo'lsa qayta urinib ko'ring. Ishlab chiqarishda TLS, autentifikatsiya va vaqt chegaralari qo'shiladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Server portni qaysi funksiya orqali band qiladi?",
+            options: ["accept", "connect", "bind", "listen"],
+            answer: 2,
+            explain: "bind soketni IP va portga bog'laydi; listen esa ulanishlarni kutishni boshlaydi.",
+          },
+          {
+            q: "Nega port htons orqali beriladi?",
+            options: [
+              "Sonni 16 bitga qisqartirish uchun",
+              "Host tartibidan network (big-endian) tartibiga o'tkazish uchun",
+              "Portni shifrlash uchun",
+              "Portni tasodifiy qilish uchun",
+            ],
+            answer: 1,
+            explain: "Tarmoq protokollari big-endian ishlatadi; htons host tartibidan network tartibiga o'tkazadi.",
+          },
+          {
+            q: "TCP da bitta recv butun yuborilgan xabarni olishini kafolatlash mumkinmi?",
+            options: [
+              "Ha, har doim",
+              "Yo'q, oqim qismlarga bo'linishi mumkin",
+              "Faqat localhost da",
+              "Faqat kichik xabarlar uchun",
+            ],
+            answer: 1,
+            explain: "TCP bayt oqimi; xabar chegaralari saqlanmaydi, shuning uchun uzunlik yoki ajratgich kerak.",
+          },
+        ],
+      },
+      {
+        id: 89,
+        title: "IPC: pipe, fork va umumiy xotira",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Jarayonlar xotirani bo'lishmaydi, shuning uchun ular orasida ma'lumot uzatish uchun <b>IPC</b> kerak. <code>pipe</code> bir tomonlama bayt oqimi yaratadi: biri yozadi, boshqasi o'qiydi. <code>fork</code> jarayon nusxasini yaratadi; bola va ota bir xil fayl deskriptorlariga ega bo'ladi. Pipe bloklanadi: bufer to'lsa yozuvchi, ma'lumot bo'lmasa o'quvchi kutadi.",
+          },
+          {
+            type: "code",
+            title: "pipe_fork.c",
+            code: String.raw`#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main(void) {
+    int fd[2];
+    if (pipe(fd) != 0) {
+        perror("pipe");
+        return 1;
+    }
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        return 1;
+    }
+
+    if (pid == 0) {
+        close(fd[0]);
+        int qiymat = 42;
+        write(fd[1], &qiymat, sizeof qiymat);
+        close(fd[1]);
+        _exit(0);
+    }
+
+    close(fd[1]);
+    int qiymat = 0;
+    ssize_t n = read(fd[0], &qiymat, sizeof qiymat);
+    close(fd[0]);
+    waitpid(pid, NULL, 0);
+
+    if (n == (ssize_t)sizeof qiymat) {
+        printf("ota oldi: %d\n", qiymat);
+    }
+    return 0;
+}`,
+            output: "ota oldi: 42",
+          },
+          {
+            type: "p",
+            html: "<b>Umumiy xotira</b> katta ma'lumotni nusxalashsiz uzatish uchun ishlatiladi. <code>mmap</code> bilan <code>MAP_SHARED</code> xarita yaratilsa, ota va bola bir xil sahifalarni ko'radi. Lekin bu sinxronizatsiyani o'zi bermaydi: mutex, semafor yoki atomik bayroq kerak. <code>MAP_ANONYMOUS</code> Linux'ga xos; POSIX varianti <code>shm_open</code> + <code>ftruncate</code> + <code>mmap</code>.",
+          },
+          {
+            type: "code",
+            title: "shared_memory.c",
+            code: String.raw`#include <stdio.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/wait.h>
+
+int main(void) {
+    int *umumiy = mmap(NULL, sizeof *umumiy,
+                       PROT_READ | PROT_WRITE,
+                       MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+    if (umumiy == MAP_FAILED) {
+        perror("mmap");
+        return 1;
+    }
+    *umumiy = 0;
+
+    pid_t pid = fork();
+    if (pid == 0) {
+        *umumiy = 7;
+        _exit(0);
+    }
+
+    waitpid(pid, NULL, 0);
+    printf("qiymat=%d\n", *umumiy);
+    munmap(umumiy, sizeof *umumiy);
+    return 0;
+}`,
+            output: "qiymat=7",
+          },
+          {
+            type: "table",
+            head: ["Usul", "Yo'nalish", "Afzallik", "Kamchilik"],
+            rows: [
+              ["pipe", "bir tomonlama", "oddiy, bloklanadi", "faqat qarindosh jarayonlar"],
+              ["FIFO", "bir tomonlama", "nom orqali", "fayl tizimida qoladi"],
+              ["shared memory", "ikki tomonlama", "eng tez, katta hajm", "sinxronizatsiya kerak"],
+              ["message queue", "xabarlar", "chegaralar saqlanadi", "tizim cheklovlari"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Fork va buferlar",
+            html: "<code>fork</code> dan keyin ota va bolada <code>stdio</code> buferlari nusxalanadi; ikkalasi ham <code>printf</code> qilsa, bir xil satr ikki marta chiqishi mumkin. Bola <code>_exit</code> bilan chiqishi kerak, <code>exit</code> emas — aks holda buferlar qayta yoziladi. Pipe yozuvchi tomoni yopilmasa, o'quvchi abadiy kutishi mumkin. Umumiy xotirada ma'lumotni yozib bo'lgach bayroqni <code>release</code> bilan o'rnatish va o'qishda <code>acquire</code> ishlatish xavfsiz naqshdir.",
+          },
+        ],
+        quiz: [
+          {
+            q: "pipe orqali ma'lumot qaysi yo'nalishda oqadi?",
+            options: [
+              "Ikki tomonlama",
+              "fd[0] dan fd[1] ga",
+              "fd[1] dan fd[0] ga",
+              "Faqat fayl orqali",
+            ],
+            answer: 2,
+            explain: "Pipe bir tomonlama; yozish fd[1] ga, o'qish fd[0] dan bajariladi.",
+          },
+          {
+            q: "fork dan keyin bola jarayon ota xotirasini qanday ko'radi?",
+            options: [
+              "Umumiy, barcha o'zgarishlar ko'rinadi",
+              "Nusxa (copy-on-write), alohida manzil fazosi",
+              "Faqat o'qish uchun",
+              "Xotira umuman yo'q",
+            ],
+            answer: 1,
+            explain: "Har bir jarayonning o'z manzil fazosi bor; sahifalar copy-on-write bilan nusxalanadi.",
+          },
+          {
+            q: "MAP_SHARED mmap nimani ta'minlaydi?",
+            options: [
+              "Ota va bola bir xil sahifalarni ko'rishini",
+              "Avtomatik mutex",
+              "Faylni o'chirishni",
+              "Faqat o'qish huquqini",
+            ],
+            answer: 0,
+            explain: "MAP_SHARED xaritalangan sahifalar jarayonlar o'rtasida umumiy bo'ladi, lekin sinxronizatsiya qo'lda qilinadi.",
+          },
+        ],
+      },

@@ -1,0 +1,418 @@
+@@lesson 75
+@@title Android arxitekturasi: ViewModel, UDF va SavedStateHandle
+@@minutes 18
+@@p
+Android'da UI holati yagona manbadan boshqarilishi kerak. Unidirectional Data Flow (UDF) qoidasi: UI event yuboradi, ViewModel holatni yangilaydi, UI yangi holatni chizadi. Holat immutable <code>data class</code> bo'ladi, o'zgarishlar esa <code>copy</code> bilan yangi nusxa yaratadi. Bu yondashuv testlashni osonlashtiradi va tasodifiy holat buzilishlarini kamaytiradi.
+@@code reducer.kt
+data class VazifaUiState(
+    val yuklanmoqda: Boolean = false,
+    val vazifalar: List<String> = emptyList(),
+    val xato: String? = null,
+    val filtr: String = "hammasi"
+)
+
+sealed interface VazifaEvent {
+    data object Yukla : VazifaEvent
+    data class Muvaffaqiyat(val royxat: List<String>) : VazifaEvent
+    data class Xato(val xabar: String) : VazifaEvent
+}
+
+fun reduce(holat: VazifaUiState, event: VazifaEvent): VazifaUiState = when (event) {
+    VazifaEvent.Yukla -> holat.copy(yuklanmoqda = true, xato = null)
+    is VazifaEvent.Muvaffaqiyat -> holat.copy(yuklanmoqda = false, vazifalar = event.royxat, xato = null)
+    is VazifaEvent.Xato -> holat.copy(yuklanmoqda = false, xato = event.xabar)
+}
+
+fun main() {
+    var holat = VazifaUiState()
+    listOf(
+        VazifaEvent.Yukla,
+        VazifaEvent.Muvaffaqiyat(listOf("Kotlin")),
+        VazifaEvent.Xato("tarmoq")
+    ).forEach {
+        holat = reduce(holat, it)
+        println(holat)
+    }
+}
+@@out
+VazifaUiState(yuklanmoqda=true, vazifalar=[], xato=null, filtr=hammasi)
+VazifaUiState(yuklanmoqda=false, vazifalar=[Kotlin], xato=null, filtr=hammasi)
+VazifaUiState(yuklanmoqda=false, vazifalar=[Kotlin], xato=tarmoq, filtr=hammasi)
+@@p
+<code>ViewModel</code> konfiguratsiya o'zgarganda yashaydi, lekin process o'ldirilsa yo'qoladi. Muhim filtr yoki tanlangan elementni <code>SavedStateHandle</code> ga yozib qo'yish kerak. ViewModel <code>Context</code>, <code>Activity</code> yoki View'ni saqlamasligi shart — aks holda memory leak bo'ladi. Quyidagi ViewModel holatni reducer orqali yangilaydi va filtrni tiklaydi.
+@@code viewmodel.kt
+class VazifaViewModel(
+    private val repo: VazifaRepository,
+    private val saved: SavedStateHandle
+) : ViewModel() {
+    private val _holat = MutableStateFlow(VazifaUiState())
+    val holat: StateFlow<VazifaUiState> = _holat.asStateFlow()
+
+    init {
+        val filtr = saved.get<String>("filtr") ?: "hammasi"
+        _holat.update { it.copy(filtr = filtr) }
+        println("ViewModel yaratildi: filtr=$filtr")
+    }
+
+    fun yukla() {
+        viewModelScope.launch {
+            _holat.update { reduce(it, VazifaEvent.Yukla) }
+            runCatching { repo.hammasi() }
+                .onSuccess { royxat ->
+                    _holat.update { reduce(it, VazifaEvent.Muvaffaqiyat(royxat)) }
+                }
+                .onFailure { e ->
+                    _holat.update { reduce(it, VazifaEvent.Xato(e.message ?: "xato")) }
+                }
+            println("holat: ${_holat.value}")
+        }
+    }
+
+    fun filtrOzgardi(yangi: String) {
+        saved["filtr"] = yangi
+        _holat.update { it.copy(filtr = yangi) }
+    }
+}
+@@out
+I/System.out: ViewModel yaratildi: filtr=bugun
+I/System.out: holat: VazifaUiState(yuklanmoqda=false, vazifalar=[Kotlin], xato=null, filtr=bugun)
+@@note warning | Context va leak
+ViewModel'ga <code>Application</code> kerak bo'lsa, <code>AndroidViewModel</code> yoki DI orqali bering; Activity context'ini saqlamang. <code>SavedStateHandle</code> faqat kichik, serializatsiyalanadigan qiymatlar uchun. Katta ro'yxat yoki bitmap'ni saqlash Bundle hajmini oshirib, <code>TransactionTooLargeException</code> ga olib keladi.
+@@quiz
+<code>SavedStateHandle</code> asosan nima uchun kerak?
+- Katta rasmlarni saqlash
+- Process o'ldirilgach muhim UI holatini tiklash
+- Tarmoq so'rovlarini keshlash
+- Ma'lumotlar bazasini almashtirish
+= 1
+! SavedStateHandle kichik holatni Bundle orqali saqlaydi va process death'dan keyin tiklaydi.
+@@quiz
+UDF'da UI holatini kim o'zgartiradi?
+- UI bevosita repository'ni o'zgartiradi
+- ViewModel event asosida yangi immutable holat yaratadi
+- Layout XML avtomatik
+- Har bir Composable global o'zgaruvchini yozadi
+= 1
+! UDF'da event ViewModel'ga keladi, u holatni yangilaydi, UI esa faqat o'qib chizadi.
+@@quiz
+Nega ViewModel'da Activity context'ini saqlash xavfli?
+- Konfiguratsiya o'zgarganda ViewModel yo'qoladi
+- Activity'dan uzoq yashovchi ViewModel leak'ga olib keladi
+- Context serializatsiya qilinmaydi
+- ViewModel faqat Application bilan ishlaydi
+= 1
+! ViewModel konfiguratsiya o'zgarishidan uzoq yashaydi; eski Activity'ga havola leak qiladi.
+@@lesson 76
+@@title Compose ichki olami: recomposition, stability va performance
+@@minutes 18
+@@p
+Compose UI'ni qayta chizmaydi — u faqat o'qilgan state o'zgarganda tegishli kompozitsiya qismlarini qayta bajaradi (recomposition). <code>remember</code> qiymatni qayta kompozitsiyalar orasida saqlaydi; kalit o'zgarsa, qiymat qaytadan yaratiladi. <code>derivedStateOf</code> esa boshqa state'lardan hisoblangan qiymatni keshlaydi va faqat natija o'zgarganda obunachilarni xabardor qiladi.
+@@code hisoblagich.kt
+@Composable
+fun Hisoblagich() {
+    var son by remember { mutableIntStateOf(0) }
+    println("recompose: $son")
+    Button(onClick = { son++ }) {
+        Text("Bosildi: $son")
+    }
+}
+@@out
+I/System.out: recompose: 0
+I/System.out: recompose: 1
+I/System.out: recompose: 2
+@@p
+Compose kompilyatori barqaror (stable) parametrli composable'ni o'zgartirmasdan o'tkazib yuborishi (skip) mumkin. <code>data class</code> barcha maydonlari immutable bo'lsa barqaror hisoblanadi; <code>List</code> esa interfeys bo'lgani uchun har doim barqaror emas — <code>kotlinx.collections.immutable</code> yoki <code>@Immutable</code> yordam beradi. Lambda'lar beqaror bo'lsa, <code>remember</code> bilan o'raladi.
+@@code derived.kt
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
+
+fun main() {
+    val matn = mutableStateOf("Kotlin")
+    val qisqa = derivedStateOf { matn.value.length <= 3 }
+    println(qisqa.value)
+    matn.value = "Kot"
+    println(qisqa.value)
+    matn.value = "Kotlin"
+    println(qisqa.value)
+}
+@@out
+false
+true
+false
+@@note tip | LazyColumn kalitlari
+<code>LazyColumn</code> elementlariga <code>key = { it.id }</code> bering: ro'yxat qayta tartiblanganda <code>remember</code> holati noto'g'ri elementga ko'chib ketmaydi. Og'ir hisobni composable ichida emas, <code>remember(key)</code> yoki ViewModel'da bajaring. Recomposition'ni kamaytirish uchun state'ni imkon qadar pastga (eng yaqin iste'molchiga) uzating.
+@@quiz
+<code>remember</code> nima vazifani bajaradi?
+- Recomposition orasida qiymatni saqlaydi
+- Tarmoq so'rovini bajaradi
+- Composable'ni butunlay o'chiradi
+- State'ni global qiladi
+= 0
+! remember qiymatni kompozitsiya hayoti davomida eslab qoladi; kalit o'zgarsa qayta hisoblanadi.
+@@quiz
+<code>derivedStateOf</code> qachon obunachilarni xabardor qiladi?
+- Har bir recompositionda
+- Hisoblangan natija haqiqatan o'zgarganda
+- Faqat dastur ishga tushganda
+- Har soniyada
+= 1
+! derivedStateOf natijani keshlaydi va faqat natija o'zgarganda o'zgarish signalini beradi.
+@@quiz
+LazyColumn'da <code>key</code> parametrining vazifasi nima?
+- Elementlarni avtomatik saralaydi
+- Element identifikatorini saqlab, holatni to'g'ri elementga bog'laydi
+- Ro'yxatni cheksiz qiladi
+- Har bir elementni qayta yaratadi
+= 1
+! Barqaror key Compose'ga elementlarni kuzatish va remember holatini to'g'ri saqlash imkonini beradi.
+@@lesson 77
+@@title Compose Navigation va ko'p ekranli oqim
+@@minutes 17
+@@p
+<code>NavController</code> ekranlar orasidagi o'tish va orqaga qaytish stekini boshqaradi. <code>NavHost</code> ichida marshrutlar <code>composable("route")</code> bilan e'lon qilinadi; parametrlar yo'lda <code>{id}</code> ko'rinishida uzatiladi. Ekranlar bir-biriga to'g'ridan-to'g'ri bog'lanmasligi kerak: navigatsiya callback orqali yuqoriga uzatiladi, bu testlash va qayta ishlatishni osonlashtiradi.
+@@code navhost.kt
+@Composable
+fun Ilova() {
+    val nav = rememberNavController()
+    NavHost(navController = nav, startDestination = "royxat") {
+        composable("royxat") {
+            RoyxatEkrani(onOpen = { id ->
+                println("navigate: tafsilot/$id")
+                nav.navigate("tafsilot/$id")
+            })
+        }
+        composable(
+            route = "tafsilot/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entry ->
+            val id = entry.arguments?.getInt("id") ?: 0
+            TafsilotEkrani(id, onBack = {
+                println("back: royxat")
+                nav.popBackStack()
+            })
+        }
+    }
+}
+@@out
+I/System.out: navigate: tafsilot/7
+I/System.out: tafsilot: 7
+I/System.out: back: royxat
+@@p
+Navigation 2.8+ type-safe marshrutlarni qo'llab-quvvatlaydi: marshrut <code>@Serializable</code> obyekt yoki data class bo'ladi, argumentlar esa maydon sifatida uzatiladi. Bu satr xatolarini yo'q qiladi va IDE'da refactoring'ni osonlashtiradi. <code>toRoute()</code> joriy destination argumentlarini tipga xavfsiz aylantiradi.
+@@code typesafe.kt
+import androidx.navigation.compose.*
+import androidx.navigation.toRoute
+import kotlinx.serialization.Serializable
+
+@Serializable data object Royxat
+@Serializable data class Tafsilot(val id: Int)
+
+@Composable
+fun Ilova() {
+    val nav = rememberNavController()
+    NavHost(navController = nav, startDestination = Royxat) {
+        composable<Royxat> {
+            RoyxatEkrani(onOpen = { id -> nav.navigate(Tafsilot(id)) })
+        }
+        composable<Tafsilot> { entry ->
+            val route: Tafsilot = entry.toRoute()
+            println("type-safe id: ${route.id}")
+            TafsilotEkrani(route.id, onBack = { nav.popBackStack() })
+        }
+    }
+}
+@@out
+I/System.out: type-safe id: 42
+@@note tip | Navigatsiya qoidalari
+Ekranlar orasida butun obyektni emas, identifikatorni uzating — state'ni ViewModel yoki repository'dan qayta yuklang. Chuqur havolalar (deep link) uchun <code>deepLinks</code> ro'yxatini e'lon qiling. Pastki navigatsiyada har bir tab o'z back stack'iga ega bo'lishi uchun <code>saveState/restoreState</code> ishlatiladi. Back tugmasi <code>popBackStack()</code> orqali ishlaydi.
+@@quiz
+<code>NavHost</code> nima vazifani bajaradi?
+- Marshrutlarni (destination) ro'yxatga olib, joriy ekranni ko'rsatadi
+- Ma'lumotlar bazasini yaratadi
+- Faqat animatsiyalarni boshqaradi
+- Tarmoq so'rovlarini yuboradi
+= 0
+! NavHost NavController bilan bog'lanib, marshrutlarga mos composable'ni chizadi.
+@@quiz
+Oldingi ekranga qaytish uchun qaysi metod ishlatiladi?
+- <code>navigate()</code>
+- <code>popBackStack()</code>
+- <code>clearBackStack()</code>
+- <code>restart()</code>
+= 1
+! popBackStack back stack'dan joriy destination'ni olib tashlab, oldingisiga qaytadi.
+@@quiz
+Type-safe navigation'da marshrut qanday e'lon qilinadi?
+- Satr sifatida, faqat kichik harflar bilan
+- <code>@Serializable</code> obyekt yoki data class sifatida
+- XML faylda
+- Faqat enum orqali
+= 1
+! Navigation 2.8+ @Serializable marshrutlarni qabul qiladi va argumentlarni tipga xavfsiz bog'laydi.
+@@lesson 78
+@@title Room chuqur: relations, migration va Flow
+@@minutes 18
+@@p
+Room — SQLite ustidagi type-safe qatlam. <code>@Entity</code> jadvalni, <code>@Dao</code> so'rovlarni, <code>@Database</code> esa bazani belgilaydi. Bog'langan jadvallar uchun <code>@Relation</code> ishlatiladi: u asosiy obyektga bog'liq ro'yxatni alohida so'rov bilan yuklaydi. <code>@Transaction</code> esa natijaning izchilligini kafolatlaydi.
+@@code entities.kt
+@Entity(tableName = "users")
+data class UserEntity(@PrimaryKey val id: Long, val ism: String)
+
+@Entity(
+    tableName = "tasks",
+    foreignKeys = [ForeignKey(
+        entity = UserEntity::class,
+        parentColumns = ["id"],
+        childColumns = ["user_id"],
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [Index("user_id")]
+)
+data class TaskEntity(
+    @PrimaryKey val id: Long,
+    val sarlavha: String,
+    @ColumnInfo(name = "user_id") val userId: Long
+)
+
+data class UserWithTasks(
+    @Embedded val user: UserEntity,
+    @Relation(parentColumn = "id", entityColumn = "user_id")
+    val tasks: List<TaskEntity>
+)
+
+@Dao
+interface UserDao {
+    @Transaction
+    @Query("SELECT * FROM users")
+    fun kuzat(): Flow<List<UserWithTasks>>
+}
+@@out
+I/Room: jadval yaratildi: users(id, ism), tasks(id, sarlavha, user_id)
+I/Room: indeks: index_tasks_user_id
+@@p
+Baza sxemasi o'zgarganda versiyani oshirib, <code>Migration</code> yozish kerak. Migratsiya eski jadvalni yangi sxemaga o'tkazadi; noto'g'ri SQL ma'lumotni yo'qotishi mumkin. <code>fallbackToDestructiveMigration()</code> faqat prototipda mos — production'da u barcha ma'lumotni o'chiradi. Migratsiyaniinstrumental testda tekshirish tavsiya etiladi.
+@@code migration.kt
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "ALTER TABLE tasks ADD COLUMN priority INTEGER NOT NULL DEFAULT 0"
+        )
+        println("migration 1 -> 2 tugadi")
+    }
+}
+
+val baza = Room.databaseBuilder(context, AppDatabase::class.java, "noldan.db")
+    .addMigrations(MIGRATION_1_2)
+    .build()
+
+fun main() {
+    println("Room versiyasi: 2")
+    println("migratsiya tayyor: ${MIGRATION_1_2.endVersion}")
+}
+@@out
+I/System.out: migration 1 -> 2 tugadi
+I/System.out: Room versiyasi: 2
+I/System.out: migratsiya tayyor: 2
+@@note warning | Flow va tranzaksiya
+DAO <code>Flow</code> qaytarsa, jadval o'zgarganda yangi ro'yxat avtomatik keladi. Uni UI'da <code>collectAsStateWithLifecycle</code> bilan yig'ing. Katta ro'yxatni asosiy thread'da o'qimang: Room suspend funksiyalarni o'zi background'da bajaradi. <code>@Relation</code> ichki so'rovlari uchun <code>@Transaction</code> majburiy.
+@@quiz
+<code>@Relation</code> nimani yuklaydi?
+- Boshqa jadvaldagi bog'langan obyektlar ro'yxatini
+- Faqat bitta ustunni
+- Indekslarni avtomatik
+- Migratsiya tarixini
+= 0
+! @Relation asosiy entityga tegishli bog'langan entity'lar ro'yxatini alohida so'rov bilan to'ldiradi.
+@@quiz
+Room'da sxema o'zgarganda nima qilish kerak?
+- Hech narsa, Room avtomatik hal qiladi
+- Versiyani oshirib, migratsiya yozish
+- Bazani o'chirish har ishga tushishda
+- Faqat DAO'ni o'zgartirish
+= 1
+! Har bir sxema o'zgarishi yangi versiya va eski ma'lumotni saqlovchi migratsiya talab qiladi.
+@@quiz
+DAO <code>Flow</code> qaytarganda qanday afzallik beradi?
+- Jadval o'zgarganda yangi ma'lumot avtomatik oqadi
+- So'rovni faqat bir marta bajaradi
+- Ma'lumotlar bazasini o'chiradi
+- UI thread'da bloklaydi
+= 0
+! Room Flow'ni kuzatadi va tegishli jadval o'zgarganda yangi natijani chiqaradi.
+@@lesson 79
+@@title Android testlash: unit, Compose UI va DI
+@@minutes 18
+@@p
+Android testlash uch qatlamga bo'linadi: sof Kotlin unit testlari, ViewModel testlari va UI (instrumentation) testlari. ViewModel'da <code>viewModelScope</code> <code>Dispatchers.Main</code> dan foydalanadi, shuning uchun testda <code>Dispatchers.setMain(StandardTestDispatcher())</code> o'rnatiladi. Repository o'rniga fake ishlatilsa, test tarmoqqa va vaqtga bog'liq bo'lmaydi.
+@@code viewmodeltest.kt
+@OptIn(ExperimentalCoroutinesApi::class)
+class VazifaViewModelTest {
+    private val dispatcher = StandardTestDispatcher()
+
+    @BeforeTest
+    fun oldin() {
+        Dispatchers.setMain(dispatcher)
+    }
+
+    @AfterTest
+    fun keyin() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun yuklash() = runTest {
+        val repo = FakeRepo(listOf("Kotlin", "Ktor"))
+        val vm = VazifaViewModel(repo, SavedStateHandle())
+        vm.yukla()
+        advanceUntilIdle()
+        assertEquals(listOf("Kotlin", "Ktor"), vm.holat.value.vazifalar)
+        assertFalse(vm.holat.value.yuklanmoqda)
+    }
+}
+@@out
+> Task :app:testDebugUnitTest
+BUILD SUCCESSFUL in 4s
+2 actionable tasks: 2 executed
+@@p
+Compose UI testlari semantik daraxt orqali ishlaydi: <code>onNodeWithText</code>, <code>onNodeWithTag</code> va <code>performClick</code> kabi amallar. Test uchun alohida logic va UI'ni ajratish muhim: ViewModel testda tekshiriladi, Compose test esa faqat ko'rinish va foydalanuvchi amallarini qamraydi. DI (Hilt yoki Koin) testda fake modul bilan almashtiriladi.
+@@code composeTest.kt
+@get:Rule
+val compose = createComposeRule()
+
+@Test
+fun tugmaBosilgandaSonOshadi() {
+    compose.setContent { Hisoblagich() }
+    compose.onNodeWithText("Bosildi: 0").assertExists()
+    compose.onNodeWithText("Bosildi: 0").performClick()
+    compose.onNodeWithText("Bosildi: 1").assertExists()
+}
+@@out
+> Task :app:connectedDebugAndroidTest
+Starting 1 tests on Pixel_7_API_35
+BUILD SUCCESSFUL in 12s
+@@note tip | Test piramidasi
+Ko'p unit test, o'rtacha integratsiya testi, kam UI test — bu test piramidasi. Fake repository haqiqiy biznes qoidalarini tekshirish uchun mock'dan yaxshiroq. Coroutine oqimlarini Turbine bilan, vaqtni <code>runTest</code> virtual clock bilan boshqaring. UI testda matn o'zgarishiga emas, semantik tegga tayaning.
+@@quiz
+ViewModel testida <code>Dispatchers.setMain</code> nima uchun kerak?
+- <code>viewModelScope</code> test dispatcher'ida ishlashi uchun
+- Tarmoqni o'chirish uchun
+- UI'ni chizish uchun
+- Bazani yaratish uchun
+= 0
+! viewModelScope Main dispatcher'ga tayanadi; testda uni StandardTestDispatcher bilan almashtirish kerak.
+@@quiz
+Compose testida elementni matni bo'yicha topish uchun qaysi API ishlatiladi?
+- <code>onNodeWithText</code>
+- <code>findViewById</code>
+- <code>querySelector</code>
+- <code>getElementById</code>
+= 0
+! Compose test semantik daraxtdan <code>onNodeWithText</code> kabi finder'lar bilan element topadi.
+@@quiz
+Fake repository mock'dan nimasi bilan afzal?
+- Haqiqiy xatti-harakatni taqlid qilib, testni barqaror qiladi
+- U har doim tezroq kompilyatsiya bo'ladi
+- U tarmoqni avtomatik yoqadi
+- U UI'ni almashtiradi
+= 0
+! Fake aniq va bashorat qilinadigan natija beradi; mock esa ko'pincha chaqiruvlarni tekshirishga qaratiladi.

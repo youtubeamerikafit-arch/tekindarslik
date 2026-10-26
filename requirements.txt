@@ -1,0 +1,21 @@
+# Noldan — loyihada ishlatiladigan tashqi bog'liqliklar
+#
+# Brauzerda ishlatiladi (pip install qilinmaydi; CDN'dan yuklanadi):
+#   Pyodide 0.27.7
+#     URL: https://cdn.jsdelivr.net/pyodide/v0.27.7/full/
+#     Vazifasi: Python kodini brauzerda ishga tushirish.
+#
+# Google Fonts (pip paketi emas; fonts.googleapis.com orqali):
+#   Manrope       — shrift, 400/500/600/700/800
+#   Sora          — shrift, 500/600/700
+#   JetBrains Mono — shrift, 400/500/600
+#
+# Tekshiruv vositasi:
+#   Node.js 24.18.0 — scripts/validate-courses.js uchun.
+#   Faqat Node.js ichidagi vm, fs, path modullari ishlatiladi;
+#   alohida npm kutubxonasi kerak emas.
+#
+# Python server kutubxonalari:
+#   Yo'q. Sayt statik HTML/CSS/JavaScript bo'lgani uchun serverga
+#   pip orqali o'rnatiladigan Python paketi talab qilinmaydi.
+#   Lokal ko'rish: python -m http.server 5500

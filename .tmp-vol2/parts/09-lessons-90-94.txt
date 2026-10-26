@@ -1,0 +1,588 @@
+      {
+        id: 90,
+        title: "Testlash: mini freymvork va jadval testlari",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "Testlar kod o'zgarganda eski xatti-harakat buzilmaganini tekshiradi. Kichik loyihada og'ir freymvork shart emas: bir nechta makro va <code>main</code> yetarli. Har bir test bitta xatti-harakatni tekshirishi, tashqi holatga bog'liq bo'lmasligi va aniq xabar berishi kerak. <b>Regressiya testi</b> ilgari topilgan xatoning qaytmasligini kafolatlaydi.",
+          },
+          {
+            type: "code",
+            title: "mini_test.c",
+            code: String.raw`#include <stdio.h>
+
+int qosh(int a, int b) {
+    return a + b;
+}
+
+int main(void) {
+    int jami = 0, otdi = 0;
+
+    #define TEST(nom, ifoda) do { \
+        jami++; \
+        if (ifoda) { \
+            otdi++; \
+            printf("PASS %s\n", nom); \
+        } else { \
+            printf("FAIL %s\n", nom); \
+        } \
+    } while (0)
+
+    TEST("musbat", qosh(2, 3) == 5);
+    TEST("manfiy", qosh(-2, -3) == -5);
+    TEST("nol", qosh(0, 0) == 0);
+
+    printf("natija: %d/%d\n", otdi, jami);
+    return otdi == jami ? 0 : 1;
+}`,
+            output: "PASS musbat\nPASS manfiy\nPASS nol\nnatija: 3/3",
+          },
+          {
+            type: "p",
+            html: "Jadval testlari bir xil mantiqni ko'p kirishlar bilan tekshiradi. Har bir qatorda kirish, kutilgan natija va xato holati bo'ladi. Bu yondashuv chegaraviy qiymatlarni (nol, bo'sh satr, juda katta son) unutmaslikka yordam beradi. Testlar soni oshsa, ularni alohida faylga ajratib, <code>make test</code> yoki <code>ctest</code> orqali ishga tushiring.",
+          },
+          {
+            type: "code",
+            title: "jadval_test.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+int son_oyla(const char *s, int *natija) {
+    char *oxiri = NULL;
+    long v = strtol(s, &oxiri, 10);
+    if (oxiri == s || *oxiri != '\0') {
+        return 0;
+    }
+    *natija = (int)v;
+    return 1;
+}
+
+int main(void) {
+    struct {
+        const char *kirish;
+        int kutilgan_ok;
+        int kutilgan_qiymat;
+    } holatlar[] = {
+        {"42", 1, 42},
+        {"-7", 1, -7},
+        {"12x", 0, 0},
+        {"", 0, 0},
+        {"2147483647", 1, 2147483647},
+    };
+    int n = (int)(sizeof holatlar / sizeof holatlar[0]);
+    int otdi = 0;
+
+    for (int i = 0; i < n; i++) {
+        int qiymat = 0;
+        int ok = son_oyla(holatlar[i].kirish, &qiymat);
+        int togri = (ok == holatlar[i].kutilgan_ok) &&
+                    (!ok || qiymat == holatlar[i].kutilgan_qiymat);
+        printf("case %d: %s\n", i + 1, togri ? "ok" : "xato");
+        otdi += togri;
+    }
+    printf("natija: %d/%d\n", otdi, n);
+    return otdi == n ? 0 : 1;
+}`,
+            output: "case 1: ok\ncase 2: ok\ncase 3: ok\ncase 4: ok\ncase 5: ok\nnatija: 5/5",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Assert, unit va fuzz",
+            html: "<code>assert</code> dastur ichidagi shartni tekshiradi va release buildda o'chadi; test freymvork esa alohida dastur bo'lib, barcha holatlarni hisobot qiladi. Unit testlar kichik funksiyalarni, integratsiya testlari ularning birgalikda ishlashini tekshiradi. Fuzzing — tasodifiy/kirish buzilgan ma'lumot bilan dasturni yuritib, crash va sanitizer xatolarini topish usuli. Har bir topilgan xato uchun regressiya testi yozing.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Unit test ning asosiy maqsadi nima?",
+            options: [
+              "Butun tizimni yuklash",
+              "Kichik funksiya yoki modulning kutilgan xatti-harakatini tekshirish",
+              "Kodni optimallashtirish",
+              "Fayl hajmini kamaytirish",
+            ],
+            answer: 1,
+            explain: "Unit test izolyatsiyada bitta birlikning to'g'ri ishlashini tekshiradi.",
+          },
+          {
+            q: "Regressiya testi qanday vazifani bajaradi?",
+            options: [
+              "Yangi funksiya yozadi",
+              "Ilgari tuzatilgan xatoning qayta paydo bo'lishini aniqlaydi",
+              "Kompilyatorni tezlashtiradi",
+              "Faqat xotirani tekshiradi",
+            ],
+            answer: 1,
+            explain: "Regressiya testi eski xatoni qayta ishlab chiqaradigan holatni doimiy nazoratda saqlaydi.",
+          },
+          {
+            q: "Fuzzing nima qiladi?",
+            options: [
+              "Kodni chiroyli formatlaydi",
+              "Tasodifiy yoki buzilgan kirishlar bilan dasturni sinab, xatolarni topadi",
+              "Faqat birlik testlarini ishga tushiradi",
+              "Xotirani tozalaydi",
+            ],
+            answer: 1,
+            explain: "Fuzzer ko'p turli kirishlar generatsiya qilib, crash va sanitizer xatolarini izlaydi.",
+          },
+        ],
+      },
+      {
+        id: 91,
+        title: "Sanitizerlar, valgrind va statik tahlil",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Xotira xatolarini ko'z bilan topish qiyin. <b>AddressSanitizer</b> (ASan) chegaradan chiqish, use-after-free va leak larni ish vaqtida aniqlaydi. <b>UndefinedBehaviorSanitizer</b> (UBSan) ishorali overflow, noto'g'ri siljish kabi holatlarni xabar qiladi. <b>valgrind memcheck</b> Linux'da har bir xotira amalini kuzatadi, lekin sekinroq ishlaydi. Statik analizatorlar esa kodni ishga tushirmasdan shubhali joylarni topadi.",
+          },
+          {
+            type: "code",
+            title: "leak.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+    int *a = malloc(3 * sizeof *a);
+    if (a == NULL) {
+        return 1;
+    }
+    for (int i = 0; i < 3; i++) {
+        a[i] = (i + 1) * 10;
+    }
+    printf("a[1]=%d\n", a[1]);
+    /* free(a) ataylab yozilmagan */
+    return 0;
+}`,
+            output: "a[1]=20",
+          },
+          {
+            type: "p",
+            html: "Yuqoridagi dastur oddiy ishga tushganda to'g'ri natija beradi, lekin 12 bayt xotira oqadi. <code>valgrind --leak-check=full ./leak</code> \"definitely lost: 12 bytes\" deb xabar beradi. ASan bilan kompilyatsiya qilinsa, <code>-fsanitize=address -g</code> bayrog'i xotira oqimini dastur tugaganda ko'rsatadi. Bu xatolar uzoq ishlaydigan serverda asta-sekin xotirani tugatadi.",
+          },
+          {
+            type: "code",
+            title: "free_va_null.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+    int *p = malloc(sizeof *p);
+    if (p == NULL) {
+        return 1;
+    }
+    *p = 7;
+    printf("qiymat=%d\n", *p);
+
+    free(p);
+    p = NULL;
+    if (p == NULL) {
+        printf("ko'rsatkich tozalandi\n");
+    }
+    return 0;
+}`,
+            output: "qiymat=7\nko'rsatkich tozalandi",
+          },
+          {
+            type: "table",
+            head: ["Vosita", "Aniqlaydi", "Tezlik"],
+            rows: [
+              ["ASan", "bufer chegarasi, UAF, leak", "2–3× sekin"],
+              ["UBSan", "UB: overflow, siljish, cast", "kichik overhead"],
+              ["valgrind", "xotira oqimi, UAF, o'qilmagan bayt", "10–50× sekin"],
+              ["statik analiz", "shubhali naqshlar", "kompilyatsiya vaqtida"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Sanitizerlarni to'g'ri ishlatish",
+            html: "ASan va UBSan birgalikda ishlatilishi mumkin: <code>-fsanitize=address,undefined -fno-omit-frame-pointer -g</code>. Release buildda ularni o'chirib, alohida test konfiguratsiyasida yoqing. Valgrind ba'zi optimizatsiyalar bilan noto'g'ri xabar berishi mumkin, shuning uchun <code>-g -O0</code> bilan ishlang. <code>use-after-free</code> ni \"ishlayapti\" deb qoldirish xavfli: freed xotira boshqa obyekt tomonidan qayta ishlatilishi mumkin.",
+          },
+        ],
+        quiz: [
+          {
+            q: "AddressSanitizer ni yoqish uchun qaysi bayroq ishlatiladi?",
+            options: [
+              "-fsanitize=address",
+              "-fsanitize=thread",
+              "-fstack-protector",
+              "-O2",
+            ],
+            answer: 0,
+            explain: "gcc/clang da -fsanitize=address ASan ni yoqadi; -g debug ma'lumotini qo'shadi.",
+          },
+          {
+            q: "valgrind memcheck asosan nimani aniqlaydi?",
+            options: [
+              "Sintaksis xatolarini",
+              "Xotira oqimi va yaroqsiz xotira murojaatlarini",
+              "Fayl ruxsatlarini",
+              "Tarmoq kechikishini",
+            ],
+            answer: 1,
+            explain: "Memcheck xotira ajratish/bo'shatish va murojaatlarni kuzatib, leak va UAF ni topadi.",
+          },
+          {
+            q: "Use-after-free nima?",
+            options: [
+              "Bo'shatilgan blokka qayta murojaat",
+              "Ikki marta malloc",
+              "Buferdan tashqariga yozish",
+              "Faylni yopmaslik",
+            ],
+            answer: 0,
+            explain: "free dan keyin ko'rsatkich dangling bo'ladi; unga murojaat undefined behavior hisoblanadi.",
+          },
+        ],
+      },
+      {
+        id: 92,
+        title: "Profiling va keshga mos optimizatsiya",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Optimizatsiyani o'lchovsiz boshlamang. Avval <b>profiler</b> dastur vaqtining qayerda ketayotganini ko'rsatadi: <code>gprof</code>, <code>perf record</code>, <code>valgrind --tool=callgrind</code>. Ko'pincha vaqtning katta qismi kichik tsikllarda o'tadi. Algoritmik murakkablikni yaxshilash odatda mikro-optimizatsiyadan ko'ra ko'proq foyda beradi. So'ng kesh, filial va memory access naqshlariga qaraladi.",
+          },
+          {
+            type: "code",
+            title: "qidiruv_solishtirish.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+int chiziqli(const int *a, int n, int x, long *taqqos) {
+    for (int i = 0; i < n; i++) {
+        (*taqqos)++;
+        if (a[i] == x) return i;
+    }
+    return -1;
+}
+
+int ikkilik(const int *a, int n, int x, long *taqqos) {
+    int past = 0, yuqori = n - 1;
+    while (past <= yuqori) {
+        (*taqqos)++;
+        int orta = past + (yuqori - past) / 2;
+        if (a[orta] == x) return orta;
+        if (a[orta] < x) past = orta + 1;
+        else yuqori = orta - 1;
+    }
+    return -1;
+}
+
+int main(void) {
+    int n = 1000000;
+    int *a = malloc((size_t)n * sizeof *a);
+    if (!a) return 1;
+    for (int i = 0; i < n; i++) a[i] = i;
+
+    long c1 = 0, c2 = 0;
+    int x = n - 1;
+    chiziqli(a, n, x, &c1);
+    ikkilik(a, n, x, &c2);
+
+    printf("chiziqli=%ld\n", c1);
+    printf("ikkilik=%ld\n", c2);
+    free(a);
+    return 0;
+}`,
+            output: "chiziqli=1000000\nikkilik=20",
+          },
+          {
+            type: "p",
+            html: "Kesh xotirasi qatorlar bilan ishlaydi: 64 baytlik qator yuklanganda yonma-yon baytlar ham keladi. Ikki o'lchamli massivni qator bo'ylab yurib yig'ish kesh uchun qulay, ustun bo'ylab yurish esa har qadamda yangi qator yuklaydi. Natija bir xil bo'lishi mumkin, lekin vaqt farqi bir necha barobar bo'ladi. <code>perf stat</code> cache-misses ni ko'rsatadi.",
+          },
+          {
+            type: "code",
+            title: "kesh.c",
+            code: String.raw`#include <stdio.h>
+
+#define N 1000
+
+static int a[N][N];
+
+int main(void) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            a[i][j] = i + j;
+        }
+    }
+
+    long qator = 0, ustun = 0;
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            qator += a[i][j];
+        }
+    }
+    for (int j = 0; j < N; j++) {
+        for (int i = 0; i < N; i++) {
+            ustun += a[i][j];
+        }
+    }
+    printf("qator=%ld ustun=%ld\n", qator, ustun);
+    return 0;
+}`,
+            output: "qator=999000000 ustun=999000000",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "O'lchash tartibi",
+            html: "1) To'g'ri natija va testlar. 2) Profiler bilan issiq nuqtani topish. 3) Algoritmni yaxshilash. 4) Kesh va memory layout. 5) Kompilyator bayroqlari. <code>-O2</code> ko'pincha katta tezlashuv beradi; <code>-O3</code> va <code>-march=native</code> faqat o'lchovdan keyin. Vaqtni <code>clock_gettime(CLOCK_MONOTONIC)</code> bilan o'lchang, <code>clock()</code> CPU vaqtini beradi. Optimizatsiya kodni murakkablashtiradi — o'qish va test qilish qiyinlashmasin.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Optimizatsiyani nimadan boshlash kerak?",
+            options: [
+              "Kodni qisqartirishdan",
+              "Profiler bilan o'lchashdan",
+              "Barcha tsikllarni ochishdan",
+              "malloc ni free bilan almashtirishdan",
+            ],
+            answer: 1,
+            explain: "O'lchov qaysi qism haqiqatan sekin ekanini ko'rsatadi; taxmin bilan optimallashtirish vaqtni behuda sarflaydi.",
+          },
+          {
+            q: "Ikki o'lchamli massivni qator bo'ylab yurish nima uchun tezroq?",
+            options: [
+              "Har bir qator xotirada yonma-yon joylashgan",
+              "Ustunlar umuman mavjud emas",
+              "Kompilyator qatorlarni o'chiradi",
+              "Cache faqat o'qishni biladi",
+            ],
+            answer: 0,
+            explain: "C massivlari qator bo'yicha saqlanadi; ketma-ket elementlar bir kesh qatorida bo'ladi.",
+          },
+          {
+            q: "-O2 bayrog'i nima qiladi?",
+            options: [
+              "Faqat debug ma'lumotini qo'shadi",
+              "Kompilyatorga keng tarqalgan optimizatsiyalarni yoqadi",
+              "Dasturni interpretatsiya qiladi",
+              "Xotirani tozalaydi",
+            ],
+            answer: 1,
+            explain: "-O2 loop optimizations, inlining va boshqa xavfsiz optimizatsiyalarni yoqadi.",
+          },
+        ],
+      },
+      {
+        id: 93,
+        title: "CMake va Make: target, test va build",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Kichik loyihada <code>gcc *.c</code> yetadi, lekin fayllar ko'payganda inkremental build, kutubxonalar va testlar kerak bo'ladi. <b>Make</b> qoidalar va bog'liqliklarga asoslanadi; <b>CMake</b> yuqori darajadagi tavsif yozib, Makefile yoki Ninja faylini generatsiya qiladi. CMake'da <code>add_executable</code>, <code>target_link_libraries</code>, <code>enable_testing</code> va <code>add_test</code> asosiy buyruqlardir.",
+          },
+          {
+            type: "code",
+            title: "build_mode.c",
+            code: String.raw`#include <stdio.h>
+
+#ifndef LOYIHA_VERSIYA
+#define LOYIHA_VERSIYA "2.0"
+#endif
+
+int main(void) {
+    printf("versiya: %s\n", LOYIHA_VERSIYA);
+
+#ifdef NDEBUG
+    printf("rejim: release\n");
+#else
+    printf("rejim: debug\n");
+#endif
+    return 0;
+}`,
+            output: "versiya: 2.0\nrejim: debug",
+          },
+          {
+            type: "p",
+            html: "CMake odatda manba daraxtidan tashqarida build qiladi: <code>cmake -S . -B build</code>, keyin <code>cmake --build build</code>. Release rejimida <code>-DNDEBUG</code> va optimizatsiya bayroqlari qo'shiladi. Testlar <code>ctest --test-dir build</code> bilan ishga tushadi. O'rnatish uchun <code>install(TARGETS ...)</code>, versiya uchun <code>target_compile_definitions</code> ishlatiladi. Build papkasini versiya nazoratiga qo'shmang.",
+          },
+          {
+            type: "code",
+            title: "build_test.c",
+            code: String.raw`#include <stdio.h>
+
+int qosh(int a, int b) {
+    return a + b;
+}
+
+int main(void) {
+    struct {
+        int a, b, kutilgan;
+    } t[] = {{1, 2, 3}, {-1, 1, 0}, {100, 200, 300}};
+    int n = (int)(sizeof t / sizeof t[0]);
+    int otdi = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (qosh(t[i].a, t[i].b) == t[i].kutilgan) {
+            otdi++;
+        }
+    }
+    printf("test: %d/%d\n", otdi, n);
+    return otdi == n ? 0 : 1;
+}`,
+            output: "test: 3/3",
+          },
+          {
+            type: "table",
+            head: ["Buyruq", "Vazifa"],
+            rows: [
+              ["<code>cmake -S . -B build</code>", "build papkasini sozlash"],
+              ["<code>cmake --build build</code>", "nishonlarni qurish"],
+              ["<code>ctest --test-dir build</code>", "testlarni ishga tushirish"],
+              ["<code>cmake --install build</code>", "o'rnatish qoidalarini bajarish"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "CMakeLists ning minimal ko'rinishi",
+            html: "<code>cmake_minimum_required(VERSION 3.20)</code>, <code>project(mini C)</code>, <code>add_executable(app main.c util.c)</code>, <code>target_compile_options(app PRIVATE -Wall -Wextra)</code>, <code>enable_testing()</code>, <code>add_test(NAME asosiy COMMAND app)</code>. Sanitizerlar uchun alohida build turi yarating: <code>-DCMAKE_C_FLAGS=-fsanitize=address</code>. Make'da retsept satrlari tab bilan boshlanadi; CMake bu muammoni yo'q qiladi, lekin generatsiya qilingan fayllarni qo'lda tahrirlamang.",
+          },
+        ],
+        quiz: [
+          {
+            q: "CMake'da bajariluvchi fayl nishonini qaysi buyruq yaratadi?",
+            options: [
+              "add_library",
+              "add_executable",
+              "target_include_directories",
+              "install",
+            ],
+            answer: 1,
+            explain: "add_executable manba fayllardan bajariluvchi nishon yaratadi.",
+          },
+          {
+            q: "CMake testlarini ishga tushirish uchun qaysi vosita ishlatiladi?",
+            options: ["make test", "ctest", "cmake --test", "gprof"],
+            answer: 1,
+            explain: "enable_testing va add_test bilan e'lon qilingan testlar ctest orqali ishga tushadi.",
+          },
+          {
+            q: "Out-of-source build ning afzalligi nima?",
+            options: [
+              "Manba fayllarini o'zgartiradi",
+              "Build natijalari manba daraxtini ifloslantirmaydi",
+              "Kompilyatsiyani o'chiradi",
+              "Faqat Windowsda ishlaydi",
+            ],
+            answer: 1,
+            explain: "Alohida build papkasi obyekt fayllar va generatsiyalarni ajratib, toza manba daraxtini saqlaydi.",
+          },
+        ],
+      },
+      {
+        id: 94,
+        title: "Portability va undefined behavior tuzoqlari",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "C standarti ba'zi xatti-harakatlarni aniq belgilaydi, ba'zilarini implementatsiyaga qoldiradi, ba'zilarini esa <b>undefined behavior</b> (UB) deb e'lon qiladi. UB sodir bo'lsa, kompilyator har qanday natija berishi mumkin — hatto \"to'g'ri ko'rinadigan\" natija ham kafolat emas. Ishorali son overflow, chegaradan tashqari siljish, bo'shatilgan xotiraga murojaat va strict aliasing buzilishi eng ko'p uchraydigan tuzoqlardir.",
+          },
+          {
+            type: "code",
+            title: "type_punning.c",
+            code: String.raw`#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
+int main(void) {
+    float f = 1.0f;
+    uint32_t bits = 0;
+
+    memcpy(&bits, &f, sizeof bits);
+    printf("float=%.1f bits=%08X\n", f, bits);
+    printf("olcham=%zu\n", sizeof bits);
+    return 0;
+}`,
+            output: "float=1.0 bits=3F800000\nolcham=4",
+          },
+          {
+            type: "p",
+            html: "Bir turdagi baytlarni boshqa tur orqali o'qish <b>type punning</b> deyiladi. <code>*(uint32_t *)&amp;f</code> ko'rinishidagi yozuv strict aliasing qoidasini buzadi va UB. <code>memcpy</code> esa kompilyator tomonidan optimallashtirilib, xavfsiz usul hisoblanadi. IEEE 754 float formati C standarti tomonidan kafolatlanmagan, lekin amaldagi platformalarning katta qismida shunday; shunga tayanadigan kodda <code>sizeof(float) == 4</code> ni tekshiring.",
+          },
+          {
+            type: "code",
+            title: "overflow_check.c",
+            code: String.raw`#include <stdio.h>
+#include <limits.h>
+
+int xavfsiz_qosh(int a, int b, int *natija) {
+    if (b > 0 && a > INT_MAX - b) return 0;
+    if (b < 0 && a < INT_MIN - b) return 0;
+    *natija = a + b;
+    return 1;
+}
+
+int main(void) {
+    int natija = 0;
+    printf("oddiy=%d natija=%d\n",
+           xavfsiz_qosh(2, 3, &natija), natija);
+    printf("katta=%d\n", xavfsiz_qosh(INT_MAX, 1, &natija));
+    printf("kichik=%d\n", xavfsiz_qosh(INT_MIN, -1, &natija));
+    return 0;
+}`,
+            output: "oddiy=1 natija=5\nkatta=0\nkichik=0",
+          },
+          {
+            type: "table",
+            head: ["Holat", "Turi", "Xavfsiz alternativa"],
+            rows: [
+              ["INT_MAX + 1", "UB", "oldindan tekshirish"],
+              ["1 << 31 (int)", "UB", "1u << 31"],
+              ["*(int *)&float", "UB / aliasing", "memcpy"],
+              ["char ga 300", "implementatsiya", "uint8_t va modul"],
+              ["free dan keyin o'qish", "UB", "ko'rsatkichni NULL qilish"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Ko'chma kod yozish",
+            html: "<code>int</code> hajmi har doim 32 bit degani yo'q; aniq kenglik kerak bo'lsa <code>&lt;stdint.h&gt;</code> dan <code>int32_t</code> ishlating. <code>char</code> ishorali yoki ishorasiz bo'lishi implementatsiyaga bog'liq. <code>%zu</code> size_t, <code>PRId64</code> int64_t uchun. <code>-Wall -Wextra -Wconversion -Wpedantic</code> bilan ogohlantirishlarni yoqing. UBSan va statik analizatorlar UB ni topishda yordam beradi, lekin barcha holatlarni kafolatlamaydi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Nega *(uint32_t *)&f yozuvi xavfli?",
+            options: [
+              "float juda katta",
+              "Strict aliasing qoidasini buzadi va UB bo'ladi",
+              "uint32_t mavjud emas",
+              "memcpy ishlatilmaydi",
+            ],
+            answer: 1,
+            explain: "Bir turdagi obyektni boshqa tur ko'rsatkichi orqali o'qish aliasing qoidasini buzadi; memcpy xavfsiz.",
+          },
+          {
+            q: "Ishorali int overflow C standartida qanday aniqlanadi?",
+            options: [
+              "Natija modul 2^32 olinadi",
+              "Undefined behavior",
+              "Har doim INT_MAX qaytadi",
+              "Kompilyatsiya xatosi",
+            ],
+            answer: 1,
+            explain: "Ishorali overflow UB; unsigned turlarda esa modul arifmetikasi aniq belgilangan.",
+          },
+          {
+            q: "Qaysi alternativa type punning uchun xavfsiz?",
+            options: [
+              "memcpy",
+              "Ko'rsatkich cast",
+              "Union ni noto'g'ri a'zo bilan o'qish",
+              "strcpy",
+            ],
+            answer: 0,
+            explain: "memcpy baytlarni ko'chiradi va kompilyatorlar buni samarali optimallashtiradi; standart bo'yicha xavfsiz.",
+          },
+        ],
+      },

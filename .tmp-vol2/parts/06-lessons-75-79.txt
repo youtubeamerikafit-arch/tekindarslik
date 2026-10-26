@@ -1,0 +1,646 @@
+      {
+        id: 75,
+        title: "Dinamik programmalash: memoizatsiya va knapsack",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "Dinamik programmalash (DP) bir xil kichik masalalarni qayta-qayta yechishdan saqlanadi. <b>Memoizatsiya</b> — yuqoridan pastga yondashuv: rekursiv funksiya natijani jadvalga yozadi va keyingi chaqiruvda qayta hisoblamaydi. Fibonacci da bu eksponensial O(2ⁿ) ni O(n) ga aylantiradi. Muhim shart — <b>optimal qism tuzilma</b> va <b>ustma-ust qo'shiluvchi kichik masalalar</b>.",
+          },
+          {
+            type: "code",
+            title: "fib_memo.c",
+            code: String.raw`#include <stdio.h>
+
+#define MAX 100
+
+static long long memo[MAX];
+static int tayyor[MAX];
+
+long long fib(int n) {
+    if (n <= 1) return n;
+    if (tayyor[n]) return memo[n];
+    memo[n] = fib(n - 1) + fib(n - 2);
+    tayyor[n] = 1;
+    return memo[n];
+}
+
+int main(void) {
+    printf("fib(10)=%lld\n", fib(10));
+    printf("fib(40)=%lld\n", fib(40));
+    printf("fib(90)=%lld\n", fib(90));
+    return 0;
+}`,
+            output: "fib(10)=55\nfib(40)=102334155\nfib(90)=2880067194370816120",
+          },
+          {
+            type: "p",
+            html: "0/1 knapsack masalasida har bir buyumni olish yoki olmaslik kerak; sig'im W dan oshmasin, qiymat maksimal bo'lsin. <code>dp[i][w]</code> — birinchi i buyum bilan w sig'imdagi eng yaxshi qiymat. O'tish: buyumni olmaslik (<code>dp[i-1][w]</code>) yoki og'irligi yetarli bo'lsa olish (<code>dp[i-1][w-wi] + vi</code>). Vaqt O(nW), xotira O(nW), uni bir qatorga tushirish mumkin.",
+          },
+          {
+            type: "code",
+            title: "knapsack.c",
+            code: String.raw`#include <stdio.h>
+
+#define N 4
+#define W 7
+
+int max2(int a, int b) { return a > b ? a : b; }
+
+int main(void) {
+    int ogirlik[N] = {1, 3, 4, 5};
+    int qiymat[N] = {1, 4, 5, 7};
+    int dp[N + 1][W + 1] = {0};
+
+    for (int i = 1; i <= N; i++) {
+        for (int w = 0; w <= W; w++) {
+            dp[i][w] = dp[i - 1][w];
+            if (ogirlik[i - 1] <= w) {
+                dp[i][w] = max2(dp[i][w],
+                                dp[i - 1][w - ogirlik[i - 1]] + qiymat[i - 1]);
+            }
+        }
+    }
+
+    printf("maksimal=%d\n", dp[N][W]);
+    printf("sigim=%d buyumlar=%d\n", W, N);
+
+    int w = W;
+    printf("tanlov:");
+    for (int i = N; i > 0; i--) {
+        if (dp[i][w] != dp[i - 1][w]) {
+            printf(" %d", i);
+            w -= ogirlik[i - 1];
+        }
+    }
+    printf("\n");
+    return 0;
+}`,
+            output: "maksimal=9\nsigim=7 buyumlar=4\ntanlov: 3 2",
+          },
+          {
+            type: "table",
+            head: ["Yondashuv", "Yo'nalish", "Xotira", "Qachon qulay"],
+            rows: [
+              ["Memoizatsiya", "yuqoridan pastga", "rekursiya + jadval", "holatlar siyrak"],
+              ["Tabulyatsiya", "pastdan yuqoriga", "to'liq jadval", "barcha holatlar kerak"],
+              ["Rolling array", "pastdan yuqoriga", "O(W)", "faqat oxirgi qator kerak"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Holat va o'tishni aniq belgilang",
+            html: "DP da eng ko'p xato holat ta'rifi va chegaralarda bo'ladi. <code>dp[0][w] = 0</code> — hech qanday buyumsiz qiymat nol. 0/1 knapsackda sig'imni kamaytirib borish kerak; to'liq (unbounded) knapsackda esa w ni o'sish tartibida yuritish mumkin. Xotirani tejash uchun bir o'lchamli jadvalda w ni teskari yuriting, aks holda bitta buyumni bir necha marta olasiz.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Memoizatsiya qaysi muammoni hal qiladi?",
+            options: [
+              "Xotira oqimini",
+              "Bir xil kichik masalalarni qayta hisoblashni",
+              "Kompilyatsiya xatolarini",
+              "Fayl o'qishni",
+            ],
+            answer: 1,
+            explain: "Hisoblangan natija jadvalga yoziladi; keyingi chaqiruvda O(1) da qaytariladi.",
+          },
+          {
+            q: "0/1 knapsack da dp[i][w] nimani bildiradi?",
+            options: [
+              "i buyumning og'irligini",
+              "Birinchi i buyum bilan w sig'imdagi maksimal qiymatni",
+              "w buyumning narxini",
+              "Faqat i buyumni olish holatini",
+            ],
+            answer: 1,
+            explain: "Holat birinchi i buyum va w sig'im bilan olinadigan eng yaxshi qiymatni ifodalaydi.",
+          },
+          {
+            q: "0/1 knapsack ning vaqt murakkabligi qanday?",
+            options: ["O(n log W)", "O(nW)", "O(2^n)", "O(W²)"],
+            answer: 1,
+            explain: "n buyum va W sig'im uchun jadvalning har bir katagi bir marta hisoblanadi: O(nW).",
+          },
+        ],
+      },
+      {
+        id: 76,
+        title: "DP: eng uzun umumiy ketma-ketlik va tahrir masofasi",
+        minutes: 18,
+        blocks: [
+          {
+            type: "p",
+            html: "LCS (longest common subsequence) ikki satrda bir xil tartibda uchraydigan, lekin albatta yonma-yon bo'lmagan eng uzun belgilar ketma-ketligini topadi. <code>dp[i][j]</code> — birinchi i va j belgilar uchun LCS uzunligi. Agar belgilar teng bo'lsa, <code>dp[i-1][j-1] + 1</code>; aks holda ikki yo'nalishning maksimumi. Bu diff, bioinformatika va versiya nazoratida ishlatiladi.",
+          },
+          {
+            type: "code",
+            title: "lcs.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+
+#define MAX 64
+
+int main(void) {
+    const char *a = "ABCBDAB";
+    const char *b = "BDCABA";
+    int n = (int)strlen(a);
+    int m = (int)strlen(b);
+    int dp[MAX][MAX] = {0};
+
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            if (a[i - 1] == b[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+            } else {
+                dp[i][j] = dp[i - 1][j] > dp[i][j - 1]
+                           ? dp[i - 1][j] : dp[i][j - 1];
+            }
+        }
+    }
+
+    char natija[MAX];
+    int k = 0, i = n, j = m;
+    while (i > 0 && j > 0) {
+        if (a[i - 1] == b[j - 1]) {
+            natija[k++] = a[i - 1];
+            i--;
+            j--;
+        } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+            i--;
+        } else {
+            j--;
+        }
+    }
+    natija[k] = '\0';
+    for (int x = 0; x < k / 2; x++) {
+        char t = natija[x];
+        natija[x] = natija[k - 1 - x];
+        natija[k - 1 - x] = t;
+    }
+    printf("uzunlik=%d\n", dp[n][m]);
+    printf("lcs=%s\n", natija);
+    return 0;
+}`,
+            output: "uzunlik=4\nlcs=BCBA",
+          },
+          {
+            type: "p",
+            html: "Tahrir masofasi (Levenshtein) bir satrni ikkinchisiga aylantirish uchun kerak bo'lgan qo'shish, o'chirish va almashtirish amallarining minimal sonini topadi. <code>dp[i][j]</code> uchun: belgilar teng bo'lsa diagonal qiymat; aks holda uch qo'shnining minimumi + 1. Vaqt va xotira O(nm); faqat oldingi qator kerak bo'lsa, xotira O(min(n,m)) ga tushadi.",
+          },
+          {
+            type: "code",
+            title: "edit_distance.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+
+int min3(int a, int b, int c) {
+    int m = a < b ? a : b;
+    return m < c ? m : c;
+}
+
+int masofa(const char *a, const char *b) {
+    int n = (int)strlen(a);
+    int m = (int)strlen(b);
+    int dp[32][32];
+
+    for (int i = 0; i <= n; i++) dp[i][0] = i;
+    for (int j = 0; j <= m; j++) dp[0][j] = j;
+
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            if (a[i - 1] == b[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1];
+            } else {
+                dp[i][j] = 1 + min3(dp[i - 1][j],
+                                    dp[i][j - 1],
+                                    dp[i - 1][j - 1]);
+            }
+        }
+    }
+    return dp[n][m];
+}
+
+int main(void) {
+    printf("kitten->sitting=%d\n", masofa("kitten", "sitting"));
+    printf("abc->abc=%d\n", masofa("abc", "abc"));
+    printf("abc->yabd=%d\n", masofa("abc", "yabd"));
+    return 0;
+}`,
+            output: "kitten->sitting=3\nabc->abc=0\nabc->yabd=2",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Yo'lni tiklash",
+            html: "LCS jadvalidan teskari yurib, tanlangan belgilarni yig'ish mumkin; tenglik bo'lmaganda kattaroq qo'shni tanlanadi. Tahrir masofasida esa har bir qadam qaysi amal bajarilganini ko'rsatadi. Katta satrlarda to'liq jadval xotirani ko'p egallaydi; faqat masofa kerak bo'lsa, ikki qatorli rolling jadval yetarli. Diqqat: UTF-8 da har bir belgi bir bayt emas, shuning uchun baytlar bo'yicha hisoblash noto'g'ri bo'lishi mumkin.",
+          },
+        ],
+        quiz: [
+          {
+            q: "LCS da belgilar teng bo'lmaganda dp[i][j] qanday hisoblanadi?",
+            options: [
+              "dp[i-1][j-1] + 1",
+              "dp[i-1][j-1]",
+              "max(dp[i-1][j], dp[i][j-1])",
+              "min(dp[i-1][j], dp[i][j-1])",
+            ],
+            answer: 2,
+            explain: "Belgilar mos kelmasa, oxirgi belgilardan birini tashlab, ikki variantning kattasini olamiz.",
+          },
+          {
+            q: "Levenshtein masofasida qaysi amallar hisobga olinadi?",
+            options: [
+              "Faqat qo'shish",
+              "Qo'shish, o'chirish va almashtirish",
+              "Faqat almashtirish",
+              "Ko'chirish va nusxalash",
+            ],
+            answer: 1,
+            explain: "Klassik tahrir masofasi uchta amalni qamraydi; har birining narxi 1.",
+          },
+          {
+            q: "LCS ning vaqt murakkabligi qanday?",
+            options: ["O(n + m)", "O(nm)", "O(n log m)", "O(2^n)"],
+            answer: 1,
+            explain: "Uzunliklari n va m bo'lgan satrlar uchun jadvalning n×m katagi to'ldiriladi.",
+          },
+        ],
+      },
+      {
+        id: 77,
+        title: "Greedy: intervallar va kasr knapsack",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Greedy algoritm har qadamda mahalliy eng yaxshi tanlovni qiladi va orqaga qaytmaydi. Bu har doim optimal natija bermaydi, lekin ba'zi masalalarda isbotlangan. <b>Interval scheduling</b>da maksimal sonli kesishmaydigan intervallarni tanlash uchun eng erta tugaydigan intervaldan boshlash kerak. Tugash vaqti bo'yicha saralash keyingi tanlovlar uchun eng ko'p joy qoldiradi.",
+          },
+          {
+            type: "code",
+            title: "intervallar.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int bosh;
+    int oxir;
+} Interval;
+
+int taqqos(const void *x, const void *y) {
+    const Interval *a = x;
+    const Interval *b = y;
+    return (a->oxir > b->oxir) - (a->oxir < b->oxir);
+}
+
+int main(void) {
+    Interval v[] = {
+        {1, 4}, {3, 5}, {0, 6}, {5, 7},
+        {3, 9}, {5, 9}, {6, 8}, {8, 9},
+    };
+    int n = (int)(sizeof v / sizeof v[0]);
+    qsort(v, n, sizeof v[0], taqqos);
+
+    int oxir = -1, soni = 0;
+    printf("tanlangan:");
+    for (int i = 0; i < n; i++) {
+        if (v[i].bosh >= oxir) {
+            printf(" (%d,%d)", v[i].bosh, v[i].oxir);
+            oxir = v[i].oxir;
+            soni++;
+        }
+    }
+    printf("\nsoni=%d\n", soni);
+    return 0;
+}`,
+            output: "tanlangan: (1,4) (5,7) (8,9)\nsoni=3",
+          },
+          {
+            type: "p",
+            html: "Kasr knapsackda buyumlarni bo'laklab olish mumkin. Optimal strategiya — qiymat/og'irlik nisbati eng yuqori buyumdan boshlash. 0/1 knapsackda esa bu strategiya optimal emas: ba'zan og'irroq, lekin umumiy qiymati yuqori kombinatsiya kerak bo'ladi. Shuning uchun greedy qo'llashdan oldin masalaning <b>matroid</b> yoki uzluksizlik xususiyatini tekshirish kerak.",
+          },
+          {
+            type: "code",
+            title: "kasr_knapsack.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct {
+    int qiymat;
+    int ogirlik;
+} Buyum;
+
+int taqqos(const void *x, const void *y) {
+    const Buyum *a = x;
+    const Buyum *b = y;
+    double ra = (double)a->qiymat / a->ogirlik;
+    double rb = (double)b->qiymat / b->ogirlik;
+    return (ra < rb) - (ra > rb);
+}
+
+int main(void) {
+    Buyum b[] = {{60, 10}, {100, 20}, {120, 30}};
+    int n = (int)(sizeof b / sizeof b[0]);
+    int sigim = 50;
+    double jami = 0.0;
+
+    qsort(b, n, sizeof b[0], taqqos);
+    for (int i = 0; i < n && sigim > 0; i++) {
+        int olin = b[i].ogirlik < sigim ? b[i].ogirlik : sigim;
+        jami += (double)b[i].qiymat * olin / b[i].ogirlik;
+        sigim -= olin;
+    }
+    printf("qiymat=%.1f\n", jami);
+    return 0;
+}`,
+            output: "qiymat=240.0",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Greedy ni isbotlash",
+            html: "Greedy tanlovning to'g'riligi <b>exchange argument</b> bilan isbotlanadi: optimal yechimdagi birinchi tanlovni greedy tanlovi bilan almashtirish natijani yomonlashtirmasligini ko'rsating. Interval schedulingda eng erta tugaydigan intervalni tanlash shu xususiyatga ega. Tanga masalasida {1, 3, 4} va 6 uchun greedy 4+1+1 (3 tanga), optimal 3+3 (2 tanga) — demak har doim ishlamaydi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Maksimal kesishmaydigan intervallar uchun qaysi mezon bo'yicha saralash kerak?",
+            options: [
+              "Boshlanish vaqti bo'yicha",
+              "Davomiylik bo'yicha",
+              "Tugash vaqti bo'yicha",
+              "Qiymat bo'yicha",
+            ],
+            answer: 2,
+            explain: "Eng erta tugaydigan interval keyingi tanlovlar uchun eng ko'p bo'sh vaqt qoldiradi.",
+          },
+          {
+            q: "Kasr knapsackda greedy qanday tartibda buyum oladi?",
+            options: [
+              "Og'irlik bo'yicha o'sish",
+              "Qiymat/og'irlik nisbati bo'yicha kamayish",
+              "Qiymat bo'yicha o'sish",
+              "Tasodifiy",
+            ],
+            answer: 1,
+            explain: "Har bir og'irlik birligiga to'g'ri keladigan qiymat eng yuqori bo'lgan buyum birinchi olinadi.",
+          },
+          {
+            q: "Nega 0/1 knapsackda qiymat/og'irlik bo'yicha greedy optimal emas?",
+            options: [
+              "Chunki buyumni bo'laklab bo'lmaydi",
+              "Chunki og'irliklar har doim teng",
+              "Chunki qiymatlar manfiy",
+              "Chunki qsort ishlamaydi",
+            ],
+            answer: 0,
+            explain: "Buyumni bo'lish mumkin emas; yuqori nisbatli buyum joyni egallab, umumiy qiymati yuqori kombinatsiyani bloklashi mumkin.",
+          },
+        ],
+      },
+      {
+        id: 78,
+        title: "Bit hiylalari: popcount, lowbit va qism to'plamlar",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Bitlar bilan ishlash tez va xotira tejamkor. <code>x &amp; (x - 1)</code> eng past o'rnatilgan bitni o'chiradi — bu popcount va 2 ning darajasini tekshirishning asosi. <code>x &amp; -x</code> eng past o'rnatilgan bitni ajratib oladi (lowbit), u Fenwick daraxtida ishlatiladi. Bitlar to'plamini butun son bilan ifodalab, 2ⁿ ta qism to'plamni <code>mask</code> orqali sanash mumkin.",
+          },
+          {
+            type: "code",
+            title: "bit_hiylalari.c",
+            code: String.raw`#include <stdio.h>
+
+int popcount(unsigned int x) {
+    int soni = 0;
+    while (x != 0) {
+        x &= x - 1;
+        soni++;
+    }
+    return soni;
+}
+
+int ikkining_darajasi(unsigned int x) {
+    return x != 0 && (x & (x - 1)) == 0;
+}
+
+int main(void) {
+    unsigned int x = 45;
+    printf("x=%u popcount=%d\n", x, popcount(x));
+    printf("pastki_bit=%u\n", x & (~x + 1));
+    printf("64_daraja=%d\n", ikkining_darajasi(64));
+    printf("45_daraja=%d\n", ikkining_darajasi(45));
+    return 0;
+}`,
+            output: "x=45 popcount=4\npastki_bit=1\n64_daraja=1\n45_daraja=0",
+          },
+          {
+            type: "p",
+            html: "n elementli to'plamning barcha qism to'plamlari <code>0</code> dan <code>2ⁿ - 1</code> gacha maskalar bilan sanaladi. Maskaning i-bitiga qarab i-element olinadi yoki olinmaydi. Bu usul n ≤ 20 bo'lganda juda qulay; undan katta n uchun holatlar soni portlaydi. Ba'zi DP masalalari aynan shu maskalar ustida quriladi (masalan, sayyoh savdogar).",
+          },
+          {
+            type: "code",
+            title: "qism_toplamlar.c",
+            code: String.raw`#include <stdio.h>
+
+int main(void) {
+    const char *e[] = {"a", "b", "c"};
+    int n = 3;
+
+    for (int mask = 0; mask < (1 << n); mask++) {
+        printf("{");
+        int birinchi = 1;
+        for (int i = 0; i < n; i++) {
+            if (mask & (1 << i)) {
+                if (!birinchi) printf(",");
+                printf("%s", e[i]);
+                birinchi = 0;
+            }
+        }
+        printf("}\n");
+    }
+    return 0;
+}`,
+            output: "{}\n{a}\n{b}\n{a,b}\n{c}\n{a,c}\n{b,c}\n{a,b,c}",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Ishorali siljishlar",
+            html: "<code>x &lt;&lt; k</code> da <code>x</code> ishorali va manfiy bo'lsa yoki natija turga sig'masa, undefined behavior bo'lishi mumkin. Maskalar uchun <code>1u &lt;&lt; i</code> yoki <code>UINT64_C(1) &lt;&lt; i</code> ishlating, <code>i</code> esa tur kengligidan kichik bo'lsin. <code>x &amp; -x</code> ni ham faqat ishorasiz turda yozing. Popcount uchun GCC/Clang <code>__builtin_popcount</code> beradi, lekin u standart C emas.",
+          },
+        ],
+        quiz: [
+          {
+            q: "x & (x - 1) amali nimani qiladi?",
+            options: [
+              "Eng yuqori bitni o'rnatadi",
+              "Eng past o'rnatilgan bitni o'chiradi",
+              "Barcha bitlarni teskarilaydi",
+              "Sonni ikki baravar oshiradi",
+            ],
+            answer: 1,
+            explain: "x-1 eng past o'rnatilgan bitdan pastdagilarni 1 ga aylantiradi; AND natijada shu bit o'chadi.",
+          },
+          {
+            q: "n elementli to'plamning barcha qism to'plamlari nechta?",
+            options: ["n", "2n", "2^n", "n²"],
+            answer: 2,
+            explain: "Har bir element uchun olish/olmaslik ikkita tanlov: jami 2^n ta qism to'plam.",
+          },
+          {
+            q: "Nega 1 << 31 kabi ifodada 1u ishlatgan ma'qul?",
+            options: [
+              "Chunki u tezroq",
+              "Ishorali int da yuqori bitga siljish undefined behavior bo'lishi mumkin",
+              "Chunki natija boshqacha",
+              "Chunki 1u ko'proq xotira oladi",
+            ],
+            answer: 1,
+            explain: "Ishorali turda bit siljishi chegaradan chiqsa UB; unsigned turda bu aniq belgilangan.",
+          },
+        ],
+      },
+      {
+        id: 79,
+        title: "Bitset va Bloom filtri",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Bitlar massivi (bitset) har bir element uchun faqat bitta bit sarflaydi: 64 element 8 baytda sig'adi. <b>Bloom filtri</b> bitset va bir nechta hash funksiyasidan foydalanadi. Element qo'shilsa, bir nechta bit o'rnatiladi; tekshirishda shu bitlar tekshiriladi. Agar biror bit 0 bo'lsa, element aniq yo'q; hammasi 1 bo'lsa, u <i>ehtimol</i> bor — false positive bo'lishi mumkin, false negative yo'q.",
+          },
+          {
+            type: "code",
+            title: "bitset.c",
+            code: String.raw`#include <stdio.h>
+#include <stdint.h>
+
+void ornat(uint64_t *s, int i) {
+    *s |= UINT64_C(1) << i;
+}
+
+int tekshir(uint64_t s, int i) {
+    return (s & (UINT64_C(1) << i)) != 0;
+}
+
+int main(void) {
+    uint64_t s = 0;
+    int indekslar[] = {1, 5, 9, 63};
+    for (int i = 0; i < 4; i++) {
+        ornat(&s, indekslar[i]);
+    }
+
+    int soni = 0;
+    uint64_t t = s;
+    while (t) {
+        t &= t - 1;
+        soni++;
+    }
+    printf("soni=%d\n", soni);
+    printf("5_bor=%d\n", tekshir(s, 5));
+    printf("6_bor=%d\n", tekshir(s, 6));
+    printf("63_bor=%d\n", tekshir(s, 63));
+    return 0;
+}`,
+            output: "soni=4\n5_bor=1\n6_bor=0\n63_bor=1",
+          },
+          {
+            type: "p",
+            html: "Bloom filtrining xatolik ehtimoli bitlar soni m, hash funksiyalari soni k va qo'shilgan elementlar n ga bog'liq. m ni oshirish yoki k ni to'g'ri tanlash xatoni kamaytiradi. Filtr elementni o'chirishni qo'llamaydi, chunki bitta bit bir nechta elementga tegishli bo'lishi mumkin. Variantlar: counting Bloom filter (hisoblagichli) va cuckoo filter.",
+          },
+          {
+            type: "code",
+            title: "bloom.c",
+            code: String.raw`#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
+#define BIT 64
+
+static uint64_t h1(const char *s) {
+    uint64_t h = 1469598103934665603ULL;
+    while (*s) {
+        h ^= (unsigned char)*s++;
+        h *= 1099511628211ULL;
+    }
+    return h;
+}
+
+static uint64_t h2(const char *s) {
+    uint64_t h = 5381;
+    while (*s) h = h * 33 + (unsigned char)*s++;
+    return h;
+}
+
+static uint64_t h3(const char *s) {
+    uint64_t h = 0;
+    while (*s) h = h * 131 + (unsigned char)*s++;
+    return h;
+}
+
+void qosh(uint64_t *f, const char *s) {
+    *f |= UINT64_C(1) << (h1(s) % BIT);
+    *f |= UINT64_C(1) << (h2(s) % BIT);
+    *f |= UINT64_C(1) << (h3(s) % BIT);
+}
+
+int bormi(uint64_t f, const char *s) {
+    uint64_t m = (UINT64_C(1) << (h1(s) % BIT)) |
+                 (UINT64_C(1) << (h2(s) % BIT)) |
+                 (UINT64_C(1) << (h3(s) % BIT));
+    return (f & m) == m;
+}
+
+int main(void) {
+    uint64_t f = 0;
+    qosh(&f, "cat");
+    qosh(&f, "dog");
+    printf("cat=%s\n", bormi(f, "cat") ? "ehtimol bor" : "yo'q");
+    printf("dog=%s\n", bormi(f, "dog") ? "ehtimol bor" : "yo'q");
+    printf("bird=%s\n", bormi(f, "bird") ? "ehtimol bor" : "yo'q");
+    printf("fox=%s\n", bormi(f, "fox") ? "ehtimol bor" : "yo'q");
+    return 0;
+}`,
+            output: "cat=ehtimol bor\ndog=ehtimol bor\nbird=yo'q\nfox=ehtimol bor",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Qachon Bloom filtri?",
+            html: "Bloom filtri katta to'plamda \"bu element bormi?\" savoliga tez va kichik xotira bilan javob berish uchun ishlatiladi: keshlar, ma'lumotlar bazasining diskka murojaatini kamaytirish, tarmoq filtratsiyasi. False positive qabul qilinsa, lekin false negative qabul qilinmasa mos. Aniq javob kerak bo'lsa, hash jadval yoki daraxt ishlatiladi. Filtrni tozalash uchun yangi bitset qurish kerak.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Bloom filtri qaysi xatoni berishi mumkin?",
+            options: [
+              "False negative",
+              "False positive",
+              "Ikkalasi ham",
+              "Hech qanday xato",
+            ],
+            answer: 1,
+            explain: "Element yo'qligini aniq aytadi (bit 0), lekin barcha bitlar 1 bo'lsa, element yo'q bo'lishi ham mumkin.",
+          },
+          {
+            q: "m bitli bitset da element qo'shilganda nechta bit o'rnatiladi?",
+            options: ["Bitta", "Hash funksiyalari soni k ta", "m ta", "Har doim 2 ta"],
+            answer: 1,
+            explain: "Har bir hash funksiyasi bitta bitni o'rnatadi; k ta hash uchun k ta bit.",
+          },
+          {
+            q: "Nega oddiy Bloom filtridan elementni o'chirib bo'lmaydi?",
+            options: [
+              "Bitlar faqat o'qish uchun",
+              "Bitta bit bir nechta elementga tegishli bo'lishi mumkin",
+              "Hash funksiyalari yo'q",
+              "Filtr juda kichik",
+            ],
+            answer: 1,
+            explain: "Bitni 0 ga qaytarish boshqa elementning belgisini ham o'chirib, false negative keltiradi.",
+          },
+        ],
+      },

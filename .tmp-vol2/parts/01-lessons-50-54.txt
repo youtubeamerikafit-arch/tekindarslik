@@ -1,0 +1,683 @@
+      {
+        id: 50,
+        title: "Ko'rsatkichga ko'rsatkich va chiqish parametrlari",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "<code>int **</code> — bu <b>ko'rsatkichga ko'rsatkich</b>: u boshqa ko'rsatkichning manzilini saqlaydi. Bunday ikki qavatli murojaat funksiya chaqiruvchining ko'rsatkichini o'zgartirish, dinamik ikki o'lchamli massiv qurish va <code>argv</code> kabi satrlar massivini ifodalash uchun kerak. Birinchi yulduz qaysi katakka murojaat qilayotganimizni, ikkinchisi o'sha katakdagi manzil orqali yakuniy qiymatga yetib borishni bildiradi.",
+          },
+          {
+            type: "code",
+            title: "dinamik_matritsa.c",
+            code: String.raw`#include <stdio.h>
+#include <stdlib.h>
+
+int **matritsa_yarat(int qator, int ustun) {
+    int **m = malloc((size_t)qator * sizeof *m);
+    if (m == NULL) {
+        return NULL;
+    }
+    for (int i = 0; i < qator; i++) {
+        m[i] = malloc((size_t)ustun * sizeof *m[i]);
+        if (m[i] == NULL) {
+            while (i > 0) {
+                free(m[--i]);
+            }
+            free(m);
+            return NULL;
+        }
+    }
+    for (int i = 0; i < qator; i++) {
+        for (int j = 0; j < ustun; j++) {
+            m[i][j] = (i + 1) * 10 + j;
+        }
+    }
+    return m;
+}
+
+void matritsa_ochir(int **m, int qator) {
+    for (int i = 0; i < qator; i++) {
+        free(m[i]);
+    }
+    free(m);
+}
+
+int main(void) {
+    int **m = matritsa_yarat(2, 3);
+    if (m == NULL) {
+        return 1;
+    }
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 3; j++) {
+            printf("%d ", m[i][j]);
+        }
+        printf("\n");
+    }
+    printf("qator=%d ustun=%d\n", 2, 3);
+    matritsa_ochir(m, 2);
+    return 0;
+}`,
+            output: "10 11 12 \n20 21 22 \nqator=2 ustun=3",
+          },
+          {
+            type: "table",
+            head: ["Deklaratsiya", "Ma'nosi", "Misol"],
+            rows: [
+              ["<code>int *p</code>", "bitta int manzili", "<code>*p = 5</code>"],
+              ["<code>int **pp</code>", "int ko'rsatkichining manzili", "<code>**pp = 5</code>"],
+              ["<code>int ***ppp</code>", "ikki qavatli ko'rsatkich manzili", "uch marta dereference"],
+              ["<code>char **argv</code>", "satrlar massivi", "<code>argv[0]</code> — dastur nomi"],
+            ],
+          },
+          {
+            type: "code",
+            title: "satrlarni_almashtirish.c",
+            code: String.raw`#include <stdio.h>
+
+void almashtir(const char **a, const char **b) {
+    const char *vaqtincha = *a;
+    *a = *b;
+    *b = vaqtincha;
+}
+
+int main(void) {
+    const char *x = "olma";
+    const char *y = "anor";
+
+    printf("oldin: %s %s\n", x, y);
+    almashtir(&x, &y);
+    printf("keyin: %s %s\n", x, y);
+    return 0;
+}`,
+            output: "oldin: olma anor\nkeyin: anor olma",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Bo'shatish tartibi va NULL tekshiruvi",
+            html: "Ikki o'lchamli massivda avval har bir qator (<code>m[i]</code>), oxirida tashqi massiv (<code>m</code>) bo'shatiladi. Teskari tartibda qilsangiz qatorlar manzillari yo'qoladi. Har bir <code>malloc</code> natijasini tekshiring: qisman ajratishda allaqachon olingan qatorlarni bo'shatmasdan qaytish xotira oqimiga olib keladi. Ko'rsatkichni bo'shatgandan keyin <code>NULL</code> ga qo'yish tasodifiy ikkinchi <code>free</code> dan himoya qiladi.",
+          },
+        ],
+        quiz: [
+          {
+            q: "int x = 7; int *p = &x; int **pp = &p; **pp = 9; dan keyin x qanday qiymatga ega?",
+            options: ["7", "9", "Manzil qiymati", "Dastur xato beradi"],
+            answer: 1,
+            explain: "**pp avval pp orqali p ga, keyin p orqali x ga yetib boradi; 9 yozilsa x ham 9 bo'ladi.",
+          },
+          {
+            q: "Ikki o'lchamli dinamik massivni bo'shatishda qaysi tartib to'g'ri?",
+            options: [
+              "Avval tashqi massiv, keyin qatorlar",
+              "Faqat tashqi massivni bo'shatish kifoya",
+              "Avval har bir qator, keyin tashqi massiv",
+              "Tartib muhim emas",
+            ],
+            answer: 2,
+            explain: "Qatorlar manzillari tashqi massivda saqlanadi; avval tashqi massivni bo'shatsangiz qatorlarga murojaat qilib bo'lmaydi.",
+          },
+          {
+            q: "Funksiya chaqiruvchining ko'rsatkichini boshqa manzilga o'zgartirishi uchun parametr qanday turda bo'lishi kerak?",
+            options: ["int *", "const int *", "int", "int **"],
+            answer: 3,
+            explain: "Ko'rsatkichning o'zini o'zgartirish uchun uning manzili, ya'ni int ** uzatiladi.",
+          },
+        ],
+      },
+      {
+        id: 51,
+        title: "Massiv chegaralari: one-past, ptrdiff_t va decay",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "Ko'rsatkich arifmetikasi faqat bitta massiv ichida (yoki oxiridan bitta keyingi manzilgacha) aniqlangan. <b>One-past</b> ko'rsatkichni olish, taqqoslash va ayirish mumkin, lekin unga murojaat qilish — undefined behavior. Massiv funksiyaga uzatilganda ko'rsatkichga aylanadi (<b>decay</b>), shuning uchun uzunlikni alohida berish kerak. Ikki ko'rsatkich ayirmasi <code>ptrdiff_t</code> turida bo'ladi.",
+          },
+          {
+            type: "code",
+            title: "one_past.c",
+            code: String.raw`#include <stdio.h>
+#include <stddef.h>
+
+int main(void) {
+    int a[] = {4, 8, 15, 16, 23, 42};
+    int *bosh = a;
+    int *oxiri = a + sizeof a / sizeof a[0];
+    long jami = 0;
+
+    for (int *p = bosh; p < oxiri; p++) {
+        jami += *p;
+    }
+
+    ptrdiff_t n = oxiri - bosh;
+    printf("n=%ld jami=%ld\n", (long)n, jami);
+    printf("oxirgi=%d\n", *(oxiri - 1));
+    printf("one-past teng=%d\n", oxiri == a + 6);
+    return 0;
+}`,
+            output: "n=6 jami=108\noxirgi=42\none-past teng=1",
+          },
+          {
+            type: "p",
+            html: "Massiv nomi <code>sizeof</code> ichida butun massivni bildiradi, oddiy ifodada esa birinchi elementga ko'rsatkichga aylanadi. <code>int (*butun)[5] = &amp;a;</code> — bu butun massivga ko'rsatkich; unga 1 qo'shilsa manzil 5 ta int (20 bayt) oldinga suriladi. Funksiya parametridagi <code>int a[]</code> esa <code>int *</code> bilan bir xil.",
+          },
+          {
+            type: "code",
+            title: "massiv_va_korsatkich.c",
+            code: String.raw`#include <stdio.h>
+
+int jami(int a[], int n) {
+    int s = 0;
+    for (int i = 0; i < n; i++) {
+        s += a[i];
+    }
+    return s;
+}
+
+int main(void) {
+    int a[5] = {1, 2, 3, 4, 5};
+    int (*butun)[5] = &a;
+
+    printf("elementlar=%zu\n", sizeof a / sizeof a[0]);
+    printf("butun massiv=%zu\n", sizeof *butun / sizeof (*butun)[0]);
+    printf("qadam=%ld\n", (long)((butun + 1) - butun));
+    printf("jami=%d\n", jami(a, 5));
+    return 0;
+}`,
+            output: "elementlar=5\nbutun massiv=5\nqadam=1\njami=15",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Chegaradan chiqish xavfi",
+            html: "<code>a[-1]</code>, <code>a[n]</code> ga yozish yoki one-past ko'rsatkichni dereference qilish — undefined behavior. Kompilyator buni har doim ham ushlamaydi. Tsikllarni <code>p &lt; a + n</code> shartida yozing, indeksni esa <code>size_t</code> bilan hisoblang; manfiy ayirma bo'lishi mumkin bo'lgan joyda <code>ptrdiff_t</code> ishlating.",
+          },
+        ],
+        quiz: [
+          {
+            q: "One-past ko'rsatkich bilan qaysi amalni bajarish mumkin?",
+            options: [
+              "Uni dereference qilish",
+              "Uni boshqa ko'rsatkich bilan taqqoslash",
+              "Unga yozish",
+              "Uni free qilish",
+            ],
+            answer: 1,
+            explain: "One-past manzilni olish, taqqoslash va ayirish mumkin; murojaat qilish esa chegaradan chiqish hisoblanadi.",
+          },
+          {
+            q: "Ikki ko'rsatkich ayirmasining standart turi qaysi?",
+            options: ["size_t", "ptrdiff_t", "int", "long long"],
+            answer: 1,
+            explain: "Bir massiv ichidagi ko'rsatkichlar ayirmasi ptrdiff_t turida bo'ladi va manfiy bo'lishi ham mumkin.",
+          },
+          {
+            q: "Funksiya ichida int a[] parametriga sizeof qo'llansa nima qaytadi?",
+            options: [
+              "Butun massiv hajmi",
+              "Elementlar soni",
+              "Ko'rsatkich hajmi",
+              "Nol",
+            ],
+            answer: 2,
+            explain: "Parametr ko'rsatkichga aylangan; sizeof uning hajmini (masalan 8 bayt) qaytaradi, massiv uzunligini emas.",
+          },
+        ],
+      },
+      {
+        id: 52,
+        title: "Funksiya ko'rsatkichlari jadvali va murakkab deklaratsiyalar",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "Murakkab C deklaratsiyalarini o'ngdan chapga o'qish qoidasi yordam beradi: <code>int (*f)(int, int)</code> — \"f — int qaytaruvchi, ikki int qabul qiluvchi funksiyaga ko'rsatkich\". <code>typedef</code> bunday yozuvni yashirib, kodni o'qishni osonlashtiradi. Funksiya ko'rsatkichlari jadvali <b>dispatch table</b> yaratib, uzun <code>switch</code> o'rnini bosadi va yangi amallarni kod o'zgartirmasdan qo'shish imkonini beradi.",
+          },
+          {
+            type: "code",
+            title: "amallar_jadvali.c",
+            code: String.raw`#include <stdio.h>
+
+typedef int (*Amal)(int, int);
+
+int qosh(int a, int b) { return a + b; }
+int ayir(int a, int b) { return a - b; }
+int kopaytir(int a, int b) { return a * b; }
+
+typedef struct {
+    const char *nom;
+    Amal bajar;
+} Buyruq;
+
+int main(void) {
+    Buyruq jadval[] = {
+        {"qo'shish", qosh},
+        {"ayirish", ayir},
+        {"ko'paytirish", kopaytir},
+    };
+    int x = 12, y = 4;
+    size_t n = sizeof jadval / sizeof jadval[0];
+
+    for (size_t i = 0; i < n; i++) {
+        printf("%s: %d\n", jadval[i].nom, jadval[i].bajar(x, y));
+    }
+    return 0;
+}`,
+            output: "qo'shish: 16\nayirish: 8\nko'paytirish: 48",
+          },
+          {
+            type: "p",
+            html: "Funksiya ko'rsatkichini qaytaruvchi funksiya ham yozish mumkin. <code>Amal tanla(char belgi)</code> — <code>Amal</code> (funksiya ko'rsatkichi) qaytaradi. Qavslar juda muhim: <code>Amal tanla(char)</code> funksiya qaytaradi, <code>Amal *tanla(char)</code> esa funksiya ko'rsatkichiga ko'rsatkich qaytaradi. Amaliy kodda typedef bu farqni aniq ko'rsatadi.",
+          },
+          {
+            type: "code",
+            title: "amal_tanlash.c",
+            code: String.raw`#include <stdio.h>
+
+typedef int (*Amal)(int, int);
+
+int qosh(int a, int b) { return a + b; }
+int kopaytir(int a, int b) { return a * b; }
+
+Amal tanla(char belgi) {
+    if (belgi == '*') {
+        return kopaytir;
+    }
+    return qosh;
+}
+
+int main(void) {
+    Amal f = tanla('*');
+    printf("f(6, 7) = %d\n", f(6, 7));
+    printf("tanla('+')(8, 9) = %d\n", tanla('+')(8, 9));
+    return 0;
+}`,
+            output: "f(6, 7) = 42\ntanla('+')(8, 9) = 17",
+          },
+          {
+            type: "table",
+            head: ["Deklaratsiya", "O'qilishi"],
+            rows: [
+              ["<code>int (*f)(int)</code>", "int qabul qilib int qaytaruvchi funksiyaga ko'rsatkich"],
+              ["<code>int (*f[3])(int)</code>", "uchta shunday funksiya ko'rsatkichidan iborat massiv"],
+              ["<code>int *f(int)</code>", "int ga ko'rsatkich qaytaruvchi funksiya"],
+              ["<code>void (*signal(int, void (*)(int)))(int)</code>", "signal funksiyasi eski handler ko'rsatkichini qaytaradi"],
+            ],
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Jadvalning kuchi",
+            html: "Yangi amal qo'shish uchun funksiya yozib, jadvalga bitta qator qo'shish kifoya. Har bir yozuvda <code>NULL</code> bo'lishi mumkinligini unutmang: chaqirishdan oldin <code>if (buyruq-&gt;bajar != NULL)</code> tekshiruvi dasturni yiqilishdan saqlaydi. Funksiya ko'rsatkichlari orqali testlarda soxta (<i>mock</i>) funksiyalarni ham ulash mumkin.",
+          },
+        ],
+        quiz: [
+          {
+            q: "int (*f[3])(int, int) deklaratsiyasi nimani bildiradi?",
+            options: [
+              "Uchta int qaytaruvchi funksiya",
+              "int qaytaruvchi funksiyaga ko'rsatkich",
+              "Uchta int massivi",
+              "Uchta funksiya ko'rsatkichidan iborat massiv",
+            ],
+            answer: 3,
+            explain: "f — massiv; uning har bir elementi ikki int qabul qilib int qaytaruvchi funksiyaga ko'rsatkich.",
+          },
+          {
+            q: "Dispatch table dan foydalanishning asosiy afzalligi nima?",
+            options: [
+              "Kod hajmini har doim kamaytiradi",
+              "Yangi amalni jadvalga qator qo'shib ulash mumkin",
+              "Xotira sarfini yo'q qiladi",
+              "Ko'rsatkichlarni tekshirishni talab qilmaydi",
+            ],
+            answer: 1,
+            explain: "Jadval funksiya va nomni bog'laydi; yangi xatti-harakatni markaziy switch ni o'zgartirmasdan qo'shish mumkin.",
+          },
+          {
+            q: "int *f(int) va int (*f)(int) orasidagi farq nima?",
+            options: [
+              "Ikkalasi bir xil",
+              "Birinchisi int massiv qaytaradi",
+              "Birinchisi ko'rsatkich qaytaradi, ikkinchisi funksiya ko'rsatkichi",
+              "Ikkinchisi noto'g'ri sintaksis",
+            ],
+            answer: 2,
+            explain: "Qavssiz * funksiya natijasiga tegishli: int *f(int) int ga ko'rsatkich qaytaradi. Qavs bilan u funksiya ko'rsatkichiga aylanadi.",
+          },
+        ],
+      },
+      {
+        id: 53,
+        title: "Arena allocator: ko'p kichik ajratishlar",
+        minutes: 17,
+        blocks: [
+          {
+            type: "p",
+            html: "Dastur minglab kichik obyekt yaratsa, har biri uchun <code>malloc</code> chaqirish sekin va xotirani bo'laklaydi. <b>Arena</b> (bump allocator) bitta katta blok oladi va ichidan ketma-ket joy beradi. Har ajratish bir necha arifmetik amal, bo'shatish esa butun arenani <code>reset</code> qilishdan iborat. Bu parser, o'yin sikli va so'rovga xizmat qiluvchi serverlarda juda samarali.",
+          },
+          {
+            type: "code",
+            title: "arena.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    unsigned char *blok;
+    size_t hajm;
+    size_t ishlatilgan;
+} Arena;
+
+void *arena_ol(Arena *a, size_t n) {
+    size_t tek = (a->ishlatilgan + sizeof(void *) - 1)
+                 & ~(sizeof(void *) - 1);
+    if (tek > a->hajm || n > a->hajm - tek) {
+        return NULL;
+    }
+    void *p = a->blok + tek;
+    a->ishlatilgan = tek + n;
+    return p;
+}
+
+void arena_reset(Arena *a) {
+    a->ishlatilgan = 0;
+}
+
+int main(void) {
+    unsigned char xotira[64];
+    Arena a = {xotira, sizeof xotira, 0};
+
+    int *sonlar = arena_ol(&a, 3 * sizeof *sonlar);
+    for (int i = 0; i < 3; i++) {
+        sonlar[i] = i * i;
+    }
+
+    char *matn = arena_ol(&a, 6);
+    memcpy(matn, "salom", 6);
+
+    printf("%d %d %d\n", sonlar[0], sonlar[1], sonlar[2]);
+    printf("%s\n", matn);
+    printf("ishlatilgan=%zu\n", a.ishlatilgan);
+    return 0;
+}`,
+            output: "0 1 4\nsalom\nishlatilgan=22",
+          },
+          {
+            type: "p",
+            html: "Yuqorida uchta <code>int</code> 12 baytni egallaydi, keyingi ajratish esa 8 bayt chegarasiga tekislanadi: 12 dan 16 ga o'tiladi, 6 baytli satr qo'shilgach <code>ishlatilgan</code> 22 bo'ladi. Arena ichidagi alohida obyektni <code>free</code> qilib bo'lmaydi — faqat hammasini birgalikda tiklash mumkin. Shu sababli arena bir xil umrga ega obyektlar uchun mos.",
+          },
+          {
+            type: "code",
+            title: "arena_reset.c",
+            code: String.raw`#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    unsigned char *blok;
+    size_t hajm;
+    size_t ishlatilgan;
+} Arena;
+
+void *arena_ol(Arena *a, size_t n) {
+    size_t tek = (a->ishlatilgan + 7u) & ~(size_t)7u;
+    if (tek > a->hajm || n > a->hajm - tek) {
+        return NULL;
+    }
+    void *p = a->blok + tek;
+    a->ishlatilgan = tek + n;
+    return p;
+}
+
+int main(void) {
+    unsigned char bufer[32];
+    Arena a = {bufer, sizeof bufer, 0};
+
+    char *birinchi = arena_ol(&a, 6);
+    memcpy(birinchi, "salom", 6);
+    printf("ishlatilgan=%zu\n", a.ishlatilgan);
+
+    a.ishlatilgan = 0;
+    printf("reset=%zu\n", a.ishlatilgan);
+
+    char *ikkinchi = arena_ol(&a, 5);
+    memcpy(ikkinchi, "asal", 5);
+    printf("yangi=%s used=%zu\n", ikkinchi, a.ishlatilgan);
+    return 0;
+}`,
+            output: "ishlatilgan=6\nreset=0\nyangi=asal used=5",
+          },
+          {
+            type: "note",
+            variant: "warning",
+            title: "Tekislash va umr",
+            html: "Har qanday turdagi obyekt uchun mos tekislashni ta'minlashda <code>max_align_t</code> yoki eng katta tur o'lchamidan foydalaning; faqat <code>sizeof(void *)</code> ga tayanish ba'zi platformalarda yetarli emas. Arena ko'rsatkichlari resetdan keyin yaroqsiz bo'ladi — ularni saqlab qolmang. Ko'p oqimli dasturda har oqimga alohida arena bering yoki qulflang.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Arena allocator da bitta obyektni alohida free qilish mumkinmi?",
+            options: [
+              "Ha, har bir obyekt uchun metadata bor",
+              "Yo'q, odatda faqat butun arenani reset qilish mumkin",
+              "Faqat birinchi obyektni",
+              "Faqat oxirgi obyektni",
+            ],
+            answer: 1,
+            explain: "Arena ketma-ket joylaydi va alohida bo'sh joylarni kuzatmaydi; odatda hammasi birgalikda tiklanadi.",
+          },
+          {
+            q: "Nima uchun arena ichida tekislash (alignment) hisobga olinadi?",
+            options: [
+              "Kod chiroyli ko'rinishi uchun",
+              "Xotira hajmini oshirish uchun",
+              "Har bir tur o'z chegarasiga mos manzilda turishi uchun",
+              "free tezroq ishlashi uchun",
+            ],
+            answer: 2,
+            explain: "Noto'g'ri tekislangan manzilga int yoki double yozish undefined behavior bo'lishi mumkin.",
+          },
+          {
+            q: "Arena qaysi holatda kam mos?",
+            options: [
+              "So'rov davomida yaratiladigan va birga tugaydigan obyektlar",
+              "Parserning vaqtinchalik tugunlari",
+              "Uzoq yashaydigan, alohida-alohida bo'shatiladigan obyektlar",
+              "O'yin kadridagi vaqtinchalik obyektlar",
+            ],
+            answer: 2,
+            explain: "Alohida bo'shatish va uzoq muddat kerak bo'lsa, umumiy arena xotirani behuda ushlab turadi.",
+          },
+        ],
+      },
+      {
+        id: 54,
+        title: "Pool allocator va bo'sh ro'yxat",
+        minutes: 16,
+        blocks: [
+          {
+            type: "p",
+            html: "Bir xil o'lchamdagi ko'p obyekt kerak bo'lsa, <b>pool allocator</b> ishlatiladi. U oldindan N ta slot ajratadi va bo'sh slotlarni ichki <b>free list</b> ga bog'laydi. Bo'sh slotning o'zida keyingi bo'sh slot ko'rsatkichi saqlanadi — qo'shimcha metadata kerak emas. Ajratish va qaytarish O(1), bo'laklanish esa umuman yo'q.",
+          },
+          {
+            type: "code",
+            title: "pool.c",
+            code: String.raw`#include <stdio.h>
+
+#define N 4
+
+typedef struct Tugun {
+    int qiymat;
+    struct Tugun *keyingi;
+} Tugun;
+
+typedef struct {
+    Tugun slotlar[N];
+    Tugun *bosh;
+    size_t band;
+} Pool;
+
+void pool_init(Pool *p) {
+    for (int i = 0; i < N - 1; i++) {
+        p->slotlar[i].keyingi = &p->slotlar[i + 1];
+    }
+    p->slotlar[N - 1].keyingi = NULL;
+    p->bosh = &p->slotlar[0];
+    p->band = 0;
+}
+
+Tugun *pool_ol(Pool *p) {
+    if (p->bosh == NULL) {
+        return NULL;
+    }
+    Tugun *t = p->bosh;
+    p->bosh = t->keyingi;
+    t->keyingi = NULL;
+    p->band++;
+    return t;
+}
+
+void pool_qaytar(Pool *p, Tugun *t) {
+    t->keyingi = p->bosh;
+    p->bosh = t;
+    p->band--;
+}
+
+int main(void) {
+    Pool p;
+    pool_init(&p);
+
+    Tugun *a = pool_ol(&p);
+    Tugun *b = pool_ol(&p);
+    Tugun *c = pool_ol(&p);
+    a->qiymat = 11;
+    b->qiymat = 22;
+    c->qiymat = 33;
+    printf("band=%zu\n", p.band);
+
+    pool_qaytar(&p, b);
+    printf("band=%zu bosh=%zu\n", p.band, p.band + 2);
+
+    Tugun *d = pool_ol(&p);
+    d->qiymat = 44;
+    printf("qayta=%d slot=%ld\n", d->qiymat, (long)(d - p.slotlar));
+    printf("band=%zu\n", p.band);
+    return 0;
+}`,
+            output: "band=3\nband=2 bosh=4\nqayta=44 slot=1\nband=3",
+          },
+          {
+            type: "p",
+            html: "Dastlab bo'sh ro'yxat 0 → 1 → 2 → 3 tartibida quriladi. Uchta slot olinandan keyin bo'sh ro'yxatda faqat 3-qoladi. <code>b</code> (1-slot) qaytarilganda u ro'yxat boshiga qo'shiladi; keyingi <code>pool_ol</code> aynan shu slotni beradi. <code>band</code> haqiqiy egallangan slotlar sonini, qolganini esa free list ifodalaydi.",
+          },
+          {
+            type: "code",
+            title: "pool_toldirish.c",
+            code: String.raw`#include <stdio.h>
+
+#define N 4
+
+typedef struct Slot {
+    int qiymat;
+    struct Slot *keyingi;
+} Slot;
+
+typedef struct {
+    Slot slotlar[N];
+    Slot *bosh;
+    size_t band;
+} Pool;
+
+void pool_init(Pool *p) {
+    for (int i = 0; i < N - 1; i++) {
+        p->slotlar[i].keyingi = &p->slotlar[i + 1];
+    }
+    p->slotlar[N - 1].keyingi = NULL;
+    p->bosh = p->slotlar;
+    p->band = 0;
+}
+
+Slot *ol(Pool *p) {
+    if (p->bosh == NULL) return NULL;
+    Slot *s = p->bosh;
+    p->bosh = s->keyingi;
+    s->keyingi = NULL;
+    p->band++;
+    return s;
+}
+
+void qaytar(Pool *p, Slot *s) {
+    s->keyingi = p->bosh;
+    p->bosh = s;
+    p->band--;
+}
+
+int main(void) {
+    Pool p;
+    Slot *t[N];
+    pool_init(&p);
+
+    for (int i = 0; i < N; i++) {
+        t[i] = ol(&p);
+    }
+    printf("band=%zu\n", p.band);
+    printf("yana=%s\n", ol(&p) == NULL ? "yo'q" : "bor");
+
+    for (int i = 0; i < N; i++) {
+        qaytar(&p, t[i]);
+    }
+    printf("band=%zu\n", p.band);
+
+    for (int i = 0; i < N; i++) {
+        t[i] = ol(&p);
+        t[i]->qiymat = i + 1;
+    }
+    printf("qayta: %d %d %d %d\n",
+           t[0]->qiymat, t[1]->qiymat, t[2]->qiymat, t[3]->qiymat);
+    return 0;
+}`,
+            output: "band=4\nyana=yo'q\nband=0\nqayta: 1 2 3 4",
+          },
+          {
+            type: "note",
+            variant: "tip",
+            title: "Qachon pool, qachon malloc?",
+            html: "Bir xil o'lcham, ko'p miqdor va tez-tez ajratish/qaytarish bo'lsa pool juda yaxshi. Har xil o'lchamdagi, uzoq yashaydigan obyektlar uchun umumiy <code>malloc</code> mos. Pool oqimlar bo'ylab umumiy bo'lsa, mutex yoki har oqimga alohida pool kerak. Slotni ikki marta qaytarish free listni buzadi — egalik qoidasini qat'iy saqlang.",
+          },
+        ],
+        quiz: [
+          {
+            q: "Pool allocator da bo'sh slotlar haqidagi ma'lumot qayerda saqlanadi?",
+            options: [
+              "Alohida global massivda",
+              "Har bir band slot ichida",
+              "Bo'sh slotning o'zida keyingi ko'rsatkich sifatida",
+              "Fayl tizimida",
+            ],
+            answer: 2,
+            explain: "Bo'sh slotdan foydalanib, uning ichiga keyingi bo'sh slot manzili yoziladi; qo'shimcha xotira kerak emas.",
+          },
+          {
+            q: "Pool qaysi vazifa uchun eng mos?",
+            options: [
+              "Har xil hajmdagi uzoq muddatli buferlar",
+              "Faylni butunlay o'qish",
+              "Matnni qidirish",
+              "Bir xil o'lchamdagi ko'p qisqa umrli obyektlar",
+            ],
+            answer: 3,
+            explain: "Pool bir xil o'lchamli slotlarni tez qayta ishlatish uchun mo'ljallangan.",
+          },
+          {
+            q: "Slotni ikki marta qaytarish nima uchun xavfli?",
+            options: [
+              "Xotira avtomatik ko'payadi",
+              "Free listda bir slot ikki marta paydo bo'lib, uni ikki joyga berish mumkin",
+              "Faqat sekinlashadi",
+              "Hech qanday oqibat yo'q",
+            ],
+            answer: 1,
+            explain: "Takroriy qaytarish free listni buzadi va bitta slotni ikki obyektga berib, ma'lumot buzilishiga olib keladi.",
+          },
+        ],
+      },

@@ -1,0 +1,159 @@
+Rust dasturi qaysi funksiyadan boshlanadi?
+cargo run buyrug'i nima qiladi?
+println! oxiridagi ! belgisi nimani bildiradi?
+O'zgaruvchi qiymatini keyinchalik o'zgartirish uchun nima yoziladi?
+const e'lonida nima majburiy?
+Shadowing qanday amalga oshiriladi?
+String boshqa o'zgaruvchiga berilganda nima bo'ladi?
+Bir vaqtda nechta o'zgartiruvchi havola (&mut) bo'lishi mumkin?
+&mut havola orqali qiymatni o'zgartirish uchun nima ishlatiladi?
+for i in 1..=3 tsikli nechta qiymat beradi?
+loop tsiklidan qiymat qaytarish uchun nima yoziladi?
+if qanday qo'shimcha imkoniyatga ega?
+Funksiyaning qaytariladigan turi qanday belgilanadi?
+Funksiya oxiridagi ifoda natija bo'lishi uchun nima qilish kerak?
+Parametrlarning turi qanday ko'rsatiladi?
+Metod struct maydonini o'zgartirishi uchun receiver qanday bo'lishi kerak?
+Enum variantiga qanday murojaat qilinadi?
+impl blokidagi Self nimani bildiradi?
+Option'da qiymat yo'qligi qaysi variant bilan ifodalanadi?
+match to'liq bo'lishi uchun nima qilish kerak?
+if let Some(x) = qiymat nimani tekshiradi?
+Vec oxiriga element qo'shish uchun qaysi metod ishlatiladi?
+HashMap.get(kalit) qanday natija qaytaradi?
+Vec'da mavjud bo'lmagan indeksga murojaat qilsa nima bo'ladi?
+Result'ning variantlari qaysilar?
+? operatori Err natijasida nima qiladi?
+unwrap() Err bo'lsa nima bo'ladi?
+Trait implementatsiyasi qanday yoziladi?
+Generik funksiyada cheklov qanday ko'rsatiladi?
+Trait ichida tana bilan yozilgan metod nima deyiladi?
+mod matematika; yozuvi qaysi faylni qidiradi?
+pub kalit so'zi nima qiladi?
+Test funksiyasi qaysi atribut bilan belgilanadi?
+get_mut(indeks) qanday natija qaytaradi?
+iter().filter(...) nimani tanlaydi?
+Vazifa bajarilganini qaysi maydon bildiradi?
+String qiymatini &str kutayotgan funksiyaga qanday uzatish mumkin?
+String::len() qaysi qiymatni qaytaradi?
+&gap[0..4] kesimi nimani oladi?
+Qaysi tur topshirilganda move emas, nusxa (Copy) hosil bo'ladi?
+String turidagi a dan let b = a; bajarilgandan keyin a bilan nima bo'ladi?
+clone() chaqirig'i nima yaratadi?
+Bir vaqtda nechta o'zgarmas (&T) havola olish mumkin?
+&mut T havolasi orqali qiymatni o'zgartirish uchun qaysi amal kerak?
+Havola egasidan uzoq yashamoqchi bo'lsa nima sodir bo'ladi?
+Lifetime annotatsiyasi asosan nimani ta'minlaydi?
+fn eng<'a>(a: &'a str, b: &'a str) -> &'a str natijasi nimaga bog'lanadi?
+Bitta &str parametri va &str natijasi bo'lgan funksiyada elision nima qiladi?
+Struct ichida &str maydoni bo'lsa, nima yozish talab qilinadi?
+'static lifetime nimani bildiradi?
+Struct havola saqlasa, egasi structdan oldin yo'qolsa nima bo'ladi?
+Struct yangilash yozuvida qolgan maydonlarni olish uchun qaysi belgi ishlatiladi?
+Tuple struct maydoniga qanday murojaat qilinadi?
+#[derive(PartialEq)] qanday imkoniyat qo'shadi?
+Enum variantida qanday ma'lumot saqlash mumkin?
+Buyruq::Ayt(String) variantidan matnni qanday ajratib olish mumkin?
+Enum'ning barcha variantlari bir xil turdagi ma'lumot saqlashi shartmi?
+match ichidagi guard nima vazifani bajaradi?
+n @ 1..=5 naqshi nimani qiladi?
+Struct naqshidagi .. nimani bildiradi?
+Savat::yangi() kabi bog'langan funksiyaning birinchi parametri qanday bo'ladi?
+From<u32> for Narx yozilgandan keyin qaysi konversiya avtomatik ishlaydi?
+&mut self receiver qachon tanlanadi?
+Box<dyn Shakl> ro'yxati qanday muammoni hal qiladi?
+dyn Trait qiymati qanday saqlanishi kerak?
+Trait'dagi standart metodni implementatsiya qilmasa nima bo'ladi?
+Generik turga bir nechta trait cheklovi qanday yoziladi?
+where bandi qayerda joylashadi?
+fn juftlar() -> impl Iterator<Item = u32> natijasida nima yashiriladi?
+Generik struct qanday e'lon qilinadi?
+Monomorfizatsiya nima?
+Turni aniq ko'rsatish uchun turbofish qanday yoziladi?
+Qaysi metod iteratorni darhol iste'mol qilib, yakuniy qiymat qaytaradi?
+Iterator adapterlari qachon haqiqatda bajariladi?
+iter() metodi qanday elementlar beradi?
+Ushlangan o'zgaruvchini o'zgartiruvchi closure qaysi trait'ni bajaradi?
+move kalit so'zi closure ichida nima qiladi?
+Qaysi closure trait'i faqat bir marta chaqirilishni kafolatlaydi?
+Vec::remove(0) qanday qiymat qaytaradi?
+&v[1..3] slice'i nechta elementni qamrab oladi?
+Slice o'z ma'lumotiga ega bo'ladimi?
+entry(kalit).or_insert(0) qanday ishlaydi?
+BTreeMap kalitlari qanday tartibda yuritiladi?
+HashSet nimani kafolatlaydi?
+? operatori Err ni boshqa xato turiga aylantirish uchun qaysi trait'dan foydalanadi?
+Box<dyn std::error::Error> nimani osonlashtiradi?
+O'z xato turini println! bilan oddiy {} formatida chiqarish uchun qaysi trait kerak?
+map va and_then o'rtasidagi asosiy farq nima?
+Option qaytaruvchi funksiya ichida ? operatori None natijasida nima qiladi?
+ok_or("xato") metodi nimani qaytaradi?
+pub(crate) ko'rinish doirasi qanday?
+use ombor::Kitob; qatori nima qiladi?
+crate:: prefiksi nimaga ishora qiladi?
+cargo build --release ning debug build'dan asosiy farqi nima?
+Cargo.toml dagi [dependencies] bo'limi nima uchun?
+Cargo.lock fayli nima vazifani bajaradi?
+#[cfg(test)] atributi nimani ta'minlaydi?
+assert_eq! va assert! o'rtasidagi farq nima?
+#[should_panic] qanday testni bildiradi?
+Integratsion testlar odatda qayerda joylashadi?
+Doc test nima?
+cargo clippy qanday vazifani bajaradi?
+Box<T> qiymatni qayerda saqlaydi?
+Rekursiv enum uchun Box nima uchun kerak?
+*quti ifodasi nima qiladi?
+Rc::clone(&qiymat) aslida nima qiladi?
+RefCell borrow qoidalari qachon tekshiriladi?
+Rc<RefCell<T>> qanday holatga mos?
+Deref coercion qanday ishlaydi?
+Drop trait'i qachon chaqiriladi?
+std::mem::drop(qiymat) nima qiladi?
+thread::spawn(...).join() qanday natija qaytaradi?
+Closure'ni oqimga uzatishda move ko'pincha nima uchun kerak?
+Oqim ichida panic yuz bersa, join natijasida nima bo'ladi?
+mpsc qisqartmasi nimani anglatadi?
+Asosiy yuboruvchi drop(tx) qilinsa nima bo'ladi?
+Kanaldagi send natijasi qanday tur?
+Arc va Rc o'rtasidagi asosiy farq nima?
+Mutex::lock() nima uchun Result qaytaradi?
+MutexGuard qachon ochiladi?
+async fn chaqirilganda darhol nima sodir bo'ladi?
+.await operatori nima qiladi?
+futures::executor::block_on ning vazifasi nima?
+try_join! makrosi xato yuz berganda nima qiladi?
+Async funksiyada ? operatoridan foydalanish uchun funksiya qanday natija qaytarishi kerak?
+select! makrosi nimani beradi?
+macro_rules! qanday turdagi makro yaratadi?
+$($son:expr),* yozuvi nimani bildiradi?
+Makrolar qachon kengaytiriladi?
+unsafe bloki nimani o'zgartiradi?
+get_unchecked ning xavfi nimada?
+Xavfsiz abstraktsiya yozishda asosiy talab nima?
+fs::read_to_string qanday natija qaytaradi?
+main funksiyasi io::Result<()> qaytarsa, unda ? ishlatish mumkinmi?
+BufReader nima uchun ishlatiladi?
+Kutubxona::qosh metodi takroriy ID ni qanday aniqlaydi?
+Janr uchun enum ishlatishning asosiy afzalligi nima?
+Kitob mavjudligini qaysi maydon bildiradi?
+olib_ol metodi nima uchun &mut self qabul qiladi?
+olib_ol natijasidagi &Kitob havolasi nimaga bog'langan?
+Qaytarishda AllaqachonMavjud xatosi qachon qaytariladi?
+qidir metodi nima uchun Vec<&Kitob> qaytaradi?
+janr_hisobi uchun BTreeMap tanlanishining sababi nima?
+max_by_key bo'sh ro'yxatda nima qaytaradi?
+Yakuniy dastur hisobotni qaysi tartibda chiqaradi?
+olib_ol natijasini unwrap qilish qachon xavfli?
+Hisobotni faylga yozish uchun qaysi standart funksiya ishlatiladi?
+Funksiyaga String qiymati parametr orqali berilganda egalik qanday o'zgaradi?
+Lifetime parametrining asosiy vazifasi nima?
+Qaysi holatda dyn Trait generik yondashuvdan afzalroq?
+Iterator adapterlari qanday xususiyatga ega?
+HashMap entry API qanday afzallik beradi?
+Result qaytaruvchi funksiyadagi ? operatori Ok(qiymat) ni qanday qayta ishlaydi?
+Rc<RefCell<T>> da faol borrow_mut() borligida yana borrow_mut() chaqirilsa nima bo'ladi?
+Arc<Mutex<T>> birgalikda qanday imkoniyat beradi?
+Kanaldagi barcha Sender'lar drop qilinsa, rx ustidagi iteration qanday tugaydi?
+join! bilan birlashtirilgan async future'lar odatda alohida OS oqimlarida ishlaydimi?
+Test funksiyasi Result<(), E> qaytarsa va Err bo'lsa, cargo test natijasi qanday bo'ladi?
+Quyidagilardan qaysi biri unsafe blok talab qiladi?

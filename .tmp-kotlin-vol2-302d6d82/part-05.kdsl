@@ -1,0 +1,476 @@
+@@lesson 70
+@@title Ktor server chuqur: pluginlar, auth va status pages
+@@minutes 18
+@@p
+Ktor server modulli: har bir imkoniyat plugin sifatida o'rnatiladi. <code>ContentNegotiation</code> JSON bilan ishlashni, <code>StatusPages</code> markazlashgan xato javoblarini, <code>Authentication</code> esa token tekshiruvini ta'minlaydi. Pluginlar <code>Application.module()</code> da bir marta sozlanadi va barcha marshrutlarga ta'sir qiladi. Bu tuzilma kodni takrorlanishdan saqlaydi.
+@@code server.kt
+import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.http.*
+
+fun Application.module() {
+    install(ContentNegotiation) { json() }
+    install(StatusPages) {
+        exception<IllegalArgumentException> { call, cause ->
+            call.respond(HttpStatusCode.BadRequest, mapOf("xato" to cause.message))
+        }
+    }
+    install(Authentication) {
+        bearer("auth") {
+            authenticate { token ->
+                if (token.token == "secret") UserIdPrincipal("aziza") else null
+            }
+        }
+    }
+    routing {
+        get("/health") { call.respond(mapOf("status" to "ok")) }
+        authenticate("auth") {
+            get("/me") {
+                val user = call.principal<UserIdPrincipal>()!!
+                call.respond(mapOf("user" to user.name))
+            }
+        }
+    }
+}
+@@out
+$ curl -s localhost:8080/health
+{"status":"ok"}
+$ curl -s -o /dev/null -w "%{http_code}\n" localhost:8080/me
+401
+$ curl -s -H "Authorization: Bearer secret" localhost:8080/me
+{"user":"aziza"}
+@@p
+StatusPages xatolarni yagona formatga keltiradi, lekin biznes xatolarini istisno sifatida tashlash har doim ham qulay emas. Kichik loyihada <code>require</code> va <code>call.respond</code> yetarli, katta loyihada esa natija tipini <code>sealed</code> bilan modellashtirib, marshrutda status kodga aylantirish yaxshiroq. Quyida noto'g'ri so'rov va muvaffaqiyatli yaratish ko'rsatilgan.
+@@code validation.kt
+import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.serialization.kotlinx.json.*
+import io.ktor.http.*
+import kotlinx.serialization.Serializable
+
+@Serializable data class YangiVazifa(val sarlavha: String)
+
+fun Application.module() {
+    install(ContentNegotiation) { json() }
+    install(StatusPages) {
+        exception<IllegalArgumentException> { call, e ->
+            call.respond(HttpStatusCode.BadRequest, mapOf("xato" to e.message))
+        }
+    }
+    routing {
+        post("/tasks") {
+            val kirish = call.receive<YangiVazifa>()
+            require(kirish.sarlavha.isNotBlank()) { "sarlavha bo'sh" }
+            call.respond(HttpStatusCode.Created, mapOf("id" to 1, "sarlavha" to kirish.sarlavha))
+        }
+    }
+}
+@@out
+$ curl -s -X POST localhost:8080/tasks -H "Content-Type: application/json" -d '{"sarlavha":""}'
+{"xato":"sarlavha bo'sh"}
+$ curl -s -X POST localhost:8080/tasks -H "Content-Type: application/json" -d '{"sarlavha":"Kotlin"}'
+{"id":1,"sarlavha":"Kotlin"}
+@@note tip | Server pluginlari
+Amaliy loyihada <code>CallLogging</code>, <code>Compression</code>, <code>CORS</code>, <code>RateLimit</code>, <code>ForwardedHeaders</code> va <code>RequestValidation</code> pluginlari tez-tez kerak bo'ladi. Ularni <code>application.conf</code> yoki kod orqali sozlang. Autentifikatsiya sirini kodga yozmang — environment yoki secret manager'dan oling.
+@@quiz
+<code>StatusPages</code> pluginining asosiy vazifasi nima?
+- Marshrutlarni avtomatik yaratish
+- Istisnolarni yagona HTTP javob formatiga aylantirish
+- Ma'lumotlar bazasiga ulanish
+- JSON'ni siqish
+= 1
+! StatusPages istisno va status kodlarni markazlashgan holda javobga aylantiradi.
+@@quiz
+Ktor'da <code>bearer("auth")</code> nima qiladi?
+- Bearer tokenini tekshiruvchi autentifikatsiya providerini yaratadi
+- Authorization header'ini avtomatik o'chiradi
+- Faqat cookie'larni qabul qiladi
+- JSON serializatsiyasini yoqadi
+= 0
+! bearer provider token qiymatini tekshiradi va muvaffaqiyatli bo'lsa principal qaytaradi.
+@@quiz
+Noto'g'ri so'rov tanasi uchun qaysi status kod mos?
+- 200 OK
+- 201 Created
+- 400 Bad Request
+- 500 Internal Server Error
+= 2
+! Validatsiya xatosi mijoz tomonidan yuborilgan noto'g'ri ma'lumotni bildiradi — 400.
+@@lesson 71
+@@title Ktor client: timeout, retry va MockEngine testlari
+@@minutes 17
+@@p
+<code>HttpClient</code> og'ir obyekt: ulanishlar hovuzi, pluginlar va konfiguratsiya saqlanadi. Uni ilova davomida bir marta yaratib qayta ishlatish kerak; har so'rovda yangi client yaratish resurslarni sarflaydi. <code>ContentNegotiation</code> JSON'ni avtomatik o'qiydi, <code>HttpTimeout</code> kutish vaqtini cheklaydi, <code>HttpRequestRetry</code> esa vaqtinchalik xatolarda so'rovni takrorlaydi.
+@@code client.kt
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+
+@Serializable data class Vazifa(val id: Int, val sarlavha: String, val bajarildi: Boolean)
+
+val client = HttpClient(CIO) {
+    install(ContentNegotiation) { json() }
+    install(HttpTimeout) {
+        requestTimeoutMillis = 5_000
+        connectTimeoutMillis = 2_000
+    }
+    install(HttpRequestRetry) {
+        retryOnServerErrors(maxRetries = 2)
+        exponentialDelay()
+    }
+    defaultRequest {
+        url("https://api.noldan.uz")
+        header("Accept", "application/json")
+    }
+}
+
+suspend fun vazifa(id: Int): Vazifa = client.get("/tasks/$id").body()
+
+fun main() = runBlocking {
+    println(vazifa(7))
+    client.close()
+}
+@@out
+Vazifa(id=7, sarlavha=Kotlin, bajarildi=false)
+@@p
+Tarmoqni testlashda haqiqiy serverga bog'lanmaslik uchun <code>MockEngine</code> ishlatiladi. U so'rovni ushlab, oldindan tayyorlangan javobni qaytaradi; shu bilan serializatsiya va marshrut mantiqini tez, barqaror tekshirish mumkin. Testda client'ni yopishni unutmang — aks holda test jarayoni osilib qolishi mumkin.
+@@code mock.kt
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.mock.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+
+@Serializable data class Vazifa(val id: Int, val sarlavha: String, val bajarildi: Boolean)
+
+fun main() = runBlocking {
+    val engine = MockEngine { request ->
+        println("so'rov: ${request.url.encodedPath}")
+        respond(
+            content = """{"id":1,"sarlavha":"Mock","bajarildi":true}""",
+            status = HttpStatusCode.OK,
+            headers = headersOf(HttpHeaders.ContentType, "application/json")
+        )
+    }
+    val client = HttpClient(engine) { install(ContentNegotiation) { json() } }
+    val vazifa = client.get("https://test.local/tasks/1").body<Vazifa>()
+    println(vazifa)
+    println(vazifa.bajarildi)
+    client.close()
+}
+@@out
+so'rov: /tasks/1
+Vazifa(id=1, sarlavha=Mock, bajarildi=true)
+true
+@@note warning | Retry va idempotentlik
+Retry faqat idempotent so'rovlar (GET, PUT, DELETE) uchun xavfsiz. POST'ni avtomatik takrorlash ikki marta yaratishga olib kelishi mumkin; bunday holatda idempotency key ishlating. Timeout xatosini ham qayta urinish mumkin, lekin umumiy urinishlar sonini cheklang.
+@@quiz
+Nega <code>HttpClient</code> ni har so'rovda yangidan yaratish tavsiya etilmaydi?
+- U juda katta obyekt va ulanish hovuzini qayta yaratadi
+- U JSON'ni o'qiy olmaydi
+- U faqat bitta oqimda ishlaydi
+- U avtomatik ravishda server ochadi
+= 0
+! Client konfiguratsiya va resurslarni saqlaydi; qayta ishlatish unumdorlik va barqarorlik beradi.
+@@quiz
+<code>MockEngine</code> qaysi maqsadda ishlatiladi?
+- Haqiqiy serverga yukni oshirish
+- Tarmoq so'rovlarini testda taqlid qilish
+- Ma'lumotlar bazasini migratsiya qilish
+- HttpClient'ni butunlay o'chirish
+= 1
+! MockEngine so'rovlarga oldindan belgilangan javob qaytaradi, shuning uchun test tashqi tarmoqqa bog'liq bo'lmaydi.
+@@quiz
+<code>requestTimeoutMillis</code> nimani cheklaydi?
+- Ulanish ochilishini
+- Butun so'rovning bajarilish vaqtini
+- Faqat DNS so'rovini
+- Serverdagi ishlov vaqtini
+= 1
+! requestTimeoutMillis butun so'rov (yuborish va javobni kutish) uchun umumiy chegara beradi.
+@@lesson 72
+@@title kotlinx.serialization chuqur: custom va polimorfizm
+@@minutes 17
+@@p
+<code>@Serializable</code> klass uchun serializer generatsiya qiladi, lekin ba'zi tiplar (masalan, <code>java.time.LocalDate</code>) uchun maxsus serializer kerak. <code>KSerializer</code> interfeysi <code>serialize</code> va <code>deserialize</code> metodlarini talab qiladi. Custom serializer'ni <code>@Serializable(with = ...)</code> bilan xossaga yoki butun tipga ulash mumkin.
+@@code sana.kt
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import java.time.LocalDate
+
+object LocalDateSerializer : KSerializer<LocalDate> {
+    override val descriptor = PrimitiveSerialDescriptor("LocalDate", PrimitiveKind.STRING)
+    override fun serialize(encoder: Encoder, value: LocalDate) =
+        encoder.encodeString(value.toString())
+    override fun deserialize(decoder: Decoder): LocalDate =
+        LocalDate.parse(decoder.decodeString())
+}
+
+@Serializable
+data class Tadbir(
+    val nom: String,
+    @Serializable(with = LocalDateSerializer::class) val sana: LocalDate
+)
+
+fun main() {
+    val json = Json { prettyPrint = true }
+    val matn = json.encodeToString(Tadbir("Kotlin kunlari", LocalDate.of(2026, 11, 5)))
+    println(matn)
+    val qayta = json.decodeFromString<Tadbir>(matn)
+    println(qayta.sana)
+}
+@@out
+{
+    "nom": "Kotlin kunlari",
+    "sana": "2026-11-05"
+}
+2026-11-05
+@@p
+Sealed ierarxiya uchun kotlinx.serialization polimorfik serializatsiyani qo'llab-quvvatlaydi. Har bir avlod <code>@Serializable</code> va <code>@SerialName</code> bilan belgilanadi; JSON'da diskriminator maydoni tipni ajratadi. Bu REST API'da turli shakldagi hodisalarni bitta ro'yxatda uzatish uchun qulay. <code>classDiscriminator</code> nomini o'zgartirish mumkin.
+@@code shakl.kt
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+
+@Serializable
+sealed interface Shakl {
+    @Serializable @SerialName("circle")
+    data class Doira(val r: Double) : Shakl
+
+    @Serializable @SerialName("square")
+    data class Kvadrat(val tomon: Double) : Shakl
+}
+
+fun main() {
+    val json = Json { classDiscriminator = "tur" }
+    val royxat: List<Shakl> = listOf(Shakl.Doira(2.0), Shakl.Kvadrat(3.0))
+    val matn = json.encodeToString(royxat)
+    println(matn)
+    val qayta = json.decodeFromString<List<Shakl>>(matn)
+    println(qayta)
+}
+@@out
+[{"tur":"circle","r":2.0},{"tur":"square","tomon":3.0}]
+[Doira(r=2.0), Kvadrat(tomon=3.0)]
+@@note tip | Json konfiguratsiyasi
+<code>ignoreUnknownKeys = true</code> eski client bilan moslikni saqlaydi; <code>explicitNulls = false</code> null maydonlarni chiqarmaydi; <code>encodeDefaults = true</code> default qiymatlarni ham yozadi. <code>JsonNamingStrategy.SnakeCase</code> bilan maydon nomlarini avtomatik o'zgartirish mumkin, lekin u experimental API ekanini yodda tuting.
+@@quiz
+Custom serializer qaysi interfeysni amalga oshiradi?
+- <code>Serializer</code>
+- <code>KSerializer</code>
+- <code>JsonEncoder</code>
+- <code>Serializable</code>
+= 1
+! <code>KSerializer&lt;T&gt;</code> serialize/deserialize va descriptor'ni talab qiladi.
+@@quiz
+Polimorfik JSON'da tipni ajratuvchi maydon qaysi sozlama bilan nomlanadi?
+- <code>classDiscriminator</code>
+- <code>prettyPrint</code>
+- <code>ignoreUnknownKeys</code>
+- <code>isLenient</code>
+= 0
+! classDiscriminator diskriminator maydon nomini belgilaydi; sukut bo'yicha "type".
+@@quiz
+<code>ignoreUnknownKeys = true</code> nima uchun foydali?
+- Noma'lum maydonlarni o'qishda xatoni oldini oladi
+- Barcha maydonlarni null qiladi
+- JSON'ni tekshirmaydi
+- Faqat sealed klasslarda ishlaydi
+= 0
+! Server yangi maydon qo'shganda eski client xato bermasligi uchun noma'lum kalitlar tashlab yuboriladi.
+@@lesson 73
+@@title REST API dizayni: versiyalash, xatolar va validatsiya
+@@minutes 17
+@@p
+Yaxshi REST API resurslarga tayanadi: <code>/api/v1/tasks</code>, <code>/api/v1/tasks/{id}</code>. Versiya yo'lda yoki header'da bo'lishi mumkin, lekin uni boshidan belgilash keyingi o'zgarishlarni osonlashtiradi. Ro'yxat uchun pagination (<code>limit</code>, <code>offset</code> yoki cursor), yaratish uchun <code>201 Created</code> va <code>Location</code> header, xatolar uchun esa izchil JSON sxema kerak.
+@@code pagination.kt
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
+
+@Serializable data class Vazifa(val id: Int, val sarlavha: String)
+@Serializable data class Sahifa(val elementlar: List<Vazifa>, val keyingi: String?)
+
+val barcha = listOf(Vazifa(1, "Kotlin"), Vazifa(2, "Ktor"), Vazifa(3, "Compose"))
+
+fun Routing.vazifaRoutes() {
+    get("/api/v1/tasks") {
+        val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 20
+        require(limit in 1..100) { "limit 1..100 oralig'ida bo'lsin" }
+        val natija = barcha.take(limit)
+        val keyingi = if (barcha.size > limit) "?offset=$limit" else null
+        call.respond(Sahifa(natija, keyingi))
+    }
+}
+@@out
+$ curl -s "localhost:8080/api/v1/tasks?limit=2"
+{"elementlar":[{"id":1,"sarlavha":"Kotlin"},{"id":2,"sarlavha":"Ktor"}],"keyingi":"?offset=2"}
+$ curl -s -o /dev/null -w "%{http_code}\n" "localhost:8080/api/v1/tasks?limit=500"
+400
+@@p
+Yaratishda server yangi resurs manzilini <code>Location</code> header'ida qaytarishi kerak. Xatolar esa <code>{ "kod": "...", "xabar": "..." }</code> kabi barqaror shaklda bo'lishi lozim: client matnni emas, <code>kod</code> ni tekshiradi. Quyidagi yordamchi funksiya biznes xato kodini HTTP statusga aylantiradi; shu bilan marshrutlar qisqa qoladi.
+@@code statuslar.kt
+import io.ktor.http.*
+
+data class ApiXato(val kod: String, val xabar: String)
+
+fun httpStatus(kod: String): HttpStatusCode = when (kod) {
+    "VALIDATION" -> HttpStatusCode.BadRequest
+    "AUTH" -> HttpStatusCode.Unauthorized
+    "FORBIDDEN" -> HttpStatusCode.Forbidden
+    "NOT_FOUND" -> HttpStatusCode.NotFound
+    "CONFLICT" -> HttpStatusCode.Conflict
+    else -> HttpStatusCode.InternalServerError
+}
+
+fun main() {
+    listOf("VALIDATION", "NOT_FOUND", "CONFLICT", "NOMA'LUM").forEach {
+        println("$it -> ${httpStatus(it).value}")
+    }
+}
+@@out
+VALIDATION -> 400
+NOT_FOUND -> 404
+CONFLICT -> 409
+NOMA'LUM -> 500
+@@note tip | API shartnomasi
+Pagination uchun <code>limit/offset</code> oddiy, lekin katta jadvalda cursor ishonchliroq. <code>PUT</code> idempotent, <code>PATCH</code> qismiy yangilanish, <code>DELETE</code> takrorlansa ham bir xil natija berishi kerak. Xato javobida stack trace, SQL yoki ichki yo'l ko'rsatilmasin — bu xavfsizlik muammosi.
+@@quiz
+Yangi resurs yaratilganda qaysi status va header juftligi mos?
+- 200 OK va ETag
+- 201 Created va Location
+- 204 No Content va Allow
+- 302 Found va Set-Cookie
+= 1
+! 201 yaratilgan resursni bildiradi, Location esa uning manzilini ko'rsatadi.
+@@quiz
+Nega xato javobida barqaror <code>kod</code> maydoni kerak?
+- Client xato turini tarjima matniga bog'lanmasdan aniqlaydi
+- HTTP status kodini almashtiradi
+- JSON hajmini oshiradi
+- Faqat log uchun kerak
+= 0
+! Mashina o'qiy oladigan kod client uchun barqaror; xabar matni o'zgarishi mumkin.
+@@quiz
+<code>PUT</code> so'rovining idempotentligi nimani bildiradi?
+- So'rov faqat bir marta yuboriladi
+- Bir xil so'rov takrorlansa ham resurs holati bir xil bo'ladi
+- So'rov hech qachon xato bermaydi
+- Server javobni keshlaydi
+= 1
+! Idempotentlik takroriy bajarishning natijani o'zgartirmasligini bildiradi, so'rovlar sonini emas.
+@@lesson 74
+@@title Exposed: DSL, transaction va repository
+@@minutes 18
+@@p
+Exposed — Kotlin uchun yengil SQL kutubxonasi. U ikki uslubni beradi: type-safe DSL va DAO. DSL'da jadval <code>Table</code> obyekti sifatida e'lon qilinadi, so'rovlar Kotlin kodida yoziladi va kompilyator ustun nomlarini tekshiradi. Har bir ma'lumotlar bazasi amali <code>transaction { }</code> ichida bajariladi: xato bo'lsa o'zgarishlar qaytariladi.
+@@code jadval.kt
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
+
+object Vazifalar : Table("tasks") {
+    val id = integer("id").autoIncrement()
+    val sarlavha = varchar("sarlavha", 200)
+    val bajarildi = bool("bajarildi").default(false)
+    override val primaryKey = PrimaryKey(id)
+}
+
+fun main() {
+    Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
+    transaction {
+        SchemaUtils.create(Vazifalar)
+        Vazifalar.insert { it[sarlavha] = "Kotlin" }
+        Vazifalar.insert {
+            it[sarlavha] = "Ktor"
+            it[bajarildi] = true
+        }
+        Vazifalar.selectAll().orderBy(Vazifalar.id).forEach {
+            println("${it[Vazifalar.id]}: ${it[Vazifalar.sarlavha]} (${it[Vazifalar.bajarildi]})")
+        }
+    }
+}
+@@out
+1: Kotlin (false)
+2: Ktor (true)
+@@p
+Repository qatlami SQL detallarini biznes kodidan yashiradi. Quyidagi misolda yaratish, yangilash va o'qish alohida metodlarda; har biri o'z tranzaksiyasida ishlaydi. Amaliy loyihada <code>transaction</code> blokini suspend funksiya ichida uzoq ushlab turmang — <code>newSuspendedTransaction</code> yoki <code>Dispatchers.IO</code> bilan chegaralang.
+@@code repository.kt
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
+
+class VazifaRepository(private val db: Database) {
+    fun yarat(sarlavha: String): Int = transaction(db) {
+        val stmt = Vazifalar.insert { it[Vazifalar.sarlavha] = sarlavha }
+        stmt[Vazifalar.id]
+    }
+
+    fun bajarildi(id: Int): Boolean = transaction(db) {
+        Vazifalar.update({ Vazifalar.id eq id }) {
+            it[Vazifalar.bajarildi] = true
+        } > 0
+    }
+
+    fun hammasi(): List<Pair<Int, String>> = transaction(db) {
+        Vazifalar.selectAll().map {
+            it[Vazifalar.id] to it[Vazifalar.sarlavha]
+        }
+    }
+}
+
+fun main() {
+    val db = Database.connect("jdbc:h2:mem:repo;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver")
+    transaction(db) { SchemaUtils.create(Vazifalar) }
+    val repo = VazifaRepository(db)
+    val id = repo.yarat("Kotlin")
+    println(repo.bajarildi(id))
+    println(repo.hammasi())
+}
+@@out
+true
+[(1, Kotlin)]
+@@note warning | Tranzaksiya chegaralari
+Bir tranzaksiya ichida tarmoq so'rovi yoki uzoq CPU ishi qilmang: ulanish band qoladi va boshqa so'rovlar kutadi. Migratsiyalar uchun Flyway yoki Liquibase, ulanishlar hovuzi uchun HikariCP ishlatiladi. <code>SchemaUtils.create</code> faqat prototip va testlarda mos; production'da versiyalangan migratsiya kerak.
+@@quiz
+Exposed'da <code>transaction { }</code> bloki nima beradi?
+- SQL so'rovlarini avtomatik keshlaydi
+- Amallarni atomik bajaradi va xatoda qaytaradi
+- Ma'lumotlar bazasini avtomatik yaratadi
+- Faqat o'qish so'rovlariga ruxsat beradi
+= 1
+! Tranzaksiya chegarasi atomiklikni ta'minlaydi; istisno bo'lsa o'zgarishlar rollback qilinadi.
+@@quiz
+Exposed DSL'da tenglik sharti qaysi operator bilan yoziladi?
+- <code>==</code>
+- <code>eq</code>
+- <code>equals</code>
+- <code>is</code>
+= 1
+! Ustun uchun <code>eq</code> infix operatori SQL tenglik shartini yaratadi.
+@@quiz
+Coroutine ichida Exposed ishlatganda uzoq tranzaksiyadan qochishning sababi nima?
+- Tranzaksiya coroutine'ni avtomatik bekor qiladi
+- Ulanish band qolib, boshqa so'rovlarni kutdirishi mumkin
+- Exposed suspend funksiyalarni qo'llamaydi
+- SQLite tranzaksiyani qo'llamaydi
+= 1
+! Tranzaksiya davomida ulanish band; uzoq I/O hovuzni tugatib, kechikish va deadlock xavfini oshiradi.

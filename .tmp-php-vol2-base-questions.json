@@ -1,0 +1,638 @@
+[
+  {
+    "lesson": 1,
+    "q": "PHP kodi odatda qayerda bajariladi?"
+  },
+  {
+    "lesson": 1,
+    "q": "PHP kodi qaysi belgilar bilan boshlanadi?"
+  },
+  {
+    "lesson": 1,
+    "q": "echo buyrug'i nima qiladi?"
+  },
+  {
+    "lesson": 2,
+    "q": "PHP'da o'zgaruvchi nomi qanday belgi bilan boshlanadi?"
+  },
+  {
+    "lesson": 2,
+    "q": "Qo'sh tirnoqli matnda o'zgaruvchini ajratib ko'rsatish uchun qaysi yozuv ishlatiladi?"
+  },
+  {
+    "lesson": 2,
+    "q": "var_dump(15) natijasi qanday boshlanadi?"
+  },
+  {
+    "lesson": 3,
+    "q": "PHP'da qo'shimcha shartni qaysi kalit so'z bilan yozamiz?"
+  },
+  {
+    "lesson": 3,
+    "q": "match ifodasi qiymatlarni qanday taqqoslaydi?"
+  },
+  {
+    "lesson": 3,
+    "q": "while ($son > 0) tsikli $son = 0 bo'lsa necha marta bajariladi?"
+  },
+  {
+    "lesson": 4,
+    "q": "Indeksli massivning birinchi elementi qaysi kalitda turadi?"
+  },
+  {
+    "lesson": 4,
+    "q": "Assotsiativ massivda ism qiymatini qanday olamiz?"
+  },
+  {
+    "lesson": 4,
+    "q": "foreach ($talaba as $kalit => $qiymat) nimani beradi?"
+  },
+  {
+    "lesson": 5,
+    "q": "Funksiyadan natija qaytarish uchun qaysi kalit so'z ishlatiladi?"
+  },
+  {
+    "lesson": 5,
+    "q": "require bilan include orasidagi asosiy farq nima?"
+  },
+  {
+    "lesson": 5,
+    "q": "Funksiya ichida yaratilgan o'zgaruvchi tashqarida ko'rinadimi?"
+  },
+  {
+    "lesson": 6,
+    "q": "POST bilan yuborilgan forma maydoni qaysi superglobalda bo'ladi?"
+  },
+  {
+    "lesson": 6,
+    "q": "htmlspecialchars() nima uchun ishlatiladi?"
+  },
+  {
+    "lesson": 6,
+    "q": "Validatsiya qayerda majburiy bajarilishi kerak?"
+  },
+  {
+    "lesson": 7,
+    "q": "Sessiya ma'lumotlari odatda qayerda saqlanadi?"
+  },
+  {
+    "lesson": 7,
+    "q": "Cookie'ga HttpOnly belgilansa nima bo'ladi?"
+  },
+  {
+    "lesson": 7,
+    "q": "Muvaffaqiyatli login'dan keyin nima qilish tavsiya etiladi?"
+  },
+  {
+    "lesson": 8,
+    "q": "Yangi obyekt yaratish uchun qaysi kalit so'z ishlatiladi?"
+  },
+  {
+    "lesson": 8,
+    "q": "Konstruktor metodi qanday nomlanadi?"
+  },
+  {
+    "lesson": 8,
+    "q": "private xossa qayerdan ko'rinadi?"
+  },
+  {
+    "lesson": 9,
+    "q": "PDO'da SQL so'rovini tayyorlash uchun qaysi metod ishlatiladi?"
+  },
+  {
+    "lesson": 9,
+    "q": "Prepared statement asosan nimadan himoya qiladi?"
+  },
+  {
+    "lesson": 9,
+    "q": "PDO xatolarini istisno sifatida chiqarish uchun qaysi sozlama ishlatiladi?"
+  },
+  {
+    "lesson": 10,
+    "q": "Istisno otish uchun qaysi kalit so'z ishlatiladi?"
+  },
+  {
+    "lesson": 10,
+    "q": "catch bloki nima qiladi?"
+  },
+  {
+    "lesson": 10,
+    "q": "Mavjud faylni tozalab, boshidan yozish uchun qaysi rejim ishlatiladi?"
+  },
+  {
+    "lesson": 11,
+    "q": "Composer nima vazifani bajaradi?"
+  },
+  {
+    "lesson": 11,
+    "q": ".env faylida nima saqlanadi?"
+  },
+  {
+    "lesson": 11,
+    "q": "Production'da xatolarni qanday boshqarish to'g'ri?"
+  },
+  {
+    "lesson": 12,
+    "q": "Mini loyihada eslatmalar qayerda saqlanadi?"
+  },
+  {
+    "lesson": 12,
+    "q": "json_decode($json, true) nimani qaytaradi?"
+  },
+  {
+    "lesson": 12,
+    "q": "CLI argumentlarini qaysi massivdan o'qiymiz?"
+  },
+  {
+    "lesson": 13,
+    "q": "array_filter() natijasida elementlarning kalitlari qanday bo'ladi?"
+  },
+  {
+    "lesson": 13,
+    "q": "Ikki qiymatni taqqoslab, saralash yo'nalishini qaytaradigan operator qaysi?"
+  },
+  {
+    "lesson": 13,
+    "q": "array_reduce() ning uchinchi argumenti nima vazifani bajaradi?"
+  },
+  {
+    "lesson": 14,
+    "q": "UTF-8 matndagi belgilar sonini qaysi funksiya to'g'ri sanaydi?"
+  },
+  {
+    "lesson": 14,
+    "q": "number_format(1250000.5, 2, \",\", \" \") qanday matn qaytaradi?"
+  },
+  {
+    "lesson": 14,
+    "q": "str_contains(\"PHP 8\", \"8\") qanday qiymat qaytaradi?"
+  },
+  {
+    "lesson": 15,
+    "q": "Closure ichida tashqi o'zgaruvchini havola (reference) bilan olish uchun qanday yoziladi?"
+  },
+  {
+    "lesson": 15,
+    "q": "Arrow funksiya tashqi o'zgaruvchilarni qanday qabul qiladi?"
+  },
+  {
+    "lesson": 15,
+    "q": "function yigindi(int ...$sonlar) dagi ... nimani bildiradi?"
+  },
+  {
+    "lesson": 16,
+    "q": "URL'dagi ?q=php parametri qaysi superglobalda turadi?"
+  },
+  {
+    "lesson": 16,
+    "q": "filter_var($email, FILTER_VALIDATE_EMAIL) noto'g'ri email uchun nima qaytaradi?"
+  },
+  {
+    "lesson": 16,
+    "q": "$_SERVER[\"REQUEST_METHOD\"] odatda nimani saqlaydi?"
+  },
+  {
+    "lesson": 17,
+    "q": "Cookie ma'lumotlari odatda qayerda saqlanadi?"
+  },
+  {
+    "lesson": 17,
+    "q": "SameSite=Lax sozlamasi nimani cheklaydi?"
+  },
+  {
+    "lesson": 17,
+    "q": "Cookie'ni o'chirishning to'g'ri yo'li qaysi?"
+  },
+  {
+    "lesson": 18,
+    "q": "Fayl yuklash formasi qaysi enctype bilan yuborilishi kerak?"
+  },
+  {
+    "lesson": 18,
+    "q": "Nega $_FILES[\"type\"] qiymatiga ishonib bo'lmaydi?"
+  },
+  {
+    "lesson": 18,
+    "q": "move_uploaded_file() qanday vazifani bajaradi?"
+  },
+  {
+    "lesson": 19,
+    "q": "Sessiya ID'sini qachon albatta yangilash kerak?"
+  },
+  {
+    "lesson": 19,
+    "q": "Flash xabar nima?"
+  },
+  {
+    "lesson": 19,
+    "q": "session_destroy() nimani o'chiradi?"
+  },
+  {
+    "lesson": 20,
+    "q": "readonly xossaga qiymat necha marta berilishi mumkin?"
+  },
+  {
+    "lesson": 20,
+    "q": "Konstruktor promoutsiyasi qaysi yozuvda to'g'ri ko'rsatilgan?"
+  },
+  {
+    "lesson": 20,
+    "q": "private xossaga klass tashqarisidan murojaat qilinsa nima bo'ladi?"
+  },
+  {
+    "lesson": 21,
+    "q": "abstract klassdan to'g'ridan-to'g'ri obyekt yaratish mumkinmi?"
+  },
+  {
+    "lesson": 21,
+    "q": "parent::__construct() nima qiladi?"
+  },
+  {
+    "lesson": 21,
+    "q": "Polimorfizm nimani anglatadi?"
+  },
+  {
+    "lesson": 22,
+    "q": "Bir klass nechta interfeysni implements qilishi mumkin?"
+  },
+  {
+    "lesson": 22,
+    "q": "Trait asosan nima uchun ishlatiladi?"
+  },
+  {
+    "lesson": 22,
+    "q": "Interfeys metodlarining tanasi qanday bo'ladi?"
+  },
+  {
+    "lesson": 23,
+    "q": "self::$soni qanday elementga murojaat qiladi?"
+  },
+  {
+    "lesson": 23,
+    "q": "Buyurtma klassidagi HOLAT_YANGI konstantasi qanday chaqiriladi?"
+  },
+  {
+    "lesson": 23,
+    "q": "__toString() metodi qachon avtomatik chaqiriladi?"
+  },
+  {
+    "lesson": 24,
+    "q": "Namespace asosan nimadan himoya qiladi?"
+  },
+  {
+    "lesson": 24,
+    "q": "PSR-4 bo'yicha App\\Models\\Talaba klassi qaysi faylda bo'lishi kerak?"
+  },
+  {
+    "lesson": 24,
+    "q": "spl_autoload_register() nima qiladi?"
+  },
+  {
+    "lesson": 25,
+    "q": "composer.lock faylining asosiy vazifasi nima?"
+  },
+  {
+    "lesson": 25,
+    "q": "composer require monolog/monolog buyrug'i nima qiladi?"
+  },
+  {
+    "lesson": 25,
+    "q": "^8.2 versiya chegarasi nimani anglatadi?"
+  },
+  {
+    "lesson": 26,
+    "q": "PDO'ning asosiy afzalligi nimada?"
+  },
+  {
+    "lesson": 26,
+    "q": "PDO::FETCH_ASSOC qanday natija qaytaradi?"
+  },
+  {
+    "lesson": 26,
+    "q": "fetchAll() nima qaytaradi?"
+  },
+  {
+    "lesson": 27,
+    "q": "Prepared statement'da nomlangan parametr qanday yoziladi?"
+  },
+  {
+    "lesson": 27,
+    "q": "commit() qanday amalni bajaradi?"
+  },
+  {
+    "lesson": 27,
+    "q": "Xato yuz berganda tranzaksiyadagi o'zgarishlarni qaysi metod bekor qiladi?"
+  },
+  {
+    "lesson": 28,
+    "q": "SQL injection'dan himoyalanishning eng ishonchli usuli qaysi?"
+  },
+  {
+    "lesson": 28,
+    "q": "htmlspecialchars() asosan nima qiladi?"
+  },
+  {
+    "lesson": 28,
+    "q": "CSRF token nimani tasdiqlaydi?"
+  },
+  {
+    "lesson": 29,
+    "q": "Foydalanuvchi parolini bazada qanday saqlash to'g'ri?"
+  },
+  {
+    "lesson": 29,
+    "q": "password_verify() qanday turdagi qiymat qaytaradi?"
+  },
+  {
+    "lesson": 29,
+    "q": "Login muvaffaqiyatsiz bo'lganda foydalanuvchiga qanday xabar berish afzal?"
+  },
+  {
+    "lesson": 30,
+    "q": "json_decode($json, true) qanday natija qaytaradi?"
+  },
+  {
+    "lesson": 30,
+    "q": "JSON_UNESCAPED_UNICODE bayrog'i nima qiladi?"
+  },
+  {
+    "lesson": 30,
+    "q": "JSON_THROW_ON_ERROR bayrog'i xato bo'lganda nima qiladi?"
+  },
+  {
+    "lesson": 31,
+    "q": "Yangi resurs muvaffaqiyatli yaratilganda qaysi status kodi qaytariladi?"
+  },
+  {
+    "lesson": 31,
+    "q": "DELETE muvaffaqiyatli bajarilib, javob tanasi bo'lmasa qaysi kod mos?"
+  },
+  {
+    "lesson": 31,
+    "q": "PUT va PATCH orasidagi asosiy farq nima?"
+  },
+  {
+    "lesson": 32,
+    "q": "422 Unprocessable Entity statusi nimani bildiradi?"
+  },
+  {
+    "lesson": 32,
+    "q": "LIMIT parametrini PDO'da qanday bog'lash to'g'ri?"
+  },
+  {
+    "lesson": 32,
+    "q": "Sahifa raqami va limitdan OFFSET qanday hisoblanadi?"
+  },
+  {
+    "lesson": 33,
+    "q": "Error va Exception klasslarini qaysi umumiy interfeys birlashtiradi?"
+  },
+  {
+    "lesson": 33,
+    "q": "finally bloki qachon bajariladi?"
+  },
+  {
+    "lesson": 33,
+    "q": "Custom exception yaratish uchun odatda qaysi klassdan meros olinadi?"
+  },
+  {
+    "lesson": 34,
+    "q": "Qaysi log darajasi eng jiddiy holatni bildiradi?"
+  },
+  {
+    "lesson": 34,
+    "q": ".env faylining vazifasi nima?"
+  },
+  {
+    "lesson": 34,
+    "q": "file_put_contents() da FILE_APPEND bayrog'i nima qiladi?"
+  },
+  {
+    "lesson": 35,
+    "q": "assertSame() va assertEquals() orasidagi farq nima?"
+  },
+  {
+    "lesson": 35,
+    "q": "Kod istisno otishini tekshirish uchun qaysi metod ishlatiladi?"
+  },
+  {
+    "lesson": 35,
+    "q": "PHPUnit'ni loyihaga qanday o'rnatish tavsiya etiladi?"
+  },
+  {
+    "lesson": 36,
+    "q": "Mock obyektining asosiy vazifasi nima?"
+  },
+  {
+    "lesson": 36,
+    "q": "Data provider nima uchun ishlatiladi?"
+  },
+  {
+    "lesson": 36,
+    "q": "TDD ning to'g'ri tartibi qanday?"
+  },
+  {
+    "lesson": 37,
+    "q": "Laravel'da veb-routelar odatda qaysi faylda yoziladi?"
+  },
+  {
+    "lesson": 37,
+    "q": "Route'dagi {id} parametri controller metodida qanday olinadi?"
+  },
+  {
+    "lesson": 37,
+    "q": "whereNumber(\"id\") nimani ta'minlaydi?"
+  },
+  {
+    "lesson": 38,
+    "q": "Blade'da o'zgaruvchini XSS'dan xavfsiz chiqarish uchun qaysi yozuv ishlatiladi?"
+  },
+  {
+    "lesson": 38,
+    "q": "Laravel formasiga CSRF tokenni qaysi direktiva qo'shadi?"
+  },
+  {
+    "lesson": 38,
+    "q": "Validatsiya xatolari Blade'da asosan qayerdan o'qiladi?"
+  },
+  {
+    "lesson": 39,
+    "q": "with(\"darslar\") nima maqsadda ishlatiladi?"
+  },
+  {
+    "lesson": 39,
+    "q": "$fillable xossasi nimadan himoya qiladi?"
+  },
+  {
+    "lesson": 39,
+    "q": "findOrFail(99) yozuvi topilmasa nima bo'ladi?"
+  },
+  {
+    "lesson": 40,
+    "q": "Middleware'ning asosiy vazifasi nima?"
+  },
+  {
+    "lesson": 40,
+    "q": "FormRequest'dagi authorize() false qaytarsa qanday javob beriladi?"
+  },
+  {
+    "lesson": 40,
+    "q": "nullable|url qoidasi nimani anglatadi?"
+  },
+  {
+    "lesson": 41,
+    "q": "Laravel migratsiyasining asosiy vazifasi nima?"
+  },
+  {
+    "lesson": 41,
+    "q": "Seeder nima uchun ishlatiladi?"
+  },
+  {
+    "lesson": 41,
+    "q": "Auth::attempt() muvaffaqiyatli bo'lgach qaysi amal bajarilishi kerak?"
+  },
+  {
+    "lesson": 42,
+    "q": "Front controller nima?"
+  },
+  {
+    "lesson": 42,
+    "q": "/kurslar/{id} route'iga /kurslar/7 so'rovi kelganda {id} qiymati nechaga teng?"
+  },
+  {
+    "lesson": 42,
+    "q": "MVC'da View qatlamining vazifasi nima?"
+  },
+  {
+    "lesson": 43,
+    "q": "View ichidagi extract($data) nima qiladi?"
+  },
+  {
+    "lesson": 43,
+    "q": "Shablonda foydalanuvchi kiritgan matnni qanday chiqarish kerak?"
+  },
+  {
+    "lesson": 43,
+    "q": "Controller'ning vazifasi nimadan iborat?"
+  },
+  {
+    "lesson": 44,
+    "q": "Repository qatlamining vazifasi nima?"
+  },
+  {
+    "lesson": 44,
+    "q": "PDO::lastInsertId() nimani qaytaradi?"
+  },
+  {
+    "lesson": 44,
+    "q": "Entity nima?"
+  },
+  {
+    "lesson": 45,
+    "q": "Login muvaffaqiyatli bo'lgandan keyin sessiya ID'si bilan nima qilish kerak?"
+  },
+  {
+    "lesson": 45,
+    "q": "Autentifikatsiya qilinmagan foydalanuvchiga API qanday status qaytarishi kerak?"
+  },
+  {
+    "lesson": 45,
+    "q": "CSRF token odatda qayerda saqlanadi?"
+  },
+  {
+    "lesson": 46,
+    "q": "419 status kodi nimani bildiradi?"
+  },
+  {
+    "lesson": 46,
+    "q": "Validatsiya muvaffaqiyatsiz bo'lganda API odatda qaysi status qaytaradi?"
+  },
+  {
+    "lesson": 46,
+    "q": "Production'da kutilmagan xato yuz berganda foydalanuvchiga nima ko'rsatish kerak?"
+  },
+  {
+    "lesson": 47,
+    "q": "sqlite::memory: nima?"
+  },
+  {
+    "lesson": 47,
+    "q": "assertStringContainsString() nimani tekshiradi?"
+  },
+  {
+    "lesson": 47,
+    "q": "Integration test odatda nimani tekshiradi?"
+  },
+  {
+    "lesson": 48,
+    "q": "Production muhitida display_errors qanday bo'lishi kerak?"
+  },
+  {
+    "lesson": 48,
+    "q": "503 Service Unavailable statusi nimani bildiradi?"
+  },
+  {
+    "lesson": 48,
+    "q": "OPcache nima vazifani bajaradi?"
+  },
+  {
+    "lesson": 49,
+    "q": "enum'dagi Faol holatiga qanday murojaat qilinadi?"
+  },
+  {
+    "lesson": 49,
+    "q": "DateTimeImmutable'ning asosiy afzalligi nima?"
+  },
+  {
+    "lesson": 49,
+    "q": "Kursdan keyingi eng foydali qadam qaysi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "PHP 8'da match ifodasi hech bir variantga mos kelmasa va default bo'lmasa nima yuz beradi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "array_filter() dan keyin kalitlarni 0, 1, 2 ko'rinishida qayta indekslash uchun qaysi funksiya ishlatiladi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "strlen(trim(\"  Aziza  \")) natijasi nechchi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "PHP'da $_FILES massividagi tmp_name nimani saqlaydi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "session_regenerate_id(true) nima qiladi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "final bilan e'lon qilingan klassda nima qilish mumkin emas?"
+  },
+  {
+    "lesson": "exam",
+    "q": "PDO prepared statement'da :ism parametriga qiymat berishning to'g'ri yo'li qaysi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "CSRF tokenni solishtirishda vaqt bo'yicha hujumga chidamli funksiya qaysi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "json_decode('{\"ball\":91}', true)['ball'] qanday turda qaytadi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "REST API'da so'ralgan resurs topilmasa qaysi status kodi qaytariladi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "Laravel'da yangi migratsiyalarni bazaga qo'llash uchun qaysi buyruq ishlatiladi?"
+  },
+  {
+    "lesson": "exam",
+    "q": "PHPUnit'da setUp() metodi qachon chaqiriladi?"
+  }
+]

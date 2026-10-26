@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kurs — Noldan</title>
+  <meta name="description" content="Python, JavaScript, HTML & CSS, C++, SQL, Java, C, PHP, Ruby, Go, Rust, TypeScript, Kotlin, Dart, Bash, R va Scala kurslari — Uzbek tilida, testlar, yakuniy imtihon va sertifikat bilan.">
+  <meta property="og:title" content="Noldan — noldan amaliyotgacha kurslar">
+  <meta property="og:description" content="17 ta to'liq kurs: darslar, testlar, imtihon va sertifikat. O'zbek tilida, bepul.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/app.js" defer></script>
+  <script>
+    // Faqat tanlangan kurs ma'lumotini yuklaymiz — barcha 17 kurs faylini birdan yuklash shart emas.
+    (function () {
+      var map = {
+        javascript: "js",
+        htmlcss: "web",
+        cpp: "cpp",
+        sql: "sql",
+        java: "java",
+        c: "c",
+        php: "php",
+        ruby: "ruby",
+        go: "go",
+        rust: "rust",
+        typescript: "typescript",
+        kotlin: "kotlin",
+        dart: "dart",
+        bash: "bash",
+        r: "r",
+        scala: "scala"
+      };
+      var til = (new URLSearchParams(window.location.search).get("til") || "javascript").toLowerCase();
+      var file = map[til];
+      if (file) {
+        document.write('<script src="assets/js/course-data-' + file + '.js?v=3"><\/script>');
+      }
+    })();
+  </script>
+  <script src="assets/js/kurs.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Asosiy mazmunga o'tish</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html" aria-label="Noldan — bosh sahifa">
+        <span class="brand__mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-5 6 5 6M16 6l5 6-5 6M14 4l-4 16"/></svg>
+        </span>
+        <span>
+          <span class="brand__name">noldan<span class="brand__dot">.</span></span>
+          <span class="brand__tag">dasturlashni noldan</span>
+        </span>
+      </a>
+
+      <nav class="main-nav" id="mainNav" aria-label="Asosiy menyu">
+        <a class="nav-link" href="index.html">Bosh sahifa</a>
+        <a class="nav-link" href="kurslar.html" aria-current="page">Kurslar</a>
+        <a class="nav-link" href="python.html">Python kursi</a>
+        <a class="nav-link" href="maydon.html">Amaliyot maydoni</a>
+        <div class="auth-zone mobile-auth" data-auth-zone></div>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-zone" data-auth-zone></div>
+        <button class="menu-toggle" type="button" aria-label="Menyuni ochish" aria-expanded="false" aria-controls="mainNav">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="course-hero">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Sahifa yo'li">
+          <a href="index.html">Bosh sahifa</a>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          <a href="kurslar.html">Kurslar</a>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+          <span aria-current="page" data-course-crumb>Kurs</span>
+        </nav>
+
+        <div class="course-hero__inner" style="margin-top:22px">
+          <div class="course-hero__main">
+            <span class="course-logo course-logo--js" data-course-logo aria-hidden="true">JS</span>
+            <div>
+              <h1 data-course-title>Kurs yuklanmoqda...</h1>
+              <p data-course-desc></p>
+              <div class="course-meta" data-course-meta></div>
+            </div>
+          </div>
+
+          <div class="course-progress-card">
+            <div class="course-progress-card__head">
+              <strong>Kurs progressi</strong>
+              <span data-hero-percent>0%</span>
+            </div>
+            <div class="course-progress-card__bar"><span data-hero-bar style="width:0%"></span></div>
+            <p><span data-hero-progress-text>0/50 dars</span> tugatilgan. Har kuni bitta dars — natija albatta keladi.</p>
+            <a class="btn btn--primary btn--block" href="#dars-1" data-course-cta>
+              <span data-course-cta-label>Kursni boshlash</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container course-layout">
+      <aside class="course-sidebar" id="courseSidebar" aria-label="Kurs darslari">
+        <div class="sidebar-progress">
+          <div class="sidebar-progress__row">
+            <svg class="progress-ring" viewBox="0 0 48 48" aria-hidden="true">
+              <circle class="progress-ring__track" cx="24" cy="24" r="20"></circle>
+              <circle class="progress-ring__value" cx="24" cy="24" r="20" stroke-dasharray="125.66" stroke-dashoffset="125.66" data-ring></circle>
+            </svg>
+            <div class="sidebar-progress__text">
+              <strong data-course-sidebar-title>Kurs</strong>
+              <span data-sidebar-progress>0/50 dars tugatilgan</span>
+            </div>
+            <span class="sidebar-progress__percent" data-sidebar-percent>0%</span>
+          </div>
+        </div>
+
+        <div class="sidebar-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <label class="sr-only" for="lessonSearch">Darslarni qidirish</label>
+          <input type="search" id="lessonSearch" placeholder="Darslarni qidirish..." data-lesson-search autocomplete="off">
+        </div>
+
+        <div class="sidebar-scroll">
+          <div data-lesson-list></div>
+        </div>
+
+        <div class="sidebar-foot">
+          <a href="maydon.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 4l-4 16"/></svg>
+            Erkin amaliyot maydoni
+          </a>
+          <button class="sidebar-reset" type="button" data-course-reset>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+            <span>Kursni boshidan boshlash</span>
+          </button>
+        </div>
+      </aside>
+
+      <div class="sidebar-backdrop" data-sidebar-close aria-hidden="true"></div>
+
+      <div class="course-main">
+        <div class="sidebar-mobile-bar">
+          <button type="button" data-sidebar-open aria-controls="courseSidebar" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            Darslar
+          </button>
+          <span data-mobile-lesson-title>Dars 1</span>
+        </div>
+
+        <article class="lesson-article" id="lessonArticle">
+          <div class="lesson-head__eyebrow"><span>Yuklanmoqda</span></div>
+          <h1>Kurs yuklanmoqda...</h1>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="index.html" aria-label="Noldan — bosh sahifa">
+            <span class="brand__mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 6-5 6 5 6M16 6l5 6-5 6M14 4l-4 16"/></svg>
+            </span>
+            <span>
+              <span class="brand__name">noldan<span class="brand__dot">.</span></span>
+              <span class="brand__tag">dasturlashni noldan</span>
+            </span>
+          </a>
+          <p class="footer__desc">O'zbek tilida, noldan boshlovchilar uchun yaratilgan bepul dasturlash platformasi. Kod yozishni bugun boshlang.</p>
+        </div>
+        <div class="footer__col">
+          <h3>Platforma</h3>
+          <ul>
+            <li><a href="kurslar.html">Kurslar</a></li>
+            <li><a href="python.html">Python kursi</a></li>
+            <li><a href="maydon.html">Amaliyot maydoni</a></li>
+            <li><a href="#dars-13" data-footer-exam>Yakuniy imtihon</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h3>Bo'limlar</h3>
+          <ul data-footer-modules></ul>
+        </div>
+        <div class="footer__col">
+          <h3>Yordam</h3>
+          <ul>
+            <li><a href="index.html#faq">Savollar</a></li>
+            <li><a href="kurslar.html">Kurslar haqida</a></li>
+            <li><button type="button" data-open-auth="register">Ro'yxatdan o'tish</button></li>
+            <li><button type="button" data-open-auth="login">Kirish</button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© <span data-year>2026</span> Noldan. Barcha huquqlar himoyalangan.</span>
+        <span>Dasturlashni o'zbek tilida o'rganing<span class="dot"></span>0 dan boshlab</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal-layer" id="runnerModal" aria-hidden="true">
+    <div class="modal modal--runner" role="dialog" aria-modal="true" aria-labelledby="runnerTitle">
+      <button class="modal__close" type="button" data-modal-close aria-label="Yopish">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+      <div class="runner-head">
+        <span class="runner-head__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 8 4 4-4 4M13 16h5"/></svg>
+        </span>
+        <div>
+          <h2 id="runnerTitle" data-runner-title>Kodni sinab ko'rish</h2>
+          <p data-runner-subtitle>Kodni o'zgartiring va natijani darhol ko'ring.</p>
+        </div>
+        <span class="badge badge--lime" data-runner-badge>Kod</span>
+      </div>
+
+      <div class="runner-body">
+        <div class="runner-editor-wrap">
+          <div class="runner-toolbar">
+            <span class="runner-toolbar__file">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg>
+              <span data-runner-file>main.js</span>
+            </span>
+            <button class="code-btn" type="button" data-runner-copy>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Nusxalash
+            </button>
+          </div>
+          <label class="sr-only" for="runnerCode">Kod muharriri</label>
+          <textarea class="runner-editor" id="runnerCode" data-modal-autofocus spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+        </div>
+
+        <div class="runner-preview" data-preview-wrap hidden>
+          <div class="runner-output__head"><span class="status-dot" data-preview-dot></span> Brauzerdagi natija</div>
+          <iframe class="preview-frame" data-preview sandbox="allow-scripts" title="HTML natijasi"></iframe>
+        </div>
+
+        <div class="runner-output" data-js-output>
+          <div class="runner-output__head">
+            <span class="status-dot" data-runner-dot></span>
+            Konsol
+            <span class="runner-time" data-runner-time></span>
+          </div>
+          <pre class="runner-console" data-runner-console><span class="console-muted">Ishga tushirish tugmasini bosing — natija shu yerda ko'rinadi.</span></pre>
+        </div>
+
+        <div class="runner-actions">
+          <button class="btn btn--primary" type="button" data-runner-run>Ishga tushirish</button>
+          <span class="runner-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> bilan ham ishga tushirish mumkin</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

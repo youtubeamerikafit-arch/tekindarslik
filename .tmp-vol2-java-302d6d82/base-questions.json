@@ -1,0 +1,1635 @@
+{
+  "quiz": [
+    {
+      "id": 1,
+      "q": "JVM ning vazifasi nima?",
+      "opts": [
+        "Java kodini yozish",
+        "Bayt-kodni bajarish",
+        "Faqat fayllarni o'chirish",
+        "HTML sahifa yaratish"
+      ],
+      "a": 1
+    },
+    {
+      "id": 1,
+      "q": "javac Hello.java buyrug'i natijasida nima yaratiladi?",
+      "opts": [
+        "Hello.exe",
+        "Hello.class",
+        "Hello.html",
+        "Hello.txt"
+      ],
+      "a": 1
+    },
+    {
+      "id": 1,
+      "q": "Java'dagi main metodining qaytish turi qanday?",
+      "opts": [
+        "int",
+        "void",
+        "String",
+        "boolean"
+      ],
+      "a": 1
+    },
+    {
+      "id": 2,
+      "q": "Java'da nechta primitiv tur mavjud?",
+      "opts": [
+        "4",
+        "6",
+        "8",
+        "10"
+      ],
+      "a": 2
+    },
+    {
+      "id": 2,
+      "q": "String qaysi turkumga kiradi?",
+      "opts": [
+        "Primitiv tur",
+        "Reference tur",
+        "Massiv",
+        "Interfeys"
+      ],
+      "a": 1
+    },
+    {
+      "id": 2,
+      "q": "long turidagi literalga qaysi qo'shimcha yoziladi?",
+      "opts": [
+        "L",
+        "F",
+        "D",
+        "B"
+      ],
+      "a": 0
+    },
+    {
+      "id": 3,
+      "q": "int turida 17 / 5 ifodasining natijasi nechaga teng?",
+      "opts": [
+        "3",
+        "3.4",
+        "4",
+        "2"
+      ],
+      "a": 0
+    },
+    {
+      "id": 3,
+      "q": "Ikki String qiymatini mazmuni bo'yicha solishtirish uchun nima ishlatiladi?",
+      "opts": [
+        "==",
+        "equals()",
+        "compare",
+        "toString()"
+      ],
+      "a": 1
+    },
+    {
+      "id": 3,
+      "q": "a > b && b > 0 ifodasi qachon true bo'ladi?",
+      "opts": [
+        "Faqat bittasi rost bo'lsa",
+        "Ikkala shart ham rost bo'lsa",
+        "Hech qachon",
+        "a manfiy bo'lsa"
+      ],
+      "a": 1
+    },
+    {
+      "id": 4,
+      "q": "ball = 85 bo'lsa, birinchi misolda qaysi harf chiqadi?",
+      "opts": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "a": 1
+    },
+    {
+      "id": 4,
+      "q": "switch nimani tanlash uchun ishlatiladi?",
+      "opts": [
+        "Faqat sonlarni qo'shish",
+        "Bir nechta aniq variantdan birini",
+        "Tsiklni takrorlash",
+        "Faylni o'chirish"
+      ],
+      "a": 1
+    },
+    {
+      "id": 4,
+      "q": "Zamonaviy arrow switch'da break nima uchun kerak emas?",
+      "opts": [
+        "Chunki arrow case avtomatik yakunlanadi",
+        "Chunki switch umuman ishlamaydi",
+        "Chunki break faqat tsiklda ishlaydi",
+        "Chunki default majburiy"
+      ],
+      "a": 0
+    },
+    {
+      "id": 5,
+      "q": "for (int i = 1; i <= 5; i++) tsiklida tana necha marta bajariladi?",
+      "opts": [
+        "4",
+        "5",
+        "6",
+        "Cheksiz"
+      ],
+      "a": 1
+    },
+    {
+      "id": 5,
+      "q": "do-while tsiklining while'dan asosiy farqi nima?",
+      "opts": [
+        "do-while hech qachon ishlamaydi",
+        "do-while tanasi kamida bir marta bajariladi",
+        "do-while faqat sonlar uchun",
+        "Farqi yo'q"
+      ],
+      "a": 1
+    },
+    {
+      "id": 5,
+      "q": "continue operatori nima qiladi?",
+      "opts": [
+        "Tsiklni butunlay tugatadi",
+        "Joriy aylanishni o'tkazib, keyingisiga o'tadi",
+        "Dasturni to'xtatadi",
+        "Faylni yopadi"
+      ],
+      "a": 1
+    },
+    {
+      "id": 6,
+      "q": "Qiymat qaytarmaydigan metodning qaytish turi qanday bo'ladi?",
+      "opts": [
+        "int",
+        "void",
+        "null",
+        "empty"
+      ],
+      "a": 1
+    },
+    {
+      "id": 6,
+      "q": "Overloading nima?",
+      "opts": [
+        "Bir xil nomli, turli parametrli metodlar",
+        "Metodni o'chirish",
+        "Faqat bitta metod yozish",
+        "Klassni meros qilish"
+      ],
+      "a": 0
+    },
+    {
+      "id": 6,
+      "q": "Blok ichida e'lon qilingan lokal o'zgaruvchi qayerda ko'rinadi?",
+      "opts": [
+        "Butun dasturda",
+        "Faqat shu blok ichida",
+        "Boshqa klasslarda",
+        "Faqat main ichida"
+      ],
+      "a": 1
+    },
+    {
+      "id": 7,
+      "q": "Massivning birinchi elementi qaysi indeksda joylashgan?",
+      "opts": [
+        "1",
+        "0",
+        "-1",
+        "length"
+      ],
+      "a": 1
+    },
+    {
+      "id": 7,
+      "q": "ArrayList'dagi elementlar sonini qaysi metod qaytaradi?",
+      "opts": [
+        "length",
+        "size()",
+        "count()",
+        "getSize()"
+      ],
+      "a": 1
+    },
+    {
+      "id": 7,
+      "q": "ArrayList<Integer> nima uchun Integer ishlatadi?",
+      "opts": [
+        "Chunki int taqiqlangan",
+        "Chunki ArrayList faqat reference turlarni saqlaydi",
+        "Chunki Integer tezroq",
+        "Chunki int o'chirilgan"
+      ],
+      "a": 1
+    },
+    {
+      "id": 8,
+      "q": "Konstruktorning nomi qanday bo'lishi kerak?",
+      "opts": [
+        "Klass nomi bilan bir xil",
+        "Har doim main",
+        "new so'zi bilan",
+        "Istalgan nom bilan"
+      ],
+      "a": 0
+    },
+    {
+      "id": 8,
+      "q": "private maydonga klass tashqarisidan qanday murojaat qilinadi?",
+      "opts": [
+        "To'g'ridan-to'g'ri nuqta orqali",
+        "Faqat getter va setter metodlari orqali",
+        "Faqat print bilan",
+        "Umuman mumkin emas"
+      ],
+      "a": 1
+    },
+    {
+      "id": 8,
+      "q": "Hisob misolida a va b uchun a == b nima uchun true?",
+      "opts": [
+        "Ikkala obyekt bir xil qiymatga ega",
+        "b = a bir obyektga havola nusxalangan",
+        "Java har doim true qaytaradi",
+        "Konstruktor avtomatik chaqirilgan"
+      ],
+      "a": 1
+    },
+    {
+      "id": 9,
+      "q": "Bir klassdan meros olish uchun qaysi kalit so'z ishlatiladi?",
+      "opts": [
+        "implements",
+        "extends",
+        "inherits",
+        "super"
+      ],
+      "a": 1
+    },
+    {
+      "id": 9,
+      "q": "Interfeysni amalga oshirish uchun qaysi kalit so'z kerak?",
+      "opts": [
+        "extends",
+        "implements",
+        "interface",
+        "override"
+      ],
+      "a": 1
+    },
+    {
+      "id": 9,
+      "q": "Ota turidagi havola bola obyektini ko'rsatishi nima deyiladi?",
+      "opts": [
+        "Inkapsulyatsiya",
+        "Polimorfizm",
+        "Kompilyatsiya",
+        "Overloading"
+      ],
+      "a": 1
+    },
+    {
+      "id": 10,
+      "q": "Integer.parseInt(\"abc\") qanday istisno beradi?",
+      "opts": [
+        "ArithmeticException",
+        "NumberFormatException",
+        "IOException",
+        "NullPointerException"
+      ],
+      "a": 1
+    },
+    {
+      "id": 10,
+      "q": "finally bloki qachon bajariladi?",
+      "opts": [
+        "Faqat xato bo'lsa",
+        "Faqat xato bo'lmasa",
+        "Try tugagach, xato bo'lgan-bo'lmaganidan qat'i nazar",
+        "Hech qachon"
+      ],
+      "a": 2
+    },
+    {
+      "id": 10,
+      "q": "Xatoni ataylab ko'tarish uchun qaysi kalit so'z ishlatiladi?",
+      "opts": [
+        "throws",
+        "throw",
+        "raise",
+        "catch"
+      ],
+      "a": 1
+    },
+    {
+      "id": 11,
+      "q": "Kalit va qiymat juftliklarini saqlash uchun qaysi interfeys ishlatiladi?",
+      "opts": [
+        "List",
+        "Set",
+        "Map",
+        "Array"
+      ],
+      "a": 2
+    },
+    {
+      "id": 11,
+      "q": "import yozuvining vazifasi nima?",
+      "opts": [
+        "Yangi paket yaratish",
+        "Boshqa paketdagi klassni qisqa nom bilan ishlatish",
+        "Faylni o'chirish",
+        "Dasturni ishga tushirish"
+      ],
+      "a": 1
+    },
+    {
+      "id": 11,
+      "q": "Faylni matn sifatida o'qish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "Files.readString()",
+        "Files.open()",
+        "Files.load()",
+        "Files.text()"
+      ],
+      "a": 0
+    },
+    {
+      "id": 12,
+      "q": "Loyihada talabalar qaysi kolleksiyada saqlanadi?",
+      "opts": [
+        "ArrayList<Talaba>",
+        "HashMap<String, Integer>",
+        "HashSet<Integer>",
+        "Talaba[] massivida faqat"
+      ],
+      "a": 0
+    },
+    {
+      "id": 12,
+      "q": "comparingInt(...).reversed() qanday tartib beradi?",
+      "opts": [
+        "Ball bo'yicha o'sish",
+        "Ball bo'yicha kamayish",
+        "Ism bo'yicha alifbo",
+        "Tasodifiy tartib"
+      ],
+      "a": 1
+    },
+    {
+      "id": 12,
+      "q": "yigindi / talabalar.size() qanday natija beradi?",
+      "opts": [
+        "Kasrli o'rtacha",
+        "Butun qismli o'rtacha",
+        "Eng katta ball",
+        "Xato"
+      ],
+      "a": 1
+    },
+    {
+      "id": 13,
+      "q": "private maydon qayerdan ko'rinadi?",
+      "opts": [
+        "Butun paketda",
+        "Faqat o'z klassi ichida",
+        "Barcha paketlarda",
+        "Faqat bola klasslarda"
+      ],
+      "a": 1
+    },
+    {
+      "id": 13,
+      "q": "Boshqa paketdagi public klassdan qanday foydalanamiz?",
+      "opts": [
+        "Faqat faylni nusxalash bilan",
+        "Paketni o'chirish bilan",
+        "Klasni qayta yozish bilan",
+        "import bilan qisqa nomini kiritib yoki to'liq nomini yozib"
+      ],
+      "a": 3
+    },
+    {
+      "id": 13,
+      "q": "Paket nomi odatda nimaga mos bo'ladi?",
+      "opts": [
+        "Papka tuzilishiga",
+        "main metodining nomiga",
+        "Fayl hajmiga",
+        "O'zgaruvchilar soniga"
+      ],
+      "a": 0
+    },
+    {
+      "id": 14,
+      "q": "static maydon nimaga tegishli?",
+      "opts": [
+        "Faqat birinchi obyektga",
+        "Har bir obyektga alohida",
+        "Klassning o'ziga va barcha obyektlar uchun umumiy",
+        "Faqat main metodiga"
+      ],
+      "a": 2
+    },
+    {
+      "id": 14,
+      "q": "final bilan e'lon qilingan obyekt havolasi haqida qaysi gap to'g'ri?",
+      "opts": [
+        "Havolani boshqa obyektga o'zgartirib bo'lmaydi, lekin obyekt ichi o'zgarishi mumkin",
+        "Obyektning barcha maydonlari avtomatik o'zgarmas bo'ladi",
+        "Faqat primitiv turlar uchun ishlaydi",
+        "Havolani istalgan vaqtda almashtirish mumkin"
+      ],
+      "a": 0
+    },
+    {
+      "id": 14,
+      "q": "Konstanta nomi odatda qanday yoziladi?",
+      "opts": [
+        "camelCase bilan",
+        "Faqat raqamlar bilan",
+        "Kichik harflar va nuqta bilan",
+        "KATTA_HARFLAR_BILAN"
+      ],
+      "a": 3
+    },
+    {
+      "id": 15,
+      "q": "Abstrakt klassdan obyekt yaratish mumkinmi?",
+      "opts": [
+        "Ha, new bilan",
+        "Yo'q, faqat undan meros olgan konkret klassdan",
+        "Ha, agar bo'sh konstruktor bo'lsa",
+        "Faqat static metodlar bo'lsa"
+      ],
+      "a": 1
+    },
+    {
+      "id": 15,
+      "q": "Bir klass nechta interfeysni implements qilishi mumkin?",
+      "opts": [
+        "Faqat bitta",
+        "Eng ko'pi ikkita",
+        "Bir nechta",
+        "Interfeysni amalga oshirib bo'lmaydi"
+      ],
+      "a": 2
+    },
+    {
+      "id": 15,
+      "q": "Interfeysdagi default metod nima beradi?",
+      "opts": [
+        "Metodni private qiladi",
+        "Yangi interfeys yaratadi",
+        "Faqat abstrakt metodni",
+        "Metodning tayyor tanasini, uni majburiy qayta yozmaslik uchun"
+      ],
+      "a": 3
+    },
+    {
+      "id": 16,
+      "q": "enum uchun values() metodining vazifasi nima?",
+      "opts": [
+        "Barcha konstantalar massivini qaytaradi",
+        "Faqat birinchi konstantani qaytaradi",
+        "Konstantani o'chiradi",
+        "Konstantalar sonini ikki baravar oshiradi"
+      ],
+      "a": 0
+    },
+    {
+      "id": 16,
+      "q": "Enum konstantasini matn nomidan olish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "getName()",
+        "toString() faqat",
+        "ordinal()",
+        "valueOf()"
+      ],
+      "a": 3
+    },
+    {
+      "id": 16,
+      "q": "Enum konstruktori qanday bo'ladi?",
+      "opts": [
+        "Har doim public",
+        "Faqat protected",
+        "Private yoki paket darajasida va faqat enum ichida chaqiriladi",
+        "Konstruktorsiz enum bo'lmaydi"
+      ],
+      "a": 2
+    },
+    {
+      "id": 17,
+      "q": "record avtomatik nimalarni yaratadi?",
+      "opts": [
+        "Faqat toString",
+        "Faqat getter va setter",
+        "Konstruktor, aksessorlar, equals, hashCode va toString",
+        "Faqat maydonlarni"
+      ],
+      "a": 2
+    },
+    {
+      "id": 17,
+      "q": "sealed interfeys nimani cheklaydi?",
+      "opts": [
+        "Maydonlarning sonini",
+        "Qaysi klasslar uni amalga oshirishi mumkinligini",
+        "Metodlarning qaytish turini",
+        "Faqat obyekt yaratish tezligini"
+      ],
+      "a": 1
+    },
+    {
+      "id": 17,
+      "q": "record komponentlarini keyinchalik o'zgartirish mumkinmi?",
+      "opts": [
+        "Yo'q, ular final va record o'zgarmas",
+        "Ha, setter avtomatik yaratiladi",
+        "Faqat int komponentlarni",
+        "Faqat main metodida"
+      ],
+      "a": 0
+    },
+    {
+      "id": 18,
+      "q": "Quti<T> dagi T nimani bildiradi?",
+      "opts": [
+        "Faqat String turini",
+        "Klass nomini",
+        "Metod nomini",
+        "Tur parametrini, ishlatishda aniq tur beriladi"
+      ],
+      "a": 3
+    },
+    {
+      "id": 18,
+      "q": "Faqat taqqoslanadigan turlar bilan ishlaydigan generik metod qanday cheklanadi?",
+      "opts": [
+        "<T extends Comparable<T>>",
+        "<T super Comparable>",
+        "<T implements Comparable>",
+        "<T = Comparable>"
+      ],
+      "a": 0
+    },
+    {
+      "id": 18,
+      "q": "Genericlar primitive turlar bilan ishlaydimi?",
+      "opts": [
+        "Ha, int bevosita ishlatiladi",
+        "Yo'q, wrapper turlar ishlatiladi",
+        "Faqat char bilan",
+        "Faqat massivlarda"
+      ],
+      "a": 1
+    },
+    {
+      "id": 19,
+      "q": "Qaysi Set elementlarning qo'shilish tartibini saqlaydi?",
+      "opts": [
+        "HashSet",
+        "LinkedHashSet",
+        "TreeSet",
+        "EnumSet"
+      ],
+      "a": 1
+    },
+    {
+      "id": 19,
+      "q": "List.of() qaytargan ro'yxatga element qo'shsak nima bo'ladi?",
+      "opts": [
+        "Element qo'shiladi",
+        "Yangi ro'yxat yaratiladi",
+        "Hech narsa bo'lmaydi",
+        "UnsupportedOperationException chiqadi"
+      ],
+      "a": 3
+    },
+    {
+      "id": 19,
+      "q": "ArrayList'da o'rtadan element o'chirishning murakkabligi qanday?",
+      "opts": [
+        "O(1)",
+        "O(log n)",
+        "O(n), keyingi elementlar siljiydi",
+        "O(n²)"
+      ],
+      "a": 2
+    },
+    {
+      "id": 20,
+      "q": "HashMap kalitlari qanday tartibda saqlanadi?",
+      "opts": [
+        "Kafolatlangan tartib yo'q",
+        "Har doim alifbo tartibida",
+        "Qo'shilish tartibida",
+        "Teskari tartibda"
+      ],
+      "a": 0
+    },
+    {
+      "id": 20,
+      "q": "Mavjud bo'lmagan kalit uchun standart qiymat olishda qaysi metod qulay?",
+      "opts": [
+        "put()",
+        "remove()",
+        "getOrDefault()",
+        "containsValue()"
+      ],
+      "a": 2
+    },
+    {
+      "id": 20,
+      "q": "equals() true bo'lsa, hashCode() haqida nima to'g'ri?",
+      "opts": [
+        "Har xil bo'lishi mumkin",
+        "Bir xil bo'lishi shart",
+        "Faqat String uchun bir xil",
+        "hashCode umuman chaqirilmaydi"
+      ],
+      "a": 1
+    },
+    {
+      "id": 21,
+      "q": "Comparable interfeysi qaysi metodni talab qiladi?",
+      "opts": [
+        "equals",
+        "hashCode",
+        "compare",
+        "compareTo"
+      ],
+      "a": 3
+    },
+    {
+      "id": 21,
+      "q": "Bir nechta mezon bo'yicha saralash uchun qaysi metod qulay?",
+      "opts": [
+        "thenComparing()",
+        "thenApply()",
+        "andThen()",
+        "compareTo()"
+      ],
+      "a": 0
+    },
+    {
+      "id": 21,
+      "q": "Comparator.comparingInt(...).reversed() qanday tartib beradi?",
+      "opts": [
+        "Kamayish tartibini",
+        "O'sish tartibini",
+        "Tasodifiy tartibni",
+        "Faqat teng elementlarni"
+      ],
+      "a": 0
+    },
+    {
+      "id": 22,
+      "q": "Lambda qaysi interfeysga mos keladi?",
+      "opts": [
+        "Istalgan interfeysga",
+        "Faqat abstrakt klassga",
+        "Bitta abstrakt metodi bo'lgan funksional interfeysga",
+        "Faqat Serializable'ga"
+      ],
+      "a": 2
+    },
+    {
+      "id": 22,
+      "q": "Integer::sum qanday yozuv hisoblanadi?",
+      "opts": [
+        "Metod havolasi",
+        "Konstruktor chaqiruvi",
+        "Anonim klass",
+        "Cast operatori"
+      ],
+      "a": 0
+    },
+    {
+      "id": 22,
+      "q": "Lambda ichida tashqi lokal o'zgaruvchini ishlatish sharti nima?",
+      "opts": [
+        "U static bo'lishi kerak",
+        "U int turida bo'lishi kerak",
+        "U har chaqiruvda o'zgarishi kerak",
+        "U final yoki amalda o'zgarmas bo'lishi kerak"
+      ],
+      "a": 3
+    },
+    {
+      "id": 23,
+      "q": "filter() qanday amal hisoblanadi?",
+      "opts": [
+        "Terminal amal",
+        "Oraliq amal, shartga mos elementlarni o'tkazadi",
+        "Kolleksiyani to'liq o'zgartiradi",
+        "Faqat sonlar uchun ishlaydi"
+      ],
+      "a": 1
+    },
+    {
+      "id": 23,
+      "q": "Stream natijasini ro'yxatga yig'ish uchun Java 16+ da qaysi metod ishlatiladi?",
+      "opts": [
+        "collect()",
+        "forEach()",
+        "toList()",
+        "count()"
+      ],
+      "a": 2
+    },
+    {
+      "id": 23,
+      "q": "Bitta stream obyektini ikki marta ishlatish mumkinmi?",
+      "opts": [
+        "Yo'q, u bir marta ishlatiladi",
+        "Ha, cheksiz marta",
+        "Faqat sonlar uchun",
+        "Faqat parallel rejimda"
+      ],
+      "a": 0
+    },
+    {
+      "id": 24,
+      "q": "groupingBy() natijasi qanday turda bo'ladi?",
+      "opts": [
+        "List",
+        "Set",
+        "Stream",
+        "Map"
+      ],
+      "a": 3
+    },
+    {
+      "id": 24,
+      "q": "flatMap() nimani tekislaydi?",
+      "opts": [
+        "Ichma-ich kolleksiyalarni bitta oqimga",
+        "Faqat sonlarni",
+        "Map kalitlarini",
+        "Fayl yo'llarini"
+      ],
+      "a": 0
+    },
+    {
+      "id": 24,
+      "q": "partitioningBy() qaysi kalitlarni beradi?",
+      "opts": [
+        "1 va 0",
+        "A va B",
+        "true va false",
+        "Boshlanish va oxiri"
+      ],
+      "a": 2
+    },
+    {
+      "id": 25,
+      "q": "Optional.of(null) nima qiladi?",
+      "opts": [
+        "NullPointerException tashlaydi",
+        "Optional.empty qaytaradi",
+        "null qiymat saqlaydi",
+        "IllegalArgumentException beradi"
+      ],
+      "a": 0
+    },
+    {
+      "id": 25,
+      "q": "Qiymat bo'lmasa standart qiymat qaytarish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "get()",
+        "orElse()",
+        "map()",
+        "filter()"
+      ],
+      "a": 1
+    },
+    {
+      "id": 25,
+      "q": "Optional bo'sh bo'lsa va qiymat majburiy bo'lsa, eng yaxshi yondashuv qaysi?",
+      "opts": [
+        "get() chaqirish",
+        "null qaytarish",
+        "Optional'ni maydonga saqlash",
+        "orElseThrow bilan aniq istisno tashlash"
+      ],
+      "a": 3
+    },
+    {
+      "id": 26,
+      "q": "Checked istisno uchun kompilyator nimani talab qiladi?",
+      "opts": [
+        "Faqat print qilishni",
+        "Hech narsani",
+        "Uni ushlash yoki throws bilan e'lon qilishni",
+        "Faqat main metodida ishlatishni"
+      ],
+      "a": 2
+    },
+    {
+      "id": 26,
+      "q": "try-with-resources resurslarni qanday yopadi?",
+      "opts": [
+        "Faqat xato bo'lganda",
+        "E'lon qilingan tartibda",
+        "Faqat qo'lda close chaqirilganda",
+        "Teskari tartibda, avtomatik"
+      ],
+      "a": 3
+    },
+    {
+      "id": 26,
+      "q": "IOException qaysi turkumga kiradi?",
+      "opts": [
+        "Unchecked",
+        "Checked",
+        "Error",
+        "Warning"
+      ],
+      "a": 1
+    },
+    {
+      "id": 27,
+      "q": "Faylni butun matn sifatida o'qish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "Files.open()",
+        "Files.readString()",
+        "Files.load()",
+        "Files.readAllBytes() faqat"
+      ],
+      "a": 1
+    },
+    {
+      "id": 27,
+      "q": "Ota papkalari bilan birga papka yaratish uchun qaysi metod qulay?",
+      "opts": [
+        "Files.createDirectories()",
+        "Files.createFile()",
+        "Files.copy()",
+        "Files.walk()"
+      ],
+      "a": 0
+    },
+    {
+      "id": 27,
+      "q": "Files.walk() nima qaytaradi?",
+      "opts": [
+        "Bitta String",
+        "Map",
+        "byte massivini",
+        "Path obyektlari oqimini (Stream<Path>)"
+      ],
+      "a": 3
+    },
+    {
+      "id": 28,
+      "q": "Ikki sana orasidagi kunlarni hisoblash uchun qaysi vosita ishlatiladi?",
+      "opts": [
+        "Duration.ofDays",
+        "LocalDate.plusDays",
+        "Period.ofYears",
+        "ChronoUnit.DAYS.between"
+      ],
+      "a": 3
+    },
+    {
+      "id": 28,
+      "q": "Bir vaqt zonasidagi vaqtni boshqa zonada ko'rsatish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "withYear",
+        "atStartOfDay",
+        "withZoneSameInstant",
+        "toLocalDate"
+      ],
+      "a": 2
+    },
+    {
+      "id": 28,
+      "q": "Duration nimani o'lchaydi?",
+      "opts": [
+        "Vaqt oralig'ini soat, daqiqa va sekundlarda",
+        "Faqat yillarni",
+        "Faqat oylarni",
+        "Vaqt zonasini"
+      ],
+      "a": 0
+    },
+    {
+      "id": 29,
+      "q": "matn.matches(...) nimani tekshiradi?",
+      "opts": [
+        "Matnning birinchi harfini",
+        "Matn uzunligini",
+        "Butun matn naqshga to'liq mos kelishini",
+        "Faqat raqamlarni"
+      ],
+      "a": 2
+    },
+    {
+      "id": 29,
+      "q": "Regex'da \\d nimani bildiradi?",
+      "opts": [
+        "Bo'sh joyni",
+        "Harfni",
+        "Nuqtani",
+        "Raqamni (0-9)"
+      ],
+      "a": 3
+    },
+    {
+      "id": 29,
+      "q": "Matndagi barcha mosliklarni boshqa matnga almashtirish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "indexOf",
+        "replaceAll",
+        "substring",
+        "trim"
+      ],
+      "a": 1
+    },
+    {
+      "id": 30,
+      "q": "Pul hisob-kitobida qaysi tur ishlatiladi?",
+      "opts": [
+        "BigDecimal",
+        "double",
+        "float",
+        "int har doim"
+      ],
+      "a": 0
+    },
+    {
+      "id": 30,
+      "q": "Ikki BigDecimal qiymatning tengligini qaysi usul bilan tekshirish to'g'ri?",
+      "opts": [
+        "equals()",
+        "compareTo() == 0",
+        "== operatori",
+        "toString() solishtirish"
+      ],
+      "a": 1
+    },
+    {
+      "id": 30,
+      "q": "double turida 0.1 + 0.2 qanday natija beradi?",
+      "opts": [
+        "0.3",
+        "0.30",
+        "0.30000000000000004",
+        "Aniqlanmagan xato"
+      ],
+      "a": 2
+    },
+    {
+      "id": 31,
+      "q": "JSON obyekti qanday qavslar ichida yoziladi?",
+      "opts": [
+        "Kvadrat [ ]",
+        "Jingalak { }",
+        "Oddiy ( )",
+        "Burchakli < >"
+      ],
+      "a": 1
+    },
+    {
+      "id": 31,
+      "q": "Jackson'da JSON matnidan Java obyektini yaratish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "writeValueAsString",
+        "toJson",
+        "parseObject faqat",
+        "readValue"
+      ],
+      "a": 3
+    },
+    {
+      "id": 31,
+      "q": "JSON'da ortiqcha noma'lum maydon bo'lsa xato bermasligi uchun nima qilinadi?",
+      "opts": [
+        "FAIL_ON_UNKNOWN_PROPERTIES o'chiriladi",
+        "Barcha maydonlar o'chiriladi",
+        "ObjectMapper yangilanadi",
+        "JSON matni qisqartiriladi"
+      ],
+      "a": 0
+    },
+    {
+      "id": 32,
+      "q": "SQL'ga foydalanuvchi qiymatini xavfsiz qo'shish uchun nima ishlatiladi?",
+      "opts": [
+        "Statement va + bilan birlashtirish",
+        "ResultSet",
+        "PreparedStatement va ? parametrlari",
+        "DriverManager"
+      ],
+      "a": 2
+    },
+    {
+      "id": 32,
+      "q": "ResultSet'dagi qatorlar bo'ylab yurish uchun qaysi metod chaqiriladi?",
+      "opts": [
+        "rs.next()",
+        "rs.get()",
+        "rs.move()",
+        "rs.open()"
+      ],
+      "a": 0
+    },
+    {
+      "id": 32,
+      "q": "Tranzaksiyadagi o'zgarishlarni bekor qilish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "commit()",
+        "rollback()",
+        "close()",
+        "execute()"
+      ],
+      "a": 1
+    },
+    {
+      "id": 33,
+      "q": "HttpClient bilan sinxron so'rov yuborish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "execute",
+        "fetch",
+        "request",
+        "send"
+      ],
+      "a": 3
+    },
+    {
+      "id": 33,
+      "q": "POST so'rov tanasini qanday beramiz?",
+      "opts": [
+        "header() bilan",
+        "BodyPublishers.ofString bilan",
+        "GET() bilan",
+        "firstValue() bilan"
+      ],
+      "a": 1
+    },
+    {
+      "id": 33,
+      "q": "HTTP 404 status kodi nimani bildiradi?",
+      "opts": [
+        "Server xatosi",
+        "Muvaffaqiyat",
+        "Resurs topilmadi",
+        "Ruxsat berilmadi"
+      ],
+      "a": 2
+    },
+    {
+      "id": 34,
+      "q": "Thread'ni ishga tushirish uchun qaysi metod chaqiriladi?",
+      "opts": [
+        "start()",
+        "run()",
+        "join()",
+        "sleep()"
+      ],
+      "a": 0
+    },
+    {
+      "id": 34,
+      "q": "join() nima qiladi?",
+      "opts": [
+        "Threadni to'xtatadi",
+        "Yangi thread yaratadi",
+        "Chaqiruvchi thread shu thread tugashini kutadi",
+        "Thread nomini o'zgartiradi"
+      ],
+      "a": 2
+    },
+    {
+      "id": 34,
+      "q": "run() ni to'g'ridan-to'g'ri chaqirsak nima bo'ladi?",
+      "opts": [
+        "Yangi thread ochiladi",
+        "Dastur darhol tugaydi",
+        "Istisno chiqadi",
+        "Kod joriy threadda bajariladi, yangi thread ochilmaydi"
+      ],
+      "a": 3
+    },
+    {
+      "id": 35,
+      "q": "volatile nimani kafolatlaydi?",
+      "opts": [
+        "Atomarlikni",
+        "Ko'rinishni (visibility), atomarlikni emas",
+        "Deadlock'ning oldini olishni",
+        "Faqat tezlikni"
+      ],
+      "a": 1
+    },
+    {
+      "id": 35,
+      "q": "AtomicInteger.incrementAndGet() nima uchun thread-safe?",
+      "opts": [
+        "CAS asosida atomar bajariladi",
+        "Har chaqiruvda yangi thread yaratadi",
+        "synchronized kalit so'zini avtomatik qo'shadi",
+        "Faqat bitta threadda ishlaydi"
+      ],
+      "a": 0
+    },
+    {
+      "id": 35,
+      "q": "Ikki thread bir-birini kutib, hech biri davom eta olmasa, bu holat nima deyiladi?",
+      "opts": [
+        "Race condition",
+        "Starvation",
+        "Deadlock",
+        "Overflow"
+      ],
+      "a": 2
+    },
+    {
+      "id": 36,
+      "q": "Executors.newFixedThreadPool(4) nechta thread ishlatadi?",
+      "opts": [
+        "Har doim 1 ta",
+        "Cheksiz",
+        "Ko'pi bilan 4 ta",
+        "Aynan 8 ta"
+      ],
+      "a": 2
+    },
+    {
+      "id": 36,
+      "q": "Future.get() nima qiladi?",
+      "opts": [
+        "Vazifani bekor qiladi",
+        "Yangi thread ochadi",
+        "Hovuzni yopadi",
+        "Natijani kutadi va qaytaradi"
+      ],
+      "a": 3
+    },
+    {
+      "id": 36,
+      "q": "shutdown() chaqirilganda nima bo'ladi?",
+      "opts": [
+        "Yangi vazifalarni qabul qilmaydi, boshlanganlarini tugatadi",
+        "Barcha threadlarni darhol o'ldiradi",
+        "Hovuzni qayta ishga tushiradi",
+        "Faqat navbatni tozalaydi"
+      ],
+      "a": 0
+    },
+    {
+      "id": 37,
+      "q": "thenApply nimani o'zgartiradi?",
+      "opts": [
+        "Thread sonini",
+        "Fayl yo'lini",
+        "Xato turini",
+        "Natijani funksiya orqali aylantiradi"
+      ],
+      "a": 3
+    },
+    {
+      "id": 37,
+      "q": "thenCombine nima qiladi?",
+      "opts": [
+        "Ikki mustaqil future natijasini birlashtiradi",
+        "Bitta futureni bekor qiladi",
+        "Faqat xatoni ushlaydi",
+        "Threadni to'xtatadi"
+      ],
+      "a": 0
+    },
+    {
+      "id": 37,
+      "q": "Xatoni ushlab, muqobil qiymat qaytarish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "thenApply",
+        "exceptionally",
+        "thenRun",
+        "allOf"
+      ],
+      "a": 1
+    },
+    {
+      "id": 38,
+      "q": "JUnit 5 da test metodi qaysi annotatsiya bilan belgilanadi?",
+      "opts": [
+        "@Test",
+        "@Run",
+        "@Unit",
+        "@Check"
+      ],
+      "a": 0
+    },
+    {
+      "id": 38,
+      "q": "Kutilgan va haqiqiy qiymatni solishtirish uchun qaysi assertion qulay?",
+      "opts": [
+        "assertTrue",
+        "assertEquals",
+        "assertNull",
+        "fail"
+      ],
+      "a": 1
+    },
+    {
+      "id": 38,
+      "q": "Metod istisno tashlashini tekshirish uchun qaysi assertion ishlatiladi?",
+      "opts": [
+        "assertDoesNotThrow",
+        "assertAll",
+        "assertTimeout",
+        "assertThrows"
+      ],
+      "a": 3
+    },
+    {
+      "id": 39,
+      "q": "Maven loyihasida asosiy Java kodi qaysi papkada joylashadi?",
+      "opts": [
+        "src",
+        "src/main/java",
+        "bin",
+        "lib"
+      ],
+      "a": 1
+    },
+    {
+      "id": 39,
+      "q": "Testlarni ishga tushirish uchun qaysi Maven buyrug'i ishlatiladi?",
+      "opts": [
+        "mvn package faqat",
+        "mvn clean",
+        "mvn test",
+        "mvn install faqat"
+      ],
+      "a": 2
+    },
+    {
+      "id": 39,
+      "q": "Gradle wrapper fayli qanday nomlanadi?",
+      "opts": [
+        "gradlew (Windows: gradlew.bat)",
+        "gradle.xml",
+        "wrapper.jar",
+        "build.gradle faqat"
+      ],
+      "a": 0
+    },
+    {
+      "id": 40,
+      "q": "INFO darajasi nimani bildiradi?",
+      "opts": [
+        "Faqat xatolarni",
+        "Eng batafsil kuzatuvni",
+        "Oddiy muhim hodisani",
+        "Dastur to'xtaganini"
+      ],
+      "a": 2
+    },
+    {
+      "id": 40,
+      "q": "Log xabariga o'zgaruvchini xavfsiz va samarali qo'shish usuli qaysi?",
+      "opts": [
+        "Satr birlashtirish har doim",
+        "Faqat System.out orqali",
+        "e.printStackTrace() bilan",
+        "log.info(\"Foydalanuvchi: {}\", qiymat) parametrlangan yozuv"
+      ],
+      "a": 3
+    },
+    {
+      "id": 40,
+      "q": "TRACE va DEBUG darajalari odatda qachon yoqiladi?",
+      "opts": [
+        "Doim ishlab chiqarishda",
+        "Muammoni tekshirish paytida",
+        "Faqat testlarda",
+        "Hech qachon"
+      ],
+      "a": 1
+    },
+    {
+      "id": 41,
+      "q": "Annotatsiya runtime'da ko'rinishi uchun qaysi retention siyosati kerak?",
+      "opts": [
+        "SOURCE",
+        "CLASS",
+        "RUNTIME",
+        "DEFAULT"
+      ],
+      "a": 2
+    },
+    {
+      "id": 41,
+      "q": "Klass nomidan Class obyekti olishning to'g'ri usuli qaysi?",
+      "opts": [
+        "Hisob.class yoki Class.forName(...)",
+        "new Class()",
+        "Class.of(Hisob)",
+        "Hisob.getClass()"
+      ],
+      "a": 0
+    },
+    {
+      "id": 41,
+      "q": "private metodni reflection bilan chaqirish uchun nima qilinadi?",
+      "opts": [
+        "Metod public qilinadi",
+        "Faqat nomi bilan chaqiriladi",
+        "setAccessible(true) qilib invoke() chaqiriladi",
+        "Reflection private metodlarni ko'rmaydi"
+      ],
+      "a": 2
+    },
+    {
+      "id": 42,
+      "q": "Builder pattern nima uchun ishlatiladi?",
+      "opts": [
+        "Ko'p parametrli obyektni bosqichma-bosqich yig'ish uchun",
+        "Faqat sonlarni saralash uchun",
+        "Threadlarni bloklash uchun",
+        "Faylni o'chirish uchun"
+      ],
+      "a": 0
+    },
+    {
+      "id": 42,
+      "q": "Strategy pattern nimani almashtirish imkonini beradi?",
+      "opts": [
+        "Ma'lumotlar bazasini",
+        "Algoritmni ish vaqtida tanlash imkonini",
+        "Fayl tizimini",
+        "JVM versiyasini"
+      ],
+      "a": 1
+    },
+    {
+      "id": 42,
+      "q": "Singleton patternning asosiy g'oyasi nima?",
+      "opts": [
+        "Har chaqiruvda yangi obyekt",
+        "Faqat interfeys yaratish",
+        "Ko'p thread yaratish",
+        "Klassdan faqat bitta nusxa bo'lishi"
+      ],
+      "a": 3
+    },
+    {
+      "id": 43,
+      "q": "Qaysi xotira sohasida obyektlar saqlanadi?",
+      "opts": [
+        "Stack",
+        "Heap",
+        "Registr",
+        "Metaspace"
+      ],
+      "a": 1
+    },
+    {
+      "id": 43,
+      "q": "Obyekt qachon GC uchun mos bo'ladi?",
+      "opts": [
+        "Yaratilgandan darhol",
+        "Metod tugagach har doim",
+        "Faqat System.gc chaqirilganda",
+        "Unga hech qanday tirik havola qolmasa"
+      ],
+      "a": 3
+    },
+    {
+      "id": 43,
+      "q": "G1 qaysi Java versiyasidan boshlab standart GC bo'ldi?",
+      "opts": [
+        "Java 9",
+        "Java 8",
+        "Java 11",
+        "Java 17"
+      ],
+      "a": 0
+    },
+    {
+      "id": 44,
+      "q": "O(log n) murakkablik nimani bildiradi?",
+      "opts": [
+        "Har qadamda ish hajmi ikki baravar kamayadi",
+        "Vaqt elementlar soniga to'g'ri proporsional",
+        "Vaqt kvadratga bog'liq",
+        "Doimiy vaqt"
+      ],
+      "a": 0
+    },
+    {
+      "id": 44,
+      "q": "Tsiklda matnni + bilan birlashtirish nega sekin?",
+      "opts": [
+        "Har safar yangi String obyekti yaratiladi",
+        "Java satrlarni qo'shishni bilmaydi",
+        "Faqat katta harflar uchun ishlaydi",
+        "Xotira umuman ishlatilmaydi"
+      ],
+      "a": 0
+    },
+    {
+      "id": 44,
+      "q": "Java performance'ini ishonchli o'lchash uchun qaysi vosita mos?",
+      "opts": [
+        "System.currentTimeMillis bir marta",
+        "JMH",
+        "println soni",
+        "Fayl hajmi"
+      ],
+      "a": 1
+    },
+    {
+      "id": 45,
+      "q": "@SpringBootApplication nimani birlashtiradi?",
+      "opts": [
+        "Faqat REST kontrollerni",
+        "Faqat ma'lumotlar bazasini",
+        "Faqat testlarni",
+        "Konfiguratsiya, avtomatik konfiguratsiya va komponentlarni skanerlashni"
+      ],
+      "a": 3
+    },
+    {
+      "id": 45,
+      "q": "REST javobini JSON qilish uchun odatda qaysi starter ishlatiladi?",
+      "opts": [
+        "spring-boot-starter-test",
+        "spring-boot-starter-web",
+        "spring-boot-starter-jdbc",
+        "spring-boot-starter-logging"
+      ],
+      "a": 1
+    },
+    {
+      "id": 45,
+      "q": "Dependency injection'ning asosiy afzalligi nima?",
+      "opts": [
+        "Komponentlar orasidagi bog'liqlikni tashqaridan boshqarish",
+        "Kodni kompilyatsiya qilmaslik",
+        "Faqat bitta klass yozish",
+        "Threadlarni avtomatik yaratish"
+      ],
+      "a": 0
+    },
+    {
+      "id": 46,
+      "q": "POST so'rovi muvaffaqiyatli yangi resurs yaratsa, odatda qaysi status qaytariladi?",
+      "opts": [
+        "201 Created",
+        "200 OK",
+        "204 No Content",
+        "301 Moved"
+      ],
+      "a": 0
+    },
+    {
+      "id": 46,
+      "q": "GET so'rovi idempotentmi?",
+      "opts": [
+        "Yo'q, har safar holat o'zgaradi",
+        "Faqat POST bilan birga",
+        "Ha, takroriy chaqiruv holatni o'zgartirmaydi",
+        "Faqat autentifikatsiyada"
+      ],
+      "a": 2
+    },
+    {
+      "id": 46,
+      "q": "REST resurs yo'li qanday bo'lishi ma'qul?",
+      "opts": [
+        "Fe'l bilan: /getAll",
+        "Fayl nomi bilan: /talaba.java",
+        "Tasodifiy raqam bilan",
+        "Otdan iborat ko'plik: /talabalar"
+      ],
+      "a": 3
+    },
+    {
+      "id": 47,
+      "q": "Record komponentlarini qanday o'qiymiz?",
+      "opts": [
+        "k.nom kabi maydonlar orqali",
+        "k.getNom() kabi getterlar bilan",
+        "k.nom() kabi aksessor metodlar bilan",
+        "Faqat toString orqali"
+      ],
+      "a": 2
+    },
+    {
+      "id": 47,
+      "q": "Kutubxona klassi kitoblarni qayerda saqlaydi?",
+      "opts": [
+        "List<Kitob> kolleksiyasida",
+        "Bitta String o'zgaruvchida",
+        "Faqat faylda",
+        "Thread obyektida"
+      ],
+      "a": 0
+    },
+    {
+      "id": 47,
+      "q": "Qidiruv metodida qaysi stream amallari ishlatiladi?",
+      "opts": [
+        "collect va partitioningBy",
+        "reduce va teeing",
+        "flatMap va limit",
+        "filter va contains"
+      ],
+      "a": 3
+    },
+    {
+      "id": 48,
+      "q": "Kitob nusxasi tugaganda qaysi istisno tashlanadi?",
+      "opts": [
+        "KitobTopilmadi",
+        "IllegalStateException",
+        "NusxaTugadi",
+        "IOException"
+      ],
+      "a": 2
+    },
+    {
+      "id": 48,
+      "q": "Janr bo'yicha kitoblar sonini hisoblash uchun qaysi collector mos?",
+      "opts": [
+        "joining",
+        "partitioningBy faqat",
+        "teeing faqat",
+        "groupingBy va counting"
+      ],
+      "a": 3
+    },
+    {
+      "id": 48,
+      "q": "groupingBy'ga TreeMap::new berilishining sababi nima?",
+      "opts": [
+        "Natija kalitlari tartibli bo'lishi uchun",
+        "Tezlikni oshirish uchun",
+        "Xatolarni ushlash uchun",
+        "Faylga yozish uchun"
+      ],
+      "a": 0
+    },
+    {
+      "id": 49,
+      "q": "Matn qatorlarini UTF-8 bilan faylga yozish uchun qaysi metod ishlatiladi?",
+      "opts": [
+        "Files.readAllLines",
+        "Files.copy",
+        "Files.move",
+        "Files.write"
+      ],
+      "a": 3
+    },
+    {
+      "id": 49,
+      "q": "Fayldagi janr matnidan enum konstantasini tiklash uchun qaysi metod kerak?",
+      "opts": [
+        "ordinal()",
+        "toString()",
+        "valueOf()",
+        "values()"
+      ],
+      "a": 2
+    },
+    {
+      "id": 49,
+      "q": "Testlarda vaqtinchalik fayl ishlatishning asosiy sababi nima?",
+      "opts": [
+        "Fayl hajmini oshirish",
+        "Testlar bir-biriga va muhitga bog'liq bo'lmasligi uchun",
+        "Kompilyatsiyani tezlashtirish",
+        "JSON'ni o'chirish"
+      ],
+      "a": 1
+    }
+  ],
+  "exam": [
+    "protected a'zo qayerdan ko'rinadi?",
+    "Interfeysda tayyor tanaga ega metod e'lon qilish uchun qaysi kalit so'z ishlatiladi?",
+    "record klassi meros olish uchun ochiqmi?",
+    "Generic tur ma'lumoti kompilyatsiyadan keyin nima bo'ladi?",
+    "Enum konstantasini switch case'ida qanday yozamiz?",
+    "TreeMap kalitlar bo'yicha qanday tartib beradi?",
+    "Stream'da mapToInt qanday oqim qaytaradi?",
+    "Bo'sh Optional ustida get() chaqirilsa qanday istisno chiqadi?",
+    "Path va Files qaysi paketda joylashgan?",
+    "JDBC'da setAutoCommit(false) nima qiladi?",
+    "Executors.newFixedThreadPool() qanday tur qaytaradi?",
+    "Spring Boot'da REST kontrollerni belgilash uchun qaysi annotatsiya ishlatiladi?"
+  ]
+}

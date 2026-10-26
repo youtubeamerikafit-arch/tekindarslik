@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@ruby/wasm-wasi": "^2.3.0",
+    "ruby-head-wasm-wasi": "^2.3.0"
+  }
+}
